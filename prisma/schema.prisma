@@ -1,0 +1,240 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String             @id @default(uuid())
+  full_name          String
+  cpf                String
+  stripe_customer_id String             @unique
+  phone              String             @unique
+  email              String             @unique
+  subscription       Subscription?
+  report             Report?
+  validation_code    ValidationCode?
+  two_factor_token   TwoFactorToken?
+  simulation         Simulation[]
+  simulation_report  SimulationReport[]
+  password           String
+  created_at         DateTime           @default(now())
+}
+
+model Laywer {
+  id                 String          @id @default(uuid())
+  stripe_customer_id String          @unique
+  full_name          String
+  bio                String
+  avatar_image       String
+  rating             Decimal         @default(0)
+  specialization     Specialization
+  lawyer_status      LawyerStatus
+  oab_number         String
+  oab_state          String
+  phone              String          @unique
+  email              String          @unique
+  password           String
+  subcription        Subscription?
+  report             Report?
+  two_factor_token   TwoFactorToken?
+  created_at         DateTime        @default(now())
+  validationCode     ValidationCode?
+}
+
+model Plan {
+  id               String      @id @default(uuid())
+  name             String
+  stripe_price_id  String      @unique
+  type             PlanType
+  billing_type     BillingType
+  max_interviews   Int
+  max_simulation   Int
+  has_ia_petitions Boolean     @default(false)
+  has_analytics    Boolean     @default(false)
+}
+
+model Subscription {
+  id                     String             @id @default(uuid())
+  user                   User               @relation(fields: [user_id], references: [id])
+  lawyer                 Laywer             @relation(fields: [lawyer_id], references: [id])
+  user_id                String             @unique
+  lawyer_id              String             @unique
+  stripe_subscription_id String
+  subscription_status    SubscriptionStatus
+  interviews_used        Int                @default(0)
+  simulations_used       Int                @default(0)
+  leads_used             Int                @default(0)
+  current_period_start   DateTime           @default(now())
+  current_period_end     DateTime
+}
+
+model Report {
+  id                     String         @id @default(uuid())
+  transcription          String
+  legal_analysis         String
+  simplified_explanation String
+  category_detected      Specialization
+  status                 Status         @default(Pending)
+  user_id                String         @unique
+  lawyer_id              String         @unique
+  lawyer                 Laywer         @relation(fields: [lawyer_id], references: [id])
+  user                   User           @relation(fields: [user_id], references: [id])
+  evidence               Evidence?
+  created_at             DateTime       @default(now())
+}
+
+model ValidationCode {
+  id         String   @id @default(uuid())
+  type       Types
+  user_id    String   @unique
+  lawyer_id  String   @unique
+  user       User     @relation(fields: [user_id], references: [id])
+  lawyer     Laywer   @relation(fields: [lawyer_id], references: [id])
+  expired    Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model TwoFactorToken {
+  id         String   @id @default(uuid())
+  code       String
+  type       Types
+  user_id    String   @unique
+  lawyer_id  String   @unique
+  user       User     @relation(fields: [user_id], references: [id])
+  lawyer     Laywer   @relation(fields: [lawyer_id], references: [id])
+  created_at DateTime @default(now())
+  expires_at DateTime
+}
+
+model Simulation {
+  id             String      @id @default(uuid())
+  user_id        String      @unique
+  user           User        @relation(fields: [user_id], references: [id])
+  personality    Personality
+  transcription  String
+  score_feedback String
+}
+
+model SimulationReport {
+  id            String @id @default(uuid())
+  transcription String
+  user_id       String @unique
+  user          User   @relation(fields: [user_id], references: [id])
+}
+
+model Evidence {
+  id          String @id @default(uuid())
+  report_id   String @unique
+  report      Report @relation(fields: [report_id], references: [id])
+  file_url    String
+  ocr_content String
+}
+
+enum Specialization {
+  Administrative
+  Customs
+  Legal_support
+  Aviation
+  Agrarian
+  Environmental
+  Arbitration
+  Copyright
+  Banking_and_financial
+  Biotechnology
+  Civil
+  Commercial
+  International_trade
+  Competition
+  Constitutional
+  Consumer
+  Commercial_contracts
+  Sports
+  Water
+  Third_sector
+  Economic
+  Electoral
+  Corporate_criminal
+  Energy
+  Bankruptcy
+  Family
+  Mergers
+  Real_estate
+  Import_and_export
+  Infrastructure
+  International
+  Internet_and_ECommerce
+  Maritime
+  Capital_markets
+  Mining
+  Financial_operations
+  Criminal
+  Oil_and_gas
+  Social_security
+  Project_finance
+  Intellectual_property
+  Corporate_restructuring
+  Regulatory
+  Health_and_sanitary
+  Insurance
+  Labor_union
+  Corporate
+  Telecommunications
+  Labor_and_employment
+  Tax
+}
+
+enum LawyerStatus {
+  Pending
+  Verified
+  Suspended
+  Rejected
+}
+
+enum PlanType {
+  Citizen
+  Lawyer
+}
+
+enum BillingType {
+  Monthly
+  One_Time
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  unpaid
+  inactive
+}
+
+enum Status {
+  Accepted
+  Refused
+  Pending
+}
+
+enum Types {
+  Email
+  SMS
+}
+
+enum Personality {
+  Calm
+  Agressive
+  Impartial
+  Empathetic
+  Pragmatic
+  Researcher
+}
