@@ -16,7 +16,7 @@ datasource db {
 model User {
   id                 String             @id @default(uuid())
   full_name          String
-  cpf                String
+  cpf                String             @unique
   stripe_customer_id String             @unique
   phone              String             @unique
   email              String             @unique
@@ -35,6 +35,7 @@ model Laywer {
   stripe_customer_id String          @unique
   full_name          String
   bio                String
+  cpf                String          @unique
   avatar_image       String
   rating             Decimal         @default(0)
   specialization     Specialization
