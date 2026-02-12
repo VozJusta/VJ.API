@@ -30,8 +30,7 @@ export class UserService {
                     cpf: body.cpf,
                     phone: body.phone,
                     email: body.email,
-                    password: hashedPassword,
-                    stripe_customer_id: 'isv'
+                    password: hashedPassword
                 },
                 select: {
                     full_name: true,

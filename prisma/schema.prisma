@@ -17,11 +17,12 @@ model User {
   id                 String             @id @default(uuid())
   full_name          String
   cpf                String             @unique
-  stripe_customer_id String             @unique
+  cnpj               String?            @unique
+  stripe_customer_id String?            @unique
   phone              String             @unique
   email              String             @unique
   subscription       Subscription?
-  report             Report?
+  report             Report[]
   validation_code    ValidationCode?
   two_factor_token   TwoFactorToken?
   simulation         Simulation[]
@@ -30,13 +31,13 @@ model User {
   created_at         DateTime           @default(now())
 }
 
-model Laywer {
+model Lawyer {
   id                 String          @id @default(uuid())
-  stripe_customer_id String          @unique
+  stripe_customer_id String?         @unique
   full_name          String
-  bio                String
+  bio                String?
   cpf                String          @unique
-  avatar_image       String
+  avatar_image       String?
   rating             Decimal         @default(0)
   specialization     Specialization
   lawyer_status      LawyerStatus
@@ -45,8 +46,8 @@ model Laywer {
   phone              String          @unique
   email              String          @unique
   password           String
-  subcription        Subscription?
-  report             Report?
+  subscription       Subscription?
+  report             Report[]
   two_factor_token   TwoFactorToken?
   created_at         DateTime        @default(now())
   validationCode     ValidationCode?
@@ -66,10 +67,10 @@ model Plan {
 
 model Subscription {
   id                     String             @id @default(uuid())
-  user                   User               @relation(fields: [user_id], references: [id])
-  lawyer                 Laywer             @relation(fields: [lawyer_id], references: [id])
-  user_id                String             @unique
-  lawyer_id              String             @unique
+  user                   User?              @relation(fields: [user_id], references: [id])
+  lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
+  user_id                String?            @unique
+  lawyer_id              String?            @unique
   stripe_subscription_id String
   subscription_status    SubscriptionStatus
   interviews_used        Int                @default(0)
@@ -87,10 +88,10 @@ model Report {
   category_detected      Specialization
   status                 Status         @default(Pending)
   user_id                String         @unique
-  lawyer_id              String         @unique
-  lawyer                 Laywer         @relation(fields: [lawyer_id], references: [id])
+  lawyer_id              String?        @unique
+  lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
   user                   User           @relation(fields: [user_id], references: [id])
-  evidence               Evidence?
+  evidence               Evidence[]
   created_at             DateTime       @default(now())
 }
 
@@ -100,7 +101,7 @@ model ValidationCode {
   user_id    String   @unique
   lawyer_id  String   @unique
   user       User     @relation(fields: [user_id], references: [id])
-  lawyer     Laywer   @relation(fields: [lawyer_id], references: [id])
+  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
   expired    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -113,7 +114,7 @@ model TwoFactorToken {
   user_id    String   @unique
   lawyer_id  String   @unique
   user       User     @relation(fields: [user_id], references: [id])
-  lawyer     Laywer   @relation(fields: [lawyer_id], references: [id])
+  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
   created_at DateTime @default(now())
   expires_at DateTime
 }
@@ -136,7 +137,7 @@ model SimulationReport {
 
 model Evidence {
   id          String @id @default(uuid())
-  report_id   String @unique
+  report_id   String
   report      Report @relation(fields: [report_id], references: [id])
   file_url    String
   ocr_content String
