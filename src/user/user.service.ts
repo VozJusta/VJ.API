@@ -12,9 +12,17 @@ export class UserService {
         try {
             const existingUser = await this.prisma.user.findFirst({
                 where: {
-                    cpf: body?.cpf,
-                    phone: body?.phone,
-                    email: body?.email
+                    OR: [
+                        {
+                            cpf: body?.cpf,
+                        },
+                        {
+                            phone: body?.phone
+                        },
+                        {
+                            email: body?.email
+                        }
+                    ]
                 }
             })
 
@@ -42,7 +50,7 @@ export class UserService {
 
             return newUser
         } catch(err) {
-            throw new BadRequestException('Falha ao registrar usuário')
+            throw new BadRequestException(err)
         }
     }
 }
