@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
@@ -45,7 +45,7 @@ export class LawyerService {
 
             return newLawyer
         } catch(err) {
-            return { message: err}
+            return err
         }
     }
 }
