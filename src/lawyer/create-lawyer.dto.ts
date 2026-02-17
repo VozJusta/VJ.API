@@ -14,17 +14,21 @@ export class CreateLawyerDTO {
 
     @IsString()
     @IsNotEmpty({ message: 'O campo oab_number é obrigatório' })
-    @MinLength(6, { message: 'Precisa ter 6 digítos ' })
-    @MaxLength(6, { message: 'Precisa ter 6 digítos ' })
+    @MinLength(6, { message: 'OabNumber precisa ter 6 digítos ' })
+    @MaxLength(6, { message: 'OabNumber precisa ter 6 digítos ' })
     readonly oabNumber: string
 
     @IsNotEmpty({ message: 'O campo oab_state é obrigatório'})
     @IsEnum(OabState)
-    readonly oabState: String
+    readonly oabState: OabState
 
     @IsEnum(Specialization)
     @IsNotEmpty()
-    readonly specialization: string
+    readonly specialization: Specialization
+
+    @IsNotEmpty({ message: 'O campo phone é obrigatório' }) 
+    @IsString()
+    readonly phone: string
 
     @IsEmail({}, { message: 'O email está inválido' })
     @IsNotEmpty({ message: 'O campo email é obrigatório' })
