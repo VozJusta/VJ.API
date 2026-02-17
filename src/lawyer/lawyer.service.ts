@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateLawyerDTO } from './create-lawyer.dto';
+import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class LawyerService {
                     phone: body.phone,
                     email: body.email,
                     password: hashedPassword,
-                    lawyer_status: 'Pending'
+                    lawyer_status: 'Verified'
                 }
             })
 

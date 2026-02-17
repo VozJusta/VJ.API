@@ -40,7 +40,7 @@ model Lawyer {
   avatar_image       String?
   rating             Decimal?        @default(0)
   specialization     Specialization
-  lawyer_status      LawyerStatus
+  lawyer_status      LawyerStatus    @default(Pending)
   oab_number         String
   oab_state          OabState
   phone              String          @unique
