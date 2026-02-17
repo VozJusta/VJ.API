@@ -38,11 +38,11 @@ model Lawyer {
   bio                String?
   cpf                String          @unique
   avatar_image       String?
-  rating             Decimal         @default(0)
+  rating             Decimal?        @default(0)
   specialization     Specialization
   lawyer_status      LawyerStatus
   oab_number         String
-  oab_state          String
+  oab_state          OabState
   phone              String          @unique
   email              String          @unique
   password           String
@@ -239,4 +239,34 @@ enum Personality {
   Empathetic
   Pragmatic
   Researcher
+}
+
+enum OabState {
+  AC
+  AL
+  AP
+  AM
+  BA
+  CE
+  DF
+  ES
+  GO
+  MA
+  MT
+  MS
+  MG
+  PA
+  PB
+  PR
+  PE
+  PI
+  RJ
+  RN
+  RS
+  RO
+  RR
+  SC
+  SP
+  SE
+  TO
 }

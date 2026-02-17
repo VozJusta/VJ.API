@@ -1,12 +1,11 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { createConnection } from 'net';
 import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
     async create(body: CreateUserDTO) {
         try {
@@ -14,13 +13,13 @@ export class UserService {
                 where: {
                     OR: [
                         {
-                            cpf: body?.cpf,
+                            cpf: body.cpf,
                         },
                         {
-                            phone: body?.phone
+                            phone: body.phone
                         },
                         {
-                            email: body?.email
+                            email: body.email
                         }
                     ]
                 }
@@ -31,7 +30,7 @@ export class UserService {
             }
 
             const hashedPassword = await hash(body.password, 12)
-            
+
             const newUser = await this.prisma.user.create({
                 data: {
                     full_name: body.fullName,
@@ -43,6 +42,7 @@ export class UserService {
                 select: {
                     full_name: true,
                     cpf: true,
+                    cnpj: true,
                     phone: true,
                     email: true
                 }
