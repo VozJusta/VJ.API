@@ -2,10 +2,14 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
+import { ValidationService } from 'src/validation/validation.service';
 
 @Injectable()
 export class LawyerService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private readonly validateOab: ValidationService
+    ) {}
 
     async create(body: CreateLawyerDTO) {
         try {
