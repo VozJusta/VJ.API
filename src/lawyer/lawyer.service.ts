@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
 import { ValidationService } from 'src/validation/validation.service';
+import { ValidateLawyerDTO } from './dto/validate-lawyer.dto';
 
 @Injectable()
 export class LawyerService {
@@ -32,6 +33,12 @@ export class LawyerService {
             }
 
             const hashedPassword = await hash(body.password, 12)
+
+            const validationOabDTO: ValidateLawyerDTO = {
+                nomeAdvo: body.fullName,
+                insc: body.oabNumber,
+                uf: body.oabState
+            }
 
             const newLawyer = await this.prisma.lawyer.create({
                 data: {

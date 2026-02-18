@@ -14,7 +14,8 @@ export class ValidationService {
                 {
                     NomeAdvo: body.nomeAdvo,
                     Insc: body.insc,
-                    Uf: body.uf
+                    Uf: body.uf,
+                    TipoInsc: ''
                 },
                 {
                     headers: {
