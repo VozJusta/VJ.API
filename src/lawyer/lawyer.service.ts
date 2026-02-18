@@ -1,11 +1,16 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
+import { ValidationService } from 'src/validation/validation.service';
+import { ValidateLawyerDTO } from './dto/validate-lawyer.dto';
 
 @Injectable()
 export class LawyerService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private readonly validateOab: ValidationService
+    ) { }
 
     async create(body: CreateLawyerDTO) {
 
@@ -28,6 +33,18 @@ export class LawyerService {
         }
 
         const hashedPassword = await hash(body.password, 12)
+
+        const validationOabDTO: ValidateLawyerDTO = {
+            nomeAdvo: body.fullName,
+            insc: body.oabNumber,
+            uf: body.oabState
+        }
+
+        const validateLawyer = await this.validateOab.validate(validationOabDTO)
+        
+        if(validateLawyer['Data'].length === 0) {
+            throw new NotFoundException('Advogado não encontrado no banco de dados da OAB')
+        }
 
         const newLawyer = await this.prisma.lawyer.create({
             data: {
