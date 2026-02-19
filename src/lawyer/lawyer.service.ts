@@ -2,14 +2,16 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
-import { ValidationService } from 'src/validation/validation.service';
+import { OabNumberValidationService } from 'src/validation/oab-number-validation.service';
 import { ValidateLawyerDTO } from './dto/validate-lawyer.dto';
+import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 
 @Injectable()
 export class LawyerService {
     constructor(
         private prisma: PrismaService,
-        private readonly validateOab: ValidationService
+        private readonly validateOab: OabNumberValidationService,
+        private readonly hashingService: HashingServiceProtocol
     ) { }
 
     async create(body: CreateLawyerDTO) {
@@ -32,7 +34,7 @@ export class LawyerService {
             throw new ConflictException('Usuário já cadastrado')
         }
 
-        const hashedPassword = await hash(body.password, 12)
+        const hashedPassword = await this.hashingService.hash(body.password)
 
         const validationOabDTO: ValidateLawyerDTO = {
             nomeAdvo: body.fullName,

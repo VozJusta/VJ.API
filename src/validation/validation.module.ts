@@ -1,11 +1,11 @@
 import { HttpModule} from '@nestjs/axios'
 import { Global, Module } from '@nestjs/common';
-import { ValidationService } from './validation.service';
+import { OabNumberValidationService } from './oab-number-validation.service';
 
 @Global()
 @Module({
   imports: [HttpModule],
-  providers: [ValidationService],
-  exports: [ValidationService]
+  providers: [OabNumberValidationService],
+  exports: [OabNumberValidationService]
 })
 export class ValidationModule {}

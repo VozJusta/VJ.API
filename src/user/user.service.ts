@@ -2,10 +2,14 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { hash } from 'bcryptjs';
+import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private readonly hashingService: HashingServiceProtocol
+    ) { }
 
     async create(body: CreateUserDTO) {
 
@@ -29,7 +33,7 @@ export class UserService {
             throw new ConflictException('Usuario já cadastrado')
         }
 
-        const hashedPassword = await hash(body.password, 12)
+        const hashedPassword = await this.hashingService.hash(body.password)
 
         const newUser = await this.prisma.user.create({
             data: {

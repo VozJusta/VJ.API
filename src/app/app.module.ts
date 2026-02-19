@@ -4,12 +4,14 @@ import { AppService } from './app.service';
 import { UserModule } from 'src/user/user.module';
 import { LawyerModule } from 'src/lawyer/lawyer.module';
 import { ValidationModule } from 'src/validation/validation.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     UserModule,
     LawyerModule,
-    ValidationModule
+    ValidationModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

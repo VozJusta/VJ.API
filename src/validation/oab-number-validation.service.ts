@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { ValidateLawyerDTO } from 'src/lawyer/dto/validate-lawyer.dto';
 
 @Injectable()
-export class ValidationService {
+export class OabNumberValidationService {
     constructor(private readonly http: HttpService) { }
 
     async validate(body: ValidateLawyerDTO) {
