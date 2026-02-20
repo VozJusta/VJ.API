@@ -1,17 +1,19 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLawyerDTO } from './dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
 import { OabNumberValidationService } from 'src/validation/oab-number-validation.service';
 import { ValidateLawyerDTO } from './dto/validate-lawyer.dto';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
+import { CpfNumberValidation } from 'src/validation/cpf-number-validation.service';
 
 @Injectable()
 export class LawyerService {
     constructor(
         private prisma: PrismaService,
         private readonly validateOab: OabNumberValidationService,
-        private readonly hashingService: HashingServiceProtocol
+        private readonly hashingService: HashingServiceProtocol,
+        private readonly validateCPF: CpfNumberValidation
     ) { }
 
     async create(body: CreateLawyerDTO) {
@@ -35,6 +37,12 @@ export class LawyerService {
         }
 
         const hashedPassword = await this.hashingService.hash(body.password)
+
+        const cpfValid = await this.validateCPF.validate(body.cpf)
+
+        if(cpfValid < 1) {
+            throw new NotAcceptableException('CPF inválido')
+        }
 
         const validationOabDTO: ValidateLawyerDTO = {
             nomeAdvo: body.fullName,
