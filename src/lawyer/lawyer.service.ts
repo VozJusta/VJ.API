@@ -33,7 +33,7 @@ export class LawyerService {
         })
 
         if (existingLawyer) {
-            throw new ConflictException('Usuário já cadastrado')
+            throw new ConflictException('Advogado já cadastrado')
         }
 
         const hashedPassword = await this.hashingService.hash(body.password)
