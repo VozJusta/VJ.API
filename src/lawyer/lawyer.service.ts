@@ -36,8 +36,6 @@ export class LawyerService {
             throw new ConflictException('Advogado já cadastrado')
         }
 
-        const hashedPassword = await this.hashingService.hash(body.password)
-
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
         if(cpfValid < 1) {
@@ -55,6 +53,8 @@ export class LawyerService {
         if(validateLawyer['Data'].length === 0) {
             throw new NotFoundException('Advogado não encontrado no banco de dados da OAB')
         }
+
+        const hashedPassword = await this.hashingService.hash(body.password)
 
         const newLawyer = await this.prisma.lawyer.create({
             data: {
