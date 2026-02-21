@@ -14,8 +14,8 @@ export class CreateLawyerDTO {
 
     @IsString()
     @IsNotEmpty({ message: 'O campo oab_number é obrigatório' })
-    @MinLength(4, { message: 'OabNumber precisa ter 6 digítos ' })
-    @MaxLength(6, { message: 'OabNumber precisa ter 6 digítos ' })
+    @MinLength(6, { message: 'OabNumber precisa ter 6 dígitos' })
+    @MaxLength(6, { message: 'OabNumber precisa ter 6 dígitos' })
     readonly oabNumber: string
 
     @IsNotEmpty({ message: 'O campo oab_state é obrigatório'})
