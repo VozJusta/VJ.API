@@ -1,7 +1,7 @@
 import { HashingServiceProtocol } from "./hashing.service";
 import * as bcrypt from 'bcryptjs'
 
-export class BcrypService implements HashingServiceProtocol {
+export class BcryptService implements HashingServiceProtocol {
     async hash(password: string): Promise<string> {
         const salt = await bcrypt.genSalt(12)
         return bcrypt.hash(password, salt)
