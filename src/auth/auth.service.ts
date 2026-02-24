@@ -29,4 +29,27 @@ export class AuthService {
 
         return 'Usuario logado'
     }
+
+    async authenticateLawyer(body: SignInDTO) {
+        const lawyer = await this.prisma.lawyer.findFirst({
+            where: {
+                email: body.email
+            }
+        })
+
+        if(!lawyer) {
+            throw new UnauthorizedException('Email/senha inválidos')
+        }
+
+        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password)
+
+        if(!passwordMatch) {
+            throw new UnauthorizedException('Email/senha inválidos')
+        }
+
+        return {
+            name: lawyer.full_name,
+            spec: lawyer.specialization
+        }
+    }
 }

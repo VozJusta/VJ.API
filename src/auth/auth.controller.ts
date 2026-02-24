@@ -10,4 +10,9 @@ export class AuthController {
     async authenticateUser(@Body() body: SignInDTO) {
         return await this.authService.authenticateUser(body)
     }
+
+    @Post('/lawyer')
+    async authenticateLawyer(@Body() body: SignInDTO) {
+        return await this.authService.authenticateLawyer(body)
+    }
 }
