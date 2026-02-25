@@ -35,13 +35,13 @@ export class UserService {
             throw new ConflictException('Usuario já cadastrado')
         }
 
-        const hashedPassword = await this.hashingService.hash(body.password)
-
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
         if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
         }
+
+        const hashedPassword = await this.hashingService.hash(body.password)
 
         const newUser = await this.prisma.user.create({
             data: {
@@ -61,6 +61,5 @@ export class UserService {
         })
 
         return newUser
-
     }
 }

@@ -1,13 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 import { SignInDTO } from './dto/signIn.dto';
+import jwtConfig from './config/jwt.config';
+import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
-        private readonly hashingService: HashingServiceProtocol
+        private readonly hashingService: HashingServiceProtocol,
+
+        @Inject(jwtConfig.KEY)
+        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+        private readonly jwtService: JwtService
     ) {}
 
     async authenticateUser(body: SignInDTO) {
@@ -27,7 +34,23 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
-        return 'Usuario logado'
+        const token = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+                email: user.email,
+                name: user.full_name
+            },
+            {
+                secret: this.jwtConfiguration.secret,
+                expiresIn: this.jwtConfiguration.jwtTtl as any,
+                audience: this.jwtConfiguration.audience,
+                issuer: this.jwtConfiguration.issuer
+            }
+        )
+
+        return {
+            refresh_token: token
+        }
     }
 
     async authenticateLawyer(body: SignInDTO) {
