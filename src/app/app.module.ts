@@ -6,6 +6,7 @@ import { LawyerModule } from 'src/lawyer/lawyer.module';
 import { ValidationModule } from 'src/validation/validation.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config'
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config'
     LawyerModule,
     ValidationModule,
     AuthModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
