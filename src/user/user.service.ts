@@ -1,14 +1,16 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { hash } from 'bcryptjs';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
+import { CpfNumberValidation } from 'src/validation/cpf-number-validation.service';
 
 @Injectable()
 export class UserService {
     constructor(
         private prisma: PrismaService,
-        private readonly hashingService: HashingServiceProtocol
+        private readonly hashingService: HashingServiceProtocol,
+        private readonly validateCPF: CpfNumberValidation
     ) { }
 
     async create(body: CreateUserDTO) {
@@ -33,6 +35,12 @@ export class UserService {
             throw new ConflictException('Usuario já cadastrado')
         }
 
+        const cpfValid = await this.validateCPF.validate(body.cpf)
+
+        if (!cpfValid) {
+            throw new NotAcceptableException('CPF inválido')
+        }
+
         const hashedPassword = await this.hashingService.hash(body.password)
 
         const newUser = await this.prisma.user.create({
@@ -53,6 +61,5 @@ export class UserService {
         })
 
         return newUser
-
     }
 }
