@@ -7,6 +7,7 @@ import { ValidationModule } from 'src/validation/validation.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config'
 import { EmailModule } from 'src/email/email.module';
+import { SmsModule } from 'src/sms/sms.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { EmailModule } from 'src/email/email.module';
     ValidationModule,
     AuthModule,
     EmailModule,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
