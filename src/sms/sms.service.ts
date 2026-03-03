@@ -1,15 +1,19 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class SmsService {
-    constructor(private readonly http: HttpService) {}
+    constructor(
+        @Inject('TWILIO_PROVIDER')
+        private readonly twilio: Twilio
+    ) {}
 
     sendSms(phone: string) {
-        return this.http.post('https://textbelt.com/text', {
-            phone: phone,
-            message: 'Olá mundo',
-            key: 'textbelt'
+        return this.twilio.messages.create({
+            to: phone,
+            from: process.env.TWILIO_PHONE,
+            body: '123456'
         })
     }
 }
