@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 import { SignInDTO } from './dto/signIn.dto';
@@ -7,19 +7,21 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
 import { SmsService } from 'src/sms/sms.service';
+import { SendCodeEmailDTO } from './dto/sendCode-email.dto';
+import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
-        private readonly sendCode: EmailService,
+        private readonly sendEmailCode: EmailService,
         private readonly sendSms: SmsService,
 
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
         private readonly jwtService: JwtService
-    ) {}
+    ) { }
 
     async authenticateUser(body: SignInDTO) {
         const user = await this.prisma.user.findFirst({
@@ -28,17 +30,15 @@ export class AuthService {
             }
         })
 
-        if(!user) {
+        if (!user) {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
         const passwordMatch = await this.hashingService.compare(body.password, user.password)
 
-        if(!passwordMatch) {
+        if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha incorretos')
         }
-
-        this.sendSms.sendSms(user.phone)
 
         const token = await this.jwtService.signAsync(
             {
@@ -66,13 +66,13 @@ export class AuthService {
             }
         })
 
-        if(!lawyer) {
+        if (!lawyer) {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
         const passwordMatch = await this.hashingService.compare(body.password, lawyer.password)
 
-        if(!passwordMatch) {
+        if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
@@ -92,6 +92,51 @@ export class AuthService {
 
         return {
             access_token: token
+        }
+    }
+
+    async sendEmail(email: SendCodeEmailDTO) {
+        const codeUsed = await this.prisma.validationCode.findFirst({
+            where: {
+                email: email.email,
+                validated: false
+            }
+        })
+
+        if (codeUsed) {
+            throw new ConflictException('Código já enviado')
+        }
+
+        const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+        const createCode = await this.prisma.validationCode.create({
+            data: {
+                type: 'Email',
+                code: generateCode,
+                validated: false,
+                email: email.email,
+                expired: false
+            }
+        })
+
+        await this.sendEmailCode.sendCode(email.email, generateCode)
+    }
+
+    async validateEmailCode(email: ValidateCodeEmailDTO) {
+        const codeUsed = await this.prisma.validationCode.findFirst({
+            where: {
+                OR: [
+                    {
+                        email: email.email,
+                        validated: true
+                    },
+                    { expired: true }
+                ]
+            }
+        })
+
+        if(codeUsed) {
+            throw new ConflictException('Código já utilizado ou expirado')
         }
     }
 }

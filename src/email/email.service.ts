@@ -11,7 +11,7 @@ export class EmailService {
         private readonly resend: Resend,
     ) { }
 
-    async sendCode(email: string) {
+    async sendCode(email: string, code: string) {
         const templatePath = path.join(
             __dirname,
             '..',
@@ -25,7 +25,7 @@ export class EmailService {
         const templateSource = await fs.readFile(templatePath, 'utf8');
         const template = handlebars.compile(templateSource);
 
-        const html = template({})
+        const html = template({code: code})
 
         return await this.resend.emails.send({
             from: 'contato@vozjusta.com.br',

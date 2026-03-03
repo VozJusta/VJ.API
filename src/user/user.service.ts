@@ -4,13 +4,15 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { hash } from 'bcryptjs';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { CpfNumberValidation } from 'src/validation/cpf-number-validation.service';
+import { CnpjNumberValidation } from 'src/validation/cnpj-number-validation.service';
 
 @Injectable()
 export class UserService {
     constructor(
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
-        private readonly validateCPF: CpfNumberValidation
+        private readonly validateCPF: CpfNumberValidation,
+        private readonly validateCnpj: CnpjNumberValidation,
     ) { }
 
     async create(body: CreateUserDTO) {
@@ -37,6 +39,8 @@ export class UserService {
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
+        const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+
         if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
         }
@@ -47,6 +51,7 @@ export class UserService {
             data: {
                 full_name: body.fullName,
                 cpf: body.cpf,
+                cnpj: body.cnpj,
                 phone: body.phone,
                 email: body.email,
                 password: hashedPassword
