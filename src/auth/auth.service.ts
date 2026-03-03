@@ -5,12 +5,16 @@ import { SignInDTO } from './dto/signIn.dto';
 import jwtConfig from './config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { EmailService } from 'src/email/email.service';
+import { SmsService } from 'src/sms/sms.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
+        private readonly sendCode: EmailService,
+        private readonly sendSms: SmsService,
 
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
@@ -33,6 +37,8 @@ export class AuthService {
         if(!passwordMatch) {
             throw new UnauthorizedException('Email/senha incorretos')
         }
+
+        this.sendSms.sendSms(user.phone)
 
         const token = await this.jwtService.signAsync(
             {
@@ -70,9 +76,22 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
+        const token = await this.jwtService.signAsync(
+            {
+                sub: lawyer.id,
+                email: lawyer.email,
+                name: lawyer.full_name
+            },
+            {
+                secret: this.jwtConfiguration.secret,
+                expiresIn: this.jwtConfiguration.jwtTtl as any,
+                audience: this.jwtConfiguration.audience,
+                issuer: this.jwtConfiguration.issuer
+            }
+        )
+
         return {
-            name: lawyer.full_name,
-            spec: lawyer.specialization
+            access_token: token
         }
     }
 }
