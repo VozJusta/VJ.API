@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/signIn.dto';
 import { SendCodeEmailDTO } from './dto/sendCode-email.dto';
+import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,5 +21,10 @@ export class AuthController {
     @Post('send/email')
     async sendEmailCode(@Body() body: SendCodeEmailDTO) {
         return await this.authService.sendEmail(body)
+    }
+
+    @Post('validate/email')
+    async validateEmailCode(@Body() body: ValidateCodeEmailDTO) {
+        return await this.authService.validateEmailCode(body)
     }
 }

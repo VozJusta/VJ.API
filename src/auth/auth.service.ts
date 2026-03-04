@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 import { SignInDTO } from './dto/signIn.dto';
@@ -40,11 +40,12 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
-        const token = await this.jwtService.signAsync(
+        const access_token = await this.jwtService.signAsync(
             {
                 sub: user.id,
                 email: user.email,
-                name: user.full_name
+                name: user.full_name,
+                role: 'User'
             },
             {
                 secret: this.jwtConfiguration.secret,
@@ -55,7 +56,7 @@ export class AuthService {
         )
 
         return {
-            access_token: token
+            access_token: access_token
         }
     }
 
@@ -76,11 +77,12 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
-        const token = await this.jwtService.signAsync(
+        const access_token = await this.jwtService.signAsync(
             {
                 sub: lawyer.id,
                 email: lawyer.email,
-                name: lawyer.full_name
+                name: lawyer.full_name,
+                role: 'Lawyer'
             },
             {
                 secret: this.jwtConfiguration.secret,
@@ -91,7 +93,7 @@ export class AuthService {
         )
 
         return {
-            access_token: token
+            access_token: access_token
         }
     }
 
@@ -99,7 +101,8 @@ export class AuthService {
         const codeUsed = await this.prisma.validationCode.findFirst({
             where: {
                 email: email.email,
-                validated: false
+                validated: false,
+                expired: false
             }
         })
 
@@ -120,23 +123,61 @@ export class AuthService {
         })
 
         await this.sendEmailCode.sendCode(email.email, generateCode)
+
+        return `Código enviado para o email ${email.email}`
     }
 
-    async validateEmailCode(email: ValidateCodeEmailDTO) {
-        const codeUsed = await this.prisma.validationCode.findFirst({
+    async validateEmailCode(body: ValidateCodeEmailDTO) {
+        const codeExpired = await this.prisma.validationCode.findFirst({
             where: {
-                OR: [
-                    {
-                        email: email.email,
-                        validated: true
-                    },
-                    { expired: true }
-                ]
+                email: body.email,
+                code: body.code,
+                validated: false,
+                expired: false
             }
         })
 
-        if(codeUsed) {
-            throw new ConflictException('Código já utilizado ou expirado')
+        if (codeExpired?.created_at) {
+            const createdAt = new Date(codeExpired.created_at);
+            const now = new Date();
+
+            const diffInMs = now.getTime() - createdAt.getTime();
+            const diffInMinutes = diffInMs / (1000 * 60);
+
+            if (diffInMinutes > 15) {
+                await this.prisma.validationCode.update({
+                    where: { id: codeExpired.id },
+                    data: {
+                        expired: true
+                    }
+                })
+            }
+        } 
+
+        const codeValid = await this.prisma.validationCode.findFirst({
+            where: {
+                email: body.email,
+                code: body.code,
+                validated: false,
+                expired: false
+            }
+        })
+
+
+        if (!codeValid) {
+            throw new UnauthorizedException('Código inválido')
         }
+
+        const validateCode = await this.prisma.validationCode.update({
+            where: {
+                id: codeValid.id
+            },
+            data: {
+                validated: true,
+                expired: false
+            }
+        })
+
+        return 'Código válidado com sucesso'
     }
 }
