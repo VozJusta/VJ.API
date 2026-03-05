@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsString, IsStrongPassword, Matches } from "class-validator"
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Matches } from "class-validator"
 
 export class CreateUserDTO {
     @IsNotEmpty({ message: 'O campo fullName é obrigatório' })
@@ -11,7 +11,13 @@ export class CreateUserDTO {
     })
     readonly cpf: string
 
+    @IsOptional()
+    readonly cnpj: string
+
     @IsNotEmpty({ message: 'Campo phone é obrigatório' })
+    @Matches(/^(?:(?:\+|00)?(55)\s?)?(?:\(?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/,
+        { message: 'Telefone deve estar no formato válido'})
+    @IsString()
     readonly phone: string
 
     @IsNotEmpty({ message: 'Campo email é obrigatório' })

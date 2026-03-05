@@ -16,41 +16,41 @@ datasource db {
 model User {
   id                 String             @id @default(uuid())
   full_name          String
-  cpf                String             @unique
+  cpf                String?            @unique
   cnpj               String?            @unique
   stripe_customer_id String?            @unique
-  phone              String             @unique
+  phone              String?             @unique
   email              String             @unique
   subscription       Subscription?
   report             Report[]
-  validation_code    ValidationCode?
   two_factor_token   TwoFactorToken?
   simulation         Simulation[]
   simulation_report  SimulationReport[]
-  password           String
+  password           String?
   created_at         DateTime           @default(now())
+  validationCodes    ValidationCode[]
 }
 
 model Lawyer {
-  id                 String          @id @default(uuid())
-  stripe_customer_id String?         @unique
+  id                 String           @id @default(uuid())
+  stripe_customer_id String?          @unique
   full_name          String
   bio                String?
-  cpf                String          @unique
+  cpf                String           @unique
   avatar_image       String?
-  rating             Decimal?        @default(0)
+  rating             Decimal?         @default(0)
   specialization     Specialization
-  lawyer_status      LawyerStatus    @default(Pending)
+  lawyer_status      LawyerStatus     @default(Pending)
   oab_number         String
   oab_state          OabState
-  phone              String          @unique
-  email              String          @unique
+  phone              String           @unique
+  email              String           @unique
   password           String
   subscription       Subscription?
   report             Report[]
   two_factor_token   TwoFactorToken?
-  created_at         DateTime        @default(now())
-  validationCode     ValidationCode?
+  created_at         DateTime         @default(now())
+  validationCodes    ValidationCode[]
 }
 
 model Plan {
@@ -98,10 +98,13 @@ model Report {
 model ValidationCode {
   id         String   @id @default(uuid())
   type       Types
-  user_id    String   @unique
-  lawyer_id  String   @unique
-  user       User     @relation(fields: [user_id], references: [id])
-  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
+  user_id    String?
+  lawyer_id  String?
+  user       User?    @relation(fields: [user_id], references: [id])
+  lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
+  code       String
+  validated  Boolean  @default(false)
+  email      String
   expired    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

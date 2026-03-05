@@ -40,7 +40,7 @@ export class LawyerService {
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
-        if(cpfValid < 1) {
+        if(!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
         }
 
@@ -67,6 +67,16 @@ export class LawyerService {
                 email: body.email,
                 password: hashedPassword,
                 lawyer_status: 'Verified'
+            },
+            select: {
+                full_name: true,
+                cpf: true,
+                oab_number: true,
+                oab_state: true,
+                specialization: true,
+                phone: true,
+                email: true,
+                lawyer_status: true
             }
         })
 
