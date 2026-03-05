@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/signIn.dto';
 import { SendCodeEmailDTO } from './dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -26,5 +27,18 @@ export class AuthController {
     @Post('validate/email')
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO) {
         return await this.authService.validateEmailCode(body)
+    }
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    async googleLogin() {}
+
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    async googleCallback(@Req() req) {
+        return this.authService.authenticateGoogle(
+            req.user.email,
+            `${req.user.firstName} ${req.user.lastName}`
+        )
     }
 }

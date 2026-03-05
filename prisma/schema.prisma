@@ -19,14 +19,14 @@ model User {
   cpf                String?            @unique
   cnpj               String?            @unique
   stripe_customer_id String?            @unique
-  phone              String             @unique
+  phone              String?             @unique
   email              String             @unique
   subscription       Subscription?
   report             Report[]
   two_factor_token   TwoFactorToken?
   simulation         Simulation[]
   simulation_report  SimulationReport[]
-  password           String
+  password           String?
   created_at         DateTime           @default(now())
   validationCodes    ValidationCode[]
 }

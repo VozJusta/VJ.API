@@ -34,7 +34,7 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
-        const passwordMatch = await this.hashingService.compare(body.password, user.password)
+        const passwordMatch = await this.hashingService.compare(body.password, user.password || '')
 
         if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha incorretos')
@@ -152,7 +152,7 @@ export class AuthService {
                     }
                 })
             }
-        } 
+        }
 
         const codeValid = await this.prisma.validationCode.findFirst({
             where: {
@@ -179,5 +179,42 @@ export class AuthService {
         })
 
         return 'Código válidado com sucesso'
+    }
+
+    async authenticateGoogle(email: string, name: string) {
+
+        let user = await this.prisma.user.findFirst({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: {
+                    email: email,
+                    full_name: name,
+                }
+            })
+        }
+
+        const access_token = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+                email: user.email,
+                name: user.full_name,
+                role: 'User'
+            },
+            {
+                secret: this.jwtConfiguration.secret,
+                expiresIn: this.jwtConfiguration.jwtTtl as any,
+                audience: this.jwtConfiguration.audience,
+                issuer: this.jwtConfiguration.issuer
+            }
+        )
+
+        return {
+            access_token
+        }
     }
 }

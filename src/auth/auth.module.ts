@@ -7,20 +7,24 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { JwtModule } from '@nestjs/jwt'
+import { PassportModule } from '@nestjs/passport';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Global()
 @Module({
     imports: [
         PrismaModule,
         ConfigModule.forFeature(jwtConfig),
-        JwtModule.registerAsync(jwtConfig.asProvider())
+        JwtModule.registerAsync(jwtConfig.asProvider()),
+        PassportModule,
     ],
     providers: [
         {
             provide: HashingServiceProtocol,
             useClass: BcryptService
         },
-        AuthService
+        AuthService,
+        GoogleStrategy,
     ],
     exports: [HashingServiceProtocol],
     controllers: [AuthController]
