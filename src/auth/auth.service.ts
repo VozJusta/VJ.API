@@ -40,7 +40,7 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
-        const access_token = await this.jwtService.signAsync(
+        const accessToken = await this.jwtService.signAsync(
             {
                 sub: user.id,
                 email: user.email,
@@ -48,15 +48,29 @@ export class AuthService {
                 role: 'User'
             },
             {
-                secret: this.jwtConfiguration.secret,
-                expiresIn: this.jwtConfiguration.jwtTtl as any,
-                audience: this.jwtConfiguration.audience,
-                issuer: this.jwtConfiguration.issuer
+                secret: this.jwtConfiguration.accessToken.secret,
+                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
+                audience: this.jwtConfiguration.accessToken.audience,
+                issuer: this.jwtConfiguration.accessToken.issuer
             }
         )
 
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+                email: user.email,
+                name: user.full_name,
+                role: 'User'
+            },
+            {
+                secret: this.jwtConfiguration.refreshToken.secret,
+                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
+            }
+        )        
+
         return {
-            access_token: access_token
+            access_token: accessToken,
+            refresh_token: refreshToken
         }
     }
 
@@ -77,7 +91,7 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
-        const access_token = await this.jwtService.signAsync(
+        const accessToken = await this.jwtService.signAsync(
             {
                 sub: lawyer.id,
                 email: lawyer.email,
@@ -85,15 +99,29 @@ export class AuthService {
                 role: 'Lawyer'
             },
             {
-                secret: this.jwtConfiguration.secret,
-                expiresIn: this.jwtConfiguration.jwtTtl as any,
-                audience: this.jwtConfiguration.audience,
-                issuer: this.jwtConfiguration.issuer
+                secret: this.jwtConfiguration.accessToken.secret,
+                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
+                audience: this.jwtConfiguration.accessToken.audience,
+                issuer: this.jwtConfiguration.accessToken.issuer
+            }
+        )
+
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                sub: lawyer.id,
+                email: lawyer.email,
+                name: lawyer.full_name,
+                role: 'Lawyer'
+            },
+            {
+                secret: this.jwtConfiguration.refreshToken.secret,
+                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
             }
         )
 
         return {
-            access_token: access_token
+            access_token: accessToken,
+            refresh_token: refreshToken
         }
     }
 
@@ -112,7 +140,7 @@ export class AuthService {
 
         const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
 
-        const createCode = await this.prisma.validationCode.create({
+        await this.prisma.validationCode.create({
             data: {
                 type: 'Email',
                 code: generateCode,
@@ -198,7 +226,7 @@ export class AuthService {
             })
         }
 
-        const access_token = await this.jwtService.signAsync(
+        const accessToken = await this.jwtService.signAsync(
             {
                 sub: user.id,
                 email: user.email,
@@ -206,15 +234,29 @@ export class AuthService {
                 role: 'User'
             },
             {
-                secret: this.jwtConfiguration.secret,
-                expiresIn: this.jwtConfiguration.jwtTtl as any,
-                audience: this.jwtConfiguration.audience,
-                issuer: this.jwtConfiguration.issuer
+                secret: this.jwtConfiguration.accessToken.secret,
+                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
+                audience: this.jwtConfiguration.accessToken.audience,
+                issuer: this.jwtConfiguration.accessToken.issuer
+            }
+        )
+
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+                email: user.email,
+                name: user.full_name,
+                role: 'User'
+            },
+            {
+                secret: this.jwtConfiguration.refreshToken.secret,
+                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
             }
         )
 
         return {
-            access_token
+            access_token: accessToken,
+            refresh_token: refreshToken
         }
     }
 }
