@@ -45,7 +45,8 @@ export class AuthService {
                 sub: user.id,
                 email: user.email,
                 name: user.full_name,
-                role: 'User'
+                role: 'User',
+                loggedWithGoogle: false,
             },
             {
                 secret: this.jwtConfiguration.accessToken.secret,
@@ -60,7 +61,8 @@ export class AuthService {
                 sub: user.id,
                 email: user.email,
                 name: user.full_name,
-                role: 'User'
+                role: 'User',
+                loggedWithGoogle: false,
             },
             {
                 secret: this.jwtConfiguration.refreshToken.secret,
@@ -85,7 +87,7 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
-        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password)
+        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password || '')
 
         if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha inválidos')
@@ -96,7 +98,8 @@ export class AuthService {
                 sub: lawyer.id,
                 email: lawyer.email,
                 name: lawyer.full_name,
-                role: 'Lawyer'
+                role: 'Lawyer',
+                loggedWithGoogle: false,
             },
             {
                 secret: this.jwtConfiguration.accessToken.secret,
@@ -111,7 +114,8 @@ export class AuthService {
                 sub: lawyer.id,
                 email: lawyer.email,
                 name: lawyer.full_name,
-                role: 'Lawyer'
+                role: 'Lawyer',
+                loggedWithGoogle: false,
             },
             {
                 secret: this.jwtConfiguration.refreshToken.secret,
@@ -172,7 +176,7 @@ export class AuthService {
             const diffInMs = now.getTime() - createdAt.getTime();
             const diffInMinutes = diffInMs / (1000 * 60);
 
-            if (diffInMinutes > 15) {
+            if (diffInMinutes > 5) {
                 await this.prisma.validationCode.update({
                     where: { id: codeExpired.id },
                     data: {
@@ -209,7 +213,7 @@ export class AuthService {
         return 'Código válidado com sucesso'
     }
 
-    async authenticateGoogle(email: string, name: string) {
+    async authenticateGoogleUser(email: string, name: string) {
 
         let user = await this.prisma.user.findFirst({
             where: {
@@ -231,7 +235,8 @@ export class AuthService {
                 sub: user.id,
                 email: user.email,
                 name: user.full_name,
-                role: 'User'
+                role: 'User',
+                loggedWithGoogle: true,
             },
             {
                 secret: this.jwtConfiguration.accessToken.secret,
@@ -246,7 +251,61 @@ export class AuthService {
                 sub: user.id,
                 email: user.email,
                 name: user.full_name,
-                role: 'User'
+                role: 'User',
+                loggedWithGoogle: true,
+            },
+            {
+                secret: this.jwtConfiguration.refreshToken.secret,
+                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
+            }
+        )
+
+        return {
+            access_token: accessToken,
+            refresh_token: refreshToken
+        }
+    }
+
+    async authenticateGoogleLawyer(email: string, name: string) {
+
+        let lawyer = await this.prisma.lawyer.findFirst({
+            where: {
+                email: email
+            }
+        })
+
+        if (!lawyer) {
+            lawyer = await this.prisma.lawyer.create({
+                data: {
+                    email: email,
+                    full_name: name,
+                }
+            })
+        }
+
+        const accessToken = await this.jwtService.signAsync(
+            {
+                sub: lawyer.id,
+                email: lawyer.email,
+                name: lawyer.full_name,
+                role: 'Lawyer',
+                loggedWithGoogle: true,
+            },
+            {
+                secret: this.jwtConfiguration.accessToken.secret,
+                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
+                audience: this.jwtConfiguration.accessToken.audience,
+                issuer: this.jwtConfiguration.accessToken.issuer
+            }
+        )
+
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                sub: lawyer.id,
+                email: lawyer.email,
+                name: lawyer.full_name,
+                role: 'Lawyer',
+                loggedWithGoogle: true,
             },
             {
                 secret: this.jwtConfiguration.refreshToken.secret,

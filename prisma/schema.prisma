@@ -19,7 +19,7 @@ model User {
   cpf                String?            @unique
   cnpj               String?            @unique
   stripe_customer_id String?            @unique
-  phone              String?             @unique
+  phone              String?            @unique
   email              String             @unique
   subscription       Subscription?
   report             Report[]
@@ -36,16 +36,16 @@ model Lawyer {
   stripe_customer_id String?          @unique
   full_name          String
   bio                String?
-  cpf                String           @unique
+  cpf                String?          @unique
   avatar_image       String?
   rating             Decimal?         @default(0)
-  specialization     Specialization
+  specialization     Specialization?
   lawyer_status      LawyerStatus     @default(Pending)
-  oab_number         String
-  oab_state          OabState
-  phone              String           @unique
+  oab_number         String?
+  oab_state          OabState?
+  phone              String?          @unique
   email              String           @unique
-  password           String
+  password           String?
   subscription       Subscription?
   report             Report[]
   two_factor_token   TwoFactorToken?
