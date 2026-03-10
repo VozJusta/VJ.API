@@ -61,7 +61,7 @@ Isso garante:
 ## Pré-requisitos
 
 - Node.js **>= 20.x**
-- PostgreSQL **16**
+- PostgreSQL **15**
 - pnpm **>= 8.x**
 
 ---
