@@ -65,7 +65,9 @@ export class AuthService {
         }
 
         return {
-            validated: true
+            validated: true,
+            role: 'Lawyer',
+            email: lawyer.email
         }
     }
 
