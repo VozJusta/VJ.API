@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/signIn.dto';
 import { SendCodeEmailDTO } from './dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from './guard/googleAuth.guard';
+import { SecurityTokenInterceptor } from './interceptors/security-token.interceptor';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     }
 
     @Post('validate/email')
+    @UseInterceptors(SecurityTokenInterceptor)
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO) {
         return await this.authService.validateEmailCode(body)
     }

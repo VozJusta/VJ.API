@@ -210,7 +210,9 @@ export class AuthService {
             }
         })
 
-        return 'Código válidado com sucesso'
+        return {
+            validated: true
+        }
     }
 
     async authenticateGoogleUser(email: string, name: string) {

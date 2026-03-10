@@ -9,6 +9,7 @@ import jwtConfig from './config/jwt.config';
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { SecurityTokenInterceptor } from './interceptors/security-token.interceptor';
 
 @Global()
 @Module({
@@ -31,6 +32,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
         },
         AuthService,
         GoogleStrategy,
+        SecurityTokenInterceptor,
     ],
     exports: [HashingServiceProtocol],
     controllers: [AuthController]
