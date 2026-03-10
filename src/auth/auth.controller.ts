@@ -13,11 +13,13 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post('/user')
+    @UseInterceptors(SecurityTokenInterceptor)
     async authenticateUser(@Body() body: SignInDTO) {
         return await this.authService.authenticateUser(body)
     }
 
     @Post('/lawyer')
+    @UseInterceptors(SecurityTokenInterceptor)
     async authenticateLawyer(@Body() body: SignInDTO) {
         return await this.authService.authenticateLawyer(body)
     }
@@ -28,7 +30,6 @@ export class AuthController {
     }
 
     @Post('validate/email')
-    @UseInterceptors(SecurityTokenInterceptor)
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO) {
         return await this.authService.validateEmailCode(body)
     }

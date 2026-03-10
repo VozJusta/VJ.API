@@ -1,10 +1,16 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
+import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Observable, tap } from "rxjs";
+import jwtConfig from "../config/jwt.config";
+import { ConfigType } from "@nestjs/config";
 
 @Injectable()
 export class SecurityTokenInterceptor implements NestInterceptor {
-    constructor(private readonly jwtService: JwtService) { }
+    constructor(
+        private readonly jwtService: JwtService,
+        @Inject(jwtConfig.KEY)
+        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    ) { }
 
     intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
         const response = context.switchToHttp().getResponse()
@@ -13,8 +19,12 @@ export class SecurityTokenInterceptor implements NestInterceptor {
             tap((data) => {
                 if (data?.validated === true) {
                     const token = this.jwtService.sign(
-                        { type: 'security' },
-                        { expiresIn: '10m' }
+                        {
+                            type: 'security',
+                            role: data?.role,
+                            email: data?.email,
+                        },
+                        { expiresIn: '5m' }
                     )
 
                     response.setHeader('x-security-token', token)

@@ -38,41 +38,12 @@ export class AuthService {
 
         if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha incorretos')
-        }
-
-        const accessToken = await this.jwtService.signAsync(
-            {
-                sub: user.id,
-                email: user.email,
-                name: user.full_name,
-                role: 'User',
-                loggedWithGoogle: false,
-            },
-            {
-                secret: this.jwtConfiguration.accessToken.secret,
-                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
-                audience: this.jwtConfiguration.accessToken.audience,
-                issuer: this.jwtConfiguration.accessToken.issuer
-            }
-        )
-
-        const refreshToken = await this.jwtService.signAsync(
-            {
-                sub: user.id,
-                email: user.email,
-                name: user.full_name,
-                role: 'User',
-                loggedWithGoogle: false,
-            },
-            {
-                secret: this.jwtConfiguration.refreshToken.secret,
-                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
-            }
-        )        
+        }       
 
         return {
-            access_token: accessToken,
-            refresh_token: refreshToken
+            validated: true,
+            role: 'User',
+            email: user.email
         }
     }
 
@@ -93,39 +64,8 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha inválidos')
         }
 
-        const accessToken = await this.jwtService.signAsync(
-            {
-                sub: lawyer.id,
-                email: lawyer.email,
-                name: lawyer.full_name,
-                role: 'Lawyer',
-                loggedWithGoogle: false,
-            },
-            {
-                secret: this.jwtConfiguration.accessToken.secret,
-                expiresIn: this.jwtConfiguration.accessToken.ttl as any,
-                audience: this.jwtConfiguration.accessToken.audience,
-                issuer: this.jwtConfiguration.accessToken.issuer
-            }
-        )
-
-        const refreshToken = await this.jwtService.signAsync(
-            {
-                sub: lawyer.id,
-                email: lawyer.email,
-                name: lawyer.full_name,
-                role: 'Lawyer',
-                loggedWithGoogle: false,
-            },
-            {
-                secret: this.jwtConfiguration.refreshToken.secret,
-                expiresIn: this.jwtConfiguration.refreshToken.ttl as any
-            }
-        )
-
         return {
-            access_token: accessToken,
-            refresh_token: refreshToken
+            validated: true
         }
     }
 
