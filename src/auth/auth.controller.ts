@@ -6,6 +6,7 @@ import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from './guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from './interceptors/security-token.interceptor';
+import { AuthTokenGuard } from './guard/auth-token.guard';
 
 @Controller('auth')
 export class AuthController {
