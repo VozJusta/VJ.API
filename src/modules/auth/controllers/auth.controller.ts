@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { SignInDTO } from '../dto/signIn.dto';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
@@ -30,8 +30,8 @@ export class AuthController {
     }
 
     @Post('validate/email')
-    async validateEmailCode(@Body() body: ValidateCodeEmailDTO) {
-        return await this.authService.validateEmailCode(body)
+    async validateEmailCode(@Body() body: ValidateCodeEmailDTO, @Headers('x-security-token') token: string) {
+        return await this.authService.validateEmailCode(body, token)
     }
 
     @Get('google')

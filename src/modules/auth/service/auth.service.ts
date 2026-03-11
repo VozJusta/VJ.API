@@ -42,8 +42,11 @@ export class AuthService {
 
         return {
             validated: true,
+            sub: user.id,
             role: 'User',
-            email: user.email
+            email: user.email,
+            full_name: user.full_name,
+            loggedWithGoogle: false
         }
     }
 
@@ -66,8 +69,11 @@ export class AuthService {
 
         return {
             validated: true,
+            sub: lawyer.id,
             role: 'Lawyer',
-            email: lawyer.email
+            email: lawyer.email,
+            full_name: lawyer.full_name,
+            loggedWithGoogle: false
         }
     }
 
@@ -101,7 +107,11 @@ export class AuthService {
         return `Código enviado para o email ${email.email}`
     }
 
-    async validateEmailCode(body: ValidateCodeEmailDTO) {
+    async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
+        const payload = await this.jwtService.verify(token)
+
+        const { sub, email, name, role, loggedWithGoogle } = payload
+
         const code = await this.prisma.validationCode.findFirst({
             where: {
                 email: body.email,
@@ -138,13 +148,33 @@ export class AuthService {
             }
         })
 
+        const newPayload = {
+            sub,
+            email,
+            name,
+            role,
+            loggedWithGoogle
+        }
+
+        const accessToken = await this.jwtService.signAsync(newPayload, {
+            secret: process.env.JWT_ACCESS_SECRET,
+            expiresIn: process.env.JWT_ACCESS_TTL as any,
+            audience: process.env.JWT_TOKEN_AUDIENCE,
+            issuer: process.env.JWT_TOKEN_ISSUER
+        })
+
+        const refreshToken = await this.jwtService.signAsync(newPayload, {
+            secret: process.env.JWT_REFRESH_SECRET,
+            expiresIn: process.env.JWT_REFRESh_TTL as any
+        })
+
         return {
-            validated: true
+            access_token: accessToken,
+            refresh_token: refreshToken
         }
     }
 
     async authenticateGoogleUser(email: string, name: string) {
-
         let user = await this.prisma.user.findFirst({
             where: {
                 email: email

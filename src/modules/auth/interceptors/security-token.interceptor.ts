@@ -21,8 +21,11 @@ export class SecurityTokenInterceptor implements NestInterceptor {
                     const token = this.jwtService.sign(
                         {
                             type: 'security',
+                            sub: data?.sub,
                             role: data?.role,
                             email: data?.email,
+                            fullName: data?.full_name,
+                            loggedWithGoogle: data?.loggedWithGoogle
                         },
                         { expiresIn: '5m' }
                     )
