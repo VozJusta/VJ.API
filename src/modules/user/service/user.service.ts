@@ -1,10 +1,10 @@
 import { BadRequestException, ConflictException, Injectable, NotAcceptableException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { PrismaService } from 'src/modules/prisma/service/prisma.service';
+import { CreateUserDTO } from '../dto/create-user.dto';
 import { hash } from 'bcryptjs';
-import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
-import { CpfNumberValidation } from 'src/validation/cpf-number-validation.service';
-import { CnpjNumberValidation } from 'src/validation/cnpj-number-validation.service';
+import { HashingServiceProtocol } from 'src/modules/auth/hash/hashing.service';
+import { CpfNumberValidation } from 'src/modules/validation/service/cpf-number-validation.service';
+import { CnpjNumberValidation } from 'src/modules/validation/service/cnpj-number-validation.service';
 
 @Injectable()
 export class UserService {

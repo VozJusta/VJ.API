@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from 'src/user/user.module';
-import { LawyerModule } from 'src/lawyer/lawyer.module';
-import { ValidationModule } from 'src/validation/validation.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { UserModule } from 'src/modules/user/user.module';
+import { LawyerModule } from 'src/modules/lawyer/lawyer.module';
+import { ValidationModule } from 'src/modules/validation/validation.module';
+import { AuthModule } from 'src/modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config'
-import { EmailModule } from 'src/email/email.module';
-import { SmsModule } from 'src/sms/sms.module';
+import { EmailModule } from 'src/modules/email/email.module';
+import { SmsModule } from 'src/modules/sms/sms.module';
 
 @Module({
   imports: [

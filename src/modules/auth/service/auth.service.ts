@@ -1,14 +1,14 @@
 import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { HashingServiceProtocol } from './hash/hashing.service';
-import { SignInDTO } from './dto/signIn.dto';
-import jwtConfig from './config/jwt.config';
+import { PrismaService } from 'src/modules/prisma/service/prisma.service';
+import { HashingServiceProtocol } from '../hash/hashing.service';
+import { SignInDTO } from '../dto/signIn.dto';
+import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { EmailService } from 'src/email/email.service';
-import { SmsService } from 'src/sms/sms.service';
-import { SendCodeEmailDTO } from './dto/sendCode-email.dto';
-import { ValidateCodeEmailDTO } from './dto/validateCode-email.dto';
+import { EmailService } from 'src/modules/email/service/email.service';
+import { SmsService } from 'src/modules/sms/service/sms.service';
+import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
+import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +38,7 @@ export class AuthService {
 
         if (!passwordMatch) {
             throw new UnauthorizedException('Email/senha incorretos')
-        }       
+        }
 
         return {
             validated: true,
@@ -102,7 +102,7 @@ export class AuthService {
     }
 
     async validateEmailCode(body: ValidateCodeEmailDTO) {
-        const codeExpired = await this.prisma.validationCode.findFirst({
+        const code = await this.prisma.validationCode.findFirst({
             where: {
                 email: body.email,
                 code: body.code,
@@ -111,44 +111,30 @@ export class AuthService {
             }
         })
 
-        if (codeExpired?.created_at) {
-            const createdAt = new Date(codeExpired.created_at);
-            const now = new Date();
-
-            const diffInMs = now.getTime() - createdAt.getTime();
-            const diffInMinutes = diffInMs / (1000 * 60);
-
-            if (diffInMinutes > 5) {
-                await this.prisma.validationCode.update({
-                    where: { id: codeExpired.id },
-                    data: {
-                        expired: true
-                    }
-                })
-            }
-        }
-
-        const codeValid = await this.prisma.validationCode.findFirst({
-            where: {
-                email: body.email,
-                code: body.code,
-                validated: false,
-                expired: false
-            }
-        })
-
-
-        if (!codeValid) {
+        if (!code) {
             throw new UnauthorizedException('Código inválido')
         }
 
-        const validateCode = await this.prisma.validationCode.update({
-            where: {
-                id: codeValid.id
-            },
+        const createdAt = new Date(code.created_at)
+        const now = new Date()
+
+        const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
+
+        if (diffInMinutes > 15) {
+
+            await this.prisma.validationCode.update({
+                where: { id: code?.id },
+                data: { expired: true }
+            })
+
+            throw new UnauthorizedException('Código expirado')
+        }
+
+        await this.prisma.validationCode.update({
+            where: { id: code?.id },
             data: {
                 validated: true,
-                expired: false
+                expired: false,
             }
         })
 

@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { SmsService } from './sms.service';
+import { SmsService } from './service/sms.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { TwilioProvider } from './twilio.config';

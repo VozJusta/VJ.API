@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
-import { EmailService } from './email.service';
+import { EmailService } from './service/email.service';
 import { Resend } from 'resend';
 import { ResendProvider } from './resend.config';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from 'src/modules/prisma/prisma.module';
 
 @Global()
 @Module({

@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { LawyerService } from './lawyer.service';
-import { CreateLawyerDTO } from './dto/create-lawyer.dto';
+import { LawyerService } from '../service/lawyer.service';
+import { CreateLawyerDTO } from '../dto/create-lawyer.dto';
 
 @Controller('lawyer')
 export class LawyerController {

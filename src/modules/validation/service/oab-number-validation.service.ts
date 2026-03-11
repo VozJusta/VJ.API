@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { ValidateLawyerDTO } from 'src/lawyer/dto/validate-lawyer.dto';
+import { ValidateLawyerDTO } from 'src/modules/lawyer/dto/validate-lawyer.dto';
 
 @Injectable()
 export class OabNumberValidationService {
