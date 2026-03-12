@@ -13,8 +13,7 @@ export class EmailService {
 
     async sendCode(email: string, code: string) {
         const templatePath = path.join(
-            __dirname,
-            '..',
+            process.cwd(),
             'src',
             'modules',
             'email',
