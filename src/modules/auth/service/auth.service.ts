@@ -87,7 +87,20 @@ export class AuthService {
         })
 
         if (codeUsed) {
-            throw new ConflictException('Código já enviado')
+            const createdAt = new Date(codeUsed.created_at)
+            const now = new Date()
+
+            const diffInMinutes =
+                (now.getTime() - createdAt.getTime()) / (1000 * 60)
+
+            if (diffInMinutes > 1) {
+                await this.prisma.validationCode.update({
+                    where: { id: codeUsed.id },
+                    data: { expired: true }
+                })
+            } else {
+                throw new ConflictException('Código já enviado')
+            }
         }
 
         const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
@@ -108,69 +121,73 @@ export class AuthService {
     }
 
     async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
-        const payload = await this.jwtService.verify(token)
+        try {
+            const payload = await this.jwtService.verify(token)
 
-        const { sub, email, name, role, loggedWithGoogle } = payload
+            const { sub, email, fullName, role, loggedWithGoogle } = payload
 
-        const code = await this.prisma.validationCode.findFirst({
-            where: {
-                email: body.email,
-                code: body.code,
-                validated: false,
-                expired: false
+            const code = await this.prisma.validationCode.findFirst({
+                where: {
+                    email: body.email,
+                    code: body.code,
+                    validated: false,
+                    expired: false
+                }
+            })
+
+            if (!code) {
+                throw new UnauthorizedException('Código inválido')
             }
-        })
 
-        if (!code) {
-            throw new UnauthorizedException('Código inválido')
-        }
+            const createdAt = new Date(code.created_at)
+            const now = new Date()
 
-        const createdAt = new Date(code.created_at)
-        const now = new Date()
+            const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
 
-        const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
+            if (diffInMinutes > 15) {
 
-        if (diffInMinutes > 15) {
+                await this.prisma.validationCode.update({
+                    where: { id: code?.id },
+                    data: { expired: true }
+                })
+
+                throw new UnauthorizedException('Código expirado')
+            }
 
             await this.prisma.validationCode.update({
                 where: { id: code?.id },
-                data: { expired: true }
+                data: {
+                    validated: true,
+                    expired: false,
+                }
             })
 
-            throw new UnauthorizedException('Código expirado')
-        }
-
-        await this.prisma.validationCode.update({
-            where: { id: code?.id },
-            data: {
-                validated: true,
-                expired: false,
+            const newPayload = {
+                sub,
+                email,
+                fullName,
+                role,
+                loggedWithGoogle
             }
-        })
 
-        const newPayload = {
-            sub,
-            email,
-            name,
-            role,
-            loggedWithGoogle
-        }
+            const accessToken = await this.jwtService.signAsync(newPayload, {
+                secret: process.env.JWT_ACCESS_SECRET,
+                expiresIn: process.env.JWT_ACCESS_TTL as any,
+                audience: process.env.JWT_TOKEN_AUDIENCE,
+                issuer: process.env.JWT_TOKEN_ISSUER
+            })
 
-        const accessToken = await this.jwtService.signAsync(newPayload, {
-            secret: process.env.JWT_ACCESS_SECRET,
-            expiresIn: process.env.JWT_ACCESS_TTL as any,
-            audience: process.env.JWT_TOKEN_AUDIENCE,
-            issuer: process.env.JWT_TOKEN_ISSUER
-        })
+            const refreshToken = await this.jwtService.signAsync(newPayload, {
+                secret: process.env.JWT_REFRESH_SECRET,
+                expiresIn: process.env.JWT_REFRESh_TTL as any
+            })
 
-        const refreshToken = await this.jwtService.signAsync(newPayload, {
-            secret: process.env.JWT_REFRESH_SECRET,
-            expiresIn: process.env.JWT_REFRESh_TTL as any
-        })
-
-        return {
-            access_token: accessToken,
-            refresh_token: refreshToken
+            return {
+                access_token: accessToken,
+                refresh_token: refreshToken
+            }
+        } catch (err) {
+            throw new UnauthorizedException(err)
         }
     }
 
