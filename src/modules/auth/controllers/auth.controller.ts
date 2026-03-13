@@ -7,6 +7,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 import { AuthTokenGuard } from '../guard/access-token.guard';
+import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { validate } from 'class-validator';
 
 @Controller('auth')
 export class AuthController {
@@ -14,12 +16,78 @@ export class AuthController {
 
     @Post('/user')
     @UseInterceptors(SecurityTokenInterceptor)
+    @ApiBody({
+        description: 'Autenticação do usuário',
+        required: true,
+        schema: {
+            example: {
+                email: 'pedro@gmail.com',
+                password: '@Za12345678'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Retorno da autenticação do usuário',
+        status: 201,
+        schema: {
+            example: {
+                validate: true,
+                sub: '47ff0575-8976-4316-877d-936a2b1d478c',
+                role: 'User',
+                email: 'pedro@gmail.com',
+                full_name: 'Pedro Sales',
+                loggedWithGoogle: false
+            }
+        },
+        headers: {
+            'x-security-token': {
+                description: 'x-security-token para autenticação',
+                schema: {
+                    type: 'string',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                }
+            }
+        }
+    })
     async authenticateUser(@Body() body: SignInDTO) {
         return await this.authService.authenticateUser(body)
     }
 
     @Post('/lawyer')
     @UseInterceptors(SecurityTokenInterceptor)
+    @ApiBody({
+        description: 'Autenticação do advogado',
+        required: true,
+        schema: {
+            example: {
+                email: 'thiago@gmail.com',
+                password: '@Za12345678'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Retorno da autenticação do advogado',
+        status: 201,
+        schema: {
+            example: {
+                validate: true,
+                sub: '47ff0575-8976-4316-877d-936a2b1d478c',
+                role: 'Lawyer',
+                email: 'thiago@gmail.com',
+                full_name: 'Thiago Menezes',
+                loggedWithGoogle: false
+            }
+        },
+        headers: {
+            'x-security-token': {
+                description: 'x-security-token para autenticação',
+                schema: {
+                    type: 'string',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                }
+            }
+        }
+    })
     async authenticateLawyer(@Body() body: SignInDTO) {
         return await this.authService.authenticateLawyer(body)
     }
