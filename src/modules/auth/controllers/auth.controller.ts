@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 import { AuthTokenGuard } from '../guard/access-token.guard';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
 
 @Controller('auth')
@@ -93,11 +93,52 @@ export class AuthController {
     }
 
     @Post('send/email')
+    @ApiBody({
+        description: 'Rota para enviar email para 2FA',
+        required: true,
+        schema: {
+            example: {
+                email: 'xs.salles@gmail.com'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Resposta de sucesso para o envio do email',
+        schema: {
+            example: {
+                "message": "Código enviado para o email ..."
+            }
+        }
+    })
     async sendEmailCode(@Body() body: SendCodeEmailDTO) {
         return await this.authService.sendEmail(body)
     }
 
     @Post('validate/email')
+    @ApiHeader({
+        name: 'x-security-token',
+        description: 'Token para validação e autenticação',
+        required: true
+    })
+    @ApiBody({
+        description: 'Validar o codigo enviado pelo email',
+        required: true,
+        schema: {
+            example: {
+                email: 'xs.salles@gmail.com',
+                code: '123456'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Rota de sucesso e envio dos tokens',
+        schema: {
+            example: {
+                access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
+                refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30'
+            }
+        }
+    })
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO, @Headers('x-security-token') token: string) {
         return await this.authService.validateEmailCode(body, token)
     }
