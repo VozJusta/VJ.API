@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { METHODS } from 'node:http';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,13 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Voz Justa')
     .build();
+
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://vozjusta.com.br'],
+    methods: ['GET', 'PATCH', 'DELETE', 'POST', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  })
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
