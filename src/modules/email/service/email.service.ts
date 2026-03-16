@@ -29,7 +29,7 @@ export class EmailService {
             from: 'contato@vozjusta.com.br',
             to: email,
             subject: 'Teste',
-            html: html
+            html: html,
         })
     }
 }
