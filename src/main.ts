@@ -10,7 +10,6 @@ async function bootstrap() {
     .setTitle('Voz Justa')
     .setDescription('Voz Justa API')
     .setVersion('1.0')
-    .addTag('Voz Justa')
     .build();
 
   app.enableCors({
