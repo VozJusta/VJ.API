@@ -23,8 +23,8 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) { }
 
-    async authenticateUser(body: SignInDTO) {
-        const user = await this.prisma.user.findFirst({
+    async authenticateCitizen(body: SignInDTO) {
+        const user = await this.prisma.citizen.findFirst({
             where: {
                 email: body.email
             }
@@ -43,7 +43,7 @@ export class AuthService {
         return {
             validated: true,
             sub: user.id,
-            role: 'User',
+            role: 'Citizen',
             email: user.email,
             full_name: user.full_name,
             loggedWithGoogle: false
@@ -191,15 +191,15 @@ export class AuthService {
         }
     }
 
-    async authenticateGoogleUser(email: string, name: string) {
-        let user = await this.prisma.user.findFirst({
+    async authenticateGoogleCitizen(email: string, name: string) {
+        let citizen = await this.prisma.citizen.findFirst({
             where: {
                 email: email
             }
         })
 
-        if (!user) {
-            user = await this.prisma.user.create({
+        if (!citizen) {
+            citizen = await this.prisma.citizen.create({
                 data: {
                     email: email,
                     full_name: name,
@@ -209,10 +209,10 @@ export class AuthService {
 
         return {
             validated: true,
-            sub: user.id,
-            role: 'User',
-            email: user.email,
-            full_name: user.full_name,
+            sub: citizen.id,
+            role: 'Citizen',
+            email: citizen.email,
+            full_name: citizen.full_name,
             loggedWithGoogle: true
         }
     }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from 'src/modules/user/user.module';
+import { CitizenModule } from 'src/modules/user/citizen.module';
 import { LawyerModule } from 'src/modules/lawyer/lawyer.module';
 import { ValidationModule } from 'src/modules/validation/validation.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
@@ -12,7 +12,7 @@ import { SmsModule } from 'src/modules/sms/sms.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    UserModule,
+    CitizenModule,
     LawyerModule,
     ValidationModule,
     AuthModule,

@@ -7,7 +7,7 @@ import { CpfNumberValidation } from 'src/modules/validation/service/cpf-number-v
 import { CnpjNumberValidation } from 'src/modules/validation/service/cnpj-number-validation.service';
 
 @Injectable()
-export class UserService {
+export class CitizenService {
     constructor(
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
@@ -17,7 +17,7 @@ export class UserService {
 
     async create(body: CreateUserDTO) {
 
-        const existingUser = await this.prisma.user.findFirst({
+        const existingCitizen = await this.prisma.citizen.findFirst({
             where: {
                 OR: [
                     {
@@ -33,8 +33,8 @@ export class UserService {
             }
         })
 
-        if (existingUser) {
-            throw new ConflictException('Usuario já cadastrado')
+        if (existingCitizen) {
+            throw new ConflictException('Cidadão já cadastrado')
         }
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
@@ -47,7 +47,7 @@ export class UserService {
 
         const hashedPassword = await this.hashingService.hash(body.password)
 
-        const newUser = await this.prisma.user.create({
+        const newUser = await this.prisma.citizen.create({
             data: {
                 full_name: body.fullName,
                 cpf: body.cpf,

@@ -14,7 +14,7 @@ import { validate } from 'class-validator';
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-    @Post('/user')
+    @Post('/citizen')
     @UseInterceptors(SecurityTokenInterceptor)
     @ApiBody({
         description: 'Autenticação do usuário',
@@ -33,7 +33,7 @@ export class AuthController {
             example: {
                 validate: true,
                 sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-                role: 'User',
+                role: 'Citizen',
                 email: 'pedro@gmail.com',
                 full_name: 'Pedro Sales',
                 loggedWithGoogle: false
@@ -50,7 +50,7 @@ export class AuthController {
         }
     })
     async authenticateUser(@Body() body: SignInDTO) {
-        return await this.authService.authenticateUser(body)
+        return await this.authService.authenticateCitizen(body)
     }
 
     @Post('/lawyer')
@@ -168,6 +168,15 @@ export class AuthController {
                 full_name: 'Pedro Sales',
                 loggedWithGoogle: true
             }
+        },
+        headers: {
+            'x-security-token': {
+                description: 'x-security-token para autenticação',
+                schema: {
+                    type: 'string',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                }
+            }
         }
     })
     async googleUserCallback(@Req() req) {
@@ -178,9 +187,14 @@ export class AuthController {
                 req.user.email,
                 `${req.user.firstName} ${req.user.lastName}`
             )
+        } else if(role === 'citizen') {
+            return this.authService.authenticateGoogleCitizen(
+            req.user.email,
+            `${req.user.firstName} ${req.user.lastName}`
+        )
         }
 
-        return this.authService.authenticateGoogleUser(
+        return this.authService.authenticateGoogleCitizen(
             req.user.email,
             `${req.user.firstName} ${req.user.lastName}`
         )

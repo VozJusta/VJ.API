@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { UserService } from '../service/user.service';
+import { CitizenService } from '../service/citizen.service';
 import { CreateUserDTO } from '../dto/create-user.dto';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 
-@Controller('user')
-export class UserController {
-    constructor(private readonly userService: UserService) {}
+@Controller('citizen')
+export class CitizenController {
+    constructor(private readonly citizenService: CitizenService) {}
 
     @Post()
     @ApiBody({
@@ -34,7 +34,7 @@ export class UserController {
             }
         }
     })
-    async createUser(@Body() body: CreateUserDTO) {
-        return await this.userService.create(body)
+    async createCitizen(@Body() body: CreateUserDTO) {
+        return await this.citizenService.create(body)
     }
 }
