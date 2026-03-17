@@ -3,6 +3,8 @@ import { AuthService } from '../service/auth.service';
 import { SignInDTO } from '../dto/signIn.dto';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
+import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
+import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
@@ -32,6 +34,16 @@ export class AuthController {
     @Post('validate/email')
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO, @Headers('x-security-token') token: string) {
         return await this.authService.validateEmailCode(body, token)
+    }
+
+    @Post('forgot/password')
+    async forgotPassword(@Body() body: ForgotPasswordDTO) {
+        return await this.authService.forgotPassword(body)
+    }
+
+    @Post('forgot/verify-code')
+    async verifyForgotCode(@Body() body: VerifyForgotCodeDTO) {
+        return await this.authService.verifyForgotCode(body)
     }
 
     @Get('google')
