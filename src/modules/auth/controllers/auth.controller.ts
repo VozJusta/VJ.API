@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 import { AuthTokenGuard } from '../guard/access-token.guard';
-import { ApiBody, ApiHeader, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
 
 @Controller('auth')
@@ -145,11 +145,31 @@ export class AuthController {
 
     @Get('google')
     @UseGuards(GoogleAuthGuard)
+    @ApiParam({
+        name: 'state',
+        required: true,
+        example: {
+            state: 'user || lawyer',
+        }
+    })
     async googleLogin() { }
 
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     @UseInterceptors(SecurityTokenInterceptor)
+    @ApiResponse({
+        description: 'Retorno de sucesso da autenticação com o Google',
+        schema: {
+            example: {
+                validated: true,
+                sub: '47ff0575-8976-4316-877d-936a2b1d478c',
+                role: 'User ou Lawyer',
+                email: 'xs.salles@gmail.com',
+                full_name: 'Pedro Sales',
+                loggedWithGoogle: true
+            }
+        }
+    })
     async googleUserCallback(@Req() req) {
         const role = req.query.state
 
