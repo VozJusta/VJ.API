@@ -1,4 +1,11 @@
-import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { SignInDTO } from '../dto/signIn.dto';
@@ -9,221 +16,339 @@ import { EmailService } from 'src/modules/email/service/email.service';
 import { SmsService } from 'src/modules/sms/service/sms.service';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
+import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
+import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private prisma: PrismaService,
-        private readonly hashingService: HashingServiceProtocol,
-        private readonly sendEmailCode: EmailService,
-        private readonly sendSms: SmsService,
+  constructor(
+    private prisma: PrismaService,
+    private readonly hashingService: HashingServiceProtocol,
+    private readonly sendEmailCode: EmailService,
+    private readonly sendSms: SmsService,
 
-        @Inject(jwtConfig.KEY)
-        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-        private readonly jwtService: JwtService
-    ) { }
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly jwtService: JwtService,
+  ) {}
 
-    async authenticateUser(body: SignInDTO) {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                email: body.email
-            }
-        })
+  async authenticateUser(body: SignInDTO) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: body.email,
+      },
+    });
 
-        if (!user) {
-            throw new UnauthorizedException('Email/senha incorretos')
-        }
-
-        const passwordMatch = await this.hashingService.compare(body.password, user.password || '')
-
-        if (!passwordMatch) {
-            throw new UnauthorizedException('Email/senha incorretos')
-        }
-
-        return {
-            validated: true,
-            sub: user.id,
-            role: 'User',
-            email: user.email,
-            full_name: user.full_name,
-            loggedWithGoogle: false
-        }
+    if (!user) {
+      throw new UnauthorizedException('Email/senha incorretos');
     }
 
-    async authenticateLawyer(body: SignInDTO) {
-        const lawyer = await this.prisma.lawyer.findFirst({
-            where: {
-                email: body.email
-            }
-        })
+    const passwordMatch = await this.hashingService.compare(
+      body.password,
+      user.password || '',
+    );
 
-        if (!lawyer) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password || '')
-
-        if (!passwordMatch) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        return {
-            validated: true,
-            sub: lawyer.id,
-            role: 'Lawyer',
-            email: lawyer.email,
-            full_name: lawyer.full_name,
-            loggedWithGoogle: false
-        }
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Email/senha incorretos');
     }
 
-    async sendEmail(email: SendCodeEmailDTO) {
-        const codeUsed = await this.prisma.validationCode.findFirst({
-            where: {
-                email: email.email,
-                validated: false,
-                expired: false
-            }
-        })
+    return {
+      validated: true,
+      sub: user.id,
+      role: 'User',
+      email: user.email,
+      full_name: user.full_name,
+      loggedWithGoogle: false,
+    };
+  }
 
-        if (codeUsed) {
-            throw new ConflictException('Código já enviado')
-        }
+  async authenticateLawyer(body: SignInDTO) {
+    const lawyer = await this.prisma.lawyer.findFirst({
+      where: {
+        email: body.email,
+      },
+    });
 
-        const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
-
-        await this.prisma.validationCode.create({
-            data: {
-                type: 'Email',
-                code: generateCode,
-                validated: false,
-                email: email.email,
-                expired: false
-            }
-        })
-
-        await this.sendEmailCode.sendCode(email.email, generateCode)
-
-        return `Código enviado para o email ${email.email}`
+    if (!lawyer) {
+      throw new UnauthorizedException('Email/senha inválidos');
     }
 
-    async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
-        const payload = await this.jwtService.verify(token)
+    const passwordMatch = await this.hashingService.compare(
+      body.password,
+      lawyer.password || '',
+    );
 
-        const { sub, email, name, role, loggedWithGoogle } = payload
-
-        const code = await this.prisma.validationCode.findFirst({
-            where: {
-                email: body.email,
-                code: body.code,
-                validated: false,
-                expired: false
-            }
-        })
-
-        if (!code) {
-            throw new UnauthorizedException('Código inválido')
-        }
-
-        const createdAt = new Date(code.created_at)
-        const now = new Date()
-
-        const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
-
-        if (diffInMinutes > 15) {
-
-            await this.prisma.validationCode.update({
-                where: { id: code?.id },
-                data: { expired: true }
-            })
-
-            throw new UnauthorizedException('Código expirado')
-        }
-
-        await this.prisma.validationCode.update({
-            where: { id: code?.id },
-            data: {
-                validated: true,
-                expired: false,
-            }
-        })
-
-        const newPayload = {
-            sub,
-            email,
-            name,
-            role,
-            loggedWithGoogle
-        }
-
-        const accessToken = await this.jwtService.signAsync(newPayload, {
-            secret: process.env.JWT_ACCESS_SECRET,
-            expiresIn: process.env.JWT_ACCESS_TTL as any,
-            audience: process.env.JWT_TOKEN_AUDIENCE,
-            issuer: process.env.JWT_TOKEN_ISSUER
-        })
-
-        const refreshToken = await this.jwtService.signAsync(newPayload, {
-            secret: process.env.JWT_REFRESH_SECRET,
-            expiresIn: process.env.JWT_REFRESh_TTL as any
-        })
-
-        return {
-            access_token: accessToken,
-            refresh_token: refreshToken
-        }
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Email/senha inválidos');
     }
 
-    async authenticateGoogleUser(email: string, name: string) {
-        let user = await this.prisma.user.findFirst({
-            where: {
-                email: email
-            }
-        })
+    return {
+      validated: true,
+      sub: lawyer.id,
+      role: 'Lawyer',
+      email: lawyer.email,
+      full_name: lawyer.full_name,
+      loggedWithGoogle: false,
+    };
+  }
 
-        if (!user) {
-            user = await this.prisma.user.create({
-                data: {
-                    email: email,
-                    full_name: name,
-                }
-            })
-        }
+  async sendEmail(email: SendCodeEmailDTO) {
+    const codeUsed = await this.prisma.validationCode.findFirst({
+      where: {
+        email: email.email,
+        validated: false,
+        expired: false,
+      },
+    });
 
-        return {
-            validated: true,
-            sub: user.id,
-            role: 'User',
-            email: user.email,
-            full_name: user.full_name,
-            loggedWithGoogle: true
-        }
+    if (codeUsed) {
+      throw new ConflictException('Código já enviado');
     }
 
-    async authenticateGoogleLawyer(email: string, name: string) {
+    const generateCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        let lawyer = await this.prisma.lawyer.findFirst({
-            where: {
-                email: email
-            }
-        })
+    await this.prisma.validationCode.create({
+      data: {
+        type: 'Email',
+        code: generateCode,
+        validated: false,
+        email: email.email,
+        expired: false,
+      },
+    });
 
-        if (!lawyer) {
-            lawyer = await this.prisma.lawyer.create({
-                data: {
-                    email: email,
-                    full_name: name,
-                }
-            })
-        }
+    await this.sendEmailCode.sendCode(email.email, generateCode);
 
-        return {
-            validated: true,
-            sub: lawyer.id,
-            role: 'Lawyer',
-            email: lawyer.email,
-            full_name: lawyer.full_name,
-            loggedWithGoogle: true
-        }
+    return `Código enviado para o email ${email.email}`;
+  }
+
+  async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
+    const payload = await this.jwtService.verify(token);
+
+    const { sub, email, name, role, loggedWithGoogle } = payload;
+
+    const code = await this.prisma.validationCode.findFirst({
+      where: {
+        email: body.email,
+        code: body.code,
+        validated: false,
+        expired: false,
+      },
+    });
+
+    if (!code) {
+      throw new UnauthorizedException('Código inválido');
     }
+
+    const createdAt = new Date(code.created_at);
+    const now = new Date();
+
+    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+    if (diffInMinutes > 15) {
+      await this.prisma.validationCode.update({
+        where: { id: code?.id },
+        data: { expired: true },
+      });
+
+      throw new UnauthorizedException('Código expirado');
+    }
+
+    await this.prisma.validationCode.update({
+      where: { id: code?.id },
+      data: {
+        validated: true,
+        expired: false,
+      },
+    });
+
+    const newPayload = {
+      sub,
+      email,
+      name,
+      role,
+      loggedWithGoogle,
+    };
+
+    const accessToken = await this.jwtService.signAsync(newPayload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_TTL as any,
+      audience: process.env.JWT_TOKEN_AUDIENCE,
+      issuer: process.env.JWT_TOKEN_ISSUER,
+    });
+
+    const refreshToken = await this.jwtService.signAsync(newPayload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESh_TTL as any,
+    });
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async authenticateGoogleUser(email: string, name: string) {
+    let user = await this.prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: email,
+          full_name: name,
+        },
+      });
+    }
+
+    return {
+      validated: true,
+      sub: user.id,
+      role: 'User',
+      email: user.email,
+      full_name: user.full_name,
+      loggedWithGoogle: true,
+    };
+  }
+
+  async authenticateGoogleLawyer(email: string, name: string) {
+    let lawyer = await this.prisma.lawyer.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!lawyer) {
+      lawyer = await this.prisma.lawyer.create({
+        data: {
+          email: email,
+          full_name: name,
+        },
+      });
+    }
+
+    return {
+      validated: true,
+      sub: lawyer.id,
+      role: 'Lawyer',
+      email: lawyer.email,
+      full_name: lawyer.full_name,
+      loggedWithGoogle: true,
+    };
+  }
+
+  async verifyForgotCode(body: VerifyForgotCodeDTO) {
+    const code = await this.prisma.validationCode.findFirst({
+      where: {
+        email: body.email,
+        code: body.code,
+        validated: false,
+        expired: false,
+      },
+    });
+
+    if (!code) {
+      throw new UnauthorizedException('Código inválido');
+    }
+
+    const createdAt = new Date(code.created_at);
+    const now = new Date();
+    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+    if (diffInMinutes > 15) {
+      await this.prisma.validationCode.update({
+        where: { id: code.id },
+        data: { expired: true },
+      });
+
+      throw new UnauthorizedException('Código expirado');
+    }
+
+    await this.prisma.validationCode.update({
+      where: { id: code.id },
+      data: {
+        validated: true,
+      },
+    });
+
+    return {
+      message: 'Código validado com sucesso',
+    };
+  }
+
+  async forgotPassword(body: ForgotPasswordDTO) {
+    const validatedCode = await this.prisma.validationCode.findFirst({
+      where: {
+        email: body.email,
+        validated: true,
+        expired: false,
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+
+    if (!validatedCode) {
+      throw new UnauthorizedException('Código não validado para este email');
+    }
+
+    const createdAt = new Date(validatedCode.created_at);
+    const now = new Date();
+    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+    if (diffInMinutes > 15) {
+      await this.prisma.validationCode.update({
+        where: { id: validatedCode.id },
+        data: { expired: true },
+      });
+
+      throw new UnauthorizedException('Código expirado');
+    }
+
+    const hashedPassword = await this.hashingService.hash(body.new_password);
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: body.email,
+      },
+    });
+
+    const lawyer = await this.prisma.lawyer.findFirst({
+      where: {
+        email: body.email,
+      },
+    });
+
+    if (!user && !lawyer) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    if (user) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+    }
+
+    if (lawyer) {
+      await this.prisma.lawyer.update({
+        where: { id: lawyer.id },
+        data: { password: hashedPassword },
+      });
+    }
+
+    await this.prisma.validationCode.update({
+      where: { id: validatedCode.id },
+      data: {
+        expired: true,
+      },
+    });
+
+    return {
+      message: 'Senha alterada com sucesso',
+    };
+  }
 }
