@@ -149,7 +149,7 @@ export class AuthController {
         name: 'state',
         required: true,
         example: {
-            state: 'user || lawyer',
+            state: 'citizen || lawyer',
         }
     })
     async googleLogin() { }
