@@ -28,7 +28,29 @@ export class EmailService {
         return await this.resend.emails.send({
             from: 'contato@vozjusta.com.br',
             to: email,
-            subject: 'Teste',
+            subject: 'Codigo de verificacao Voz Justa',
+            html: html
+        })
+    }
+
+    async sendForgotPasswordCode(email: string, code: string) {
+        const templatePath = path.join(
+            process.cwd(),
+            'src',
+            'modules',
+            'email',
+            'forgot-password-code.hbs',
+        );
+
+        const templateSource = await fs.readFile(templatePath, 'utf8');
+        const template = handlebars.compile(templateSource);
+
+        const html = template({ code: code })
+
+        return await this.resend.emails.send({
+            from: 'contato@vozjusta.com.br',
+            to: email,
+            subject: 'Recuperacao de senha Voz Justa',
             html: html
         })
     }
