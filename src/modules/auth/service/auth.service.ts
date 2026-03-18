@@ -122,6 +122,36 @@ export class AuthService {
     return `Código enviado para o email ${email.email}`;
   }
 
+  async sendForgotPasswordEmail(email: SendCodeEmailDTO) {
+    const codeUsed = await this.prisma.validationCode.findFirst({
+      where: {
+        email: email.email,
+        validated: false,
+        expired: false,
+      },
+    });
+
+    if (codeUsed) {
+      throw new ConflictException('Código já enviado');
+    }
+
+    const generateCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.prisma.validationCode.create({
+      data: {
+        type: 'Email',
+        code: generateCode,
+        validated: false,
+        email: email.email,
+        expired: false,
+      },
+    });
+
+    await this.sendEmailCode.sendForgotPasswordCode(email.email, generateCode);
+
+    return `Código de recuperação enviado para o email ${email.email}`;
+  }
+
   async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
     const payload = await this.jwtService.verify(token);
 
