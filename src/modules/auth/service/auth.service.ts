@@ -93,7 +93,7 @@ export class AuthService {
             const diffInMinutes =
                 (now.getTime() - createdAt.getTime()) / (1000 * 60)
 
-            if (diffInMinutes > 1) {
+            if (diffInMinutes > 15) {
                 await this.prisma.validationCode.update({
                     where: { id: codeUsed.id },
                     data: { expired: true }
