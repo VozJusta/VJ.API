@@ -31,6 +31,11 @@ export class AuthController {
         return await this.authService.sendEmail(body)
     }
 
+    @Post('send/forgot/email')
+    async sendForgotEmailCode(@Body() body: SendCodeEmailDTO) {
+        return await this.authService.sendForgotPasswordEmail(body)
+    }
+
     @Post('validate/email')
     async validateEmailCode(@Body() body: ValidateCodeEmailDTO, @Headers('x-security-token') token: string) {
         return await this.authService.validateEmailCode(body, token)
