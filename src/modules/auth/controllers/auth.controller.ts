@@ -9,6 +9,8 @@ import { SecurityTokenInterceptor } from '../interceptors/security-token.interce
 import { AuthTokenGuard } from '../guard/access-token.guard';
 import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
+import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
+import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -114,6 +116,28 @@ export class AuthController {
         return await this.authService.sendEmail(body)
     }
 
+    @Post('send/forgot/email')
+    @ApiBody({
+        description: 'Rota para enviar email com codigo de recuperacao de senha',
+        required: true,
+        schema: {
+            example: {
+                email: 'xs.salles@gmail.com'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Resposta de sucesso para o envio do email de recuperacao',
+        schema: {
+            example: {
+                message: 'Codigo de recuperacao enviado para o email ...'
+            }
+        }
+    })
+    async sendForgotEmailCode(@Body() body: SendCodeEmailDTO) {
+        return await this.authService.sendForgotPasswordEmail(body)
+    }
+
     @Post('validate/email')
     @ApiHeader({
         name: 'x-security-token',
@@ -143,6 +167,51 @@ export class AuthController {
         return await this.authService.validateEmailCode(body, token)
     }
 
+    @Post('forgot/password')
+    @ApiBody({
+        description: 'Rota para redefinir senha apos validacao de codigo',
+        required: true,
+        schema: {
+            example: {
+                email: 'xs.salles@gmail.com',
+                new_password: '@Za12345678'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Resposta de sucesso para alteracao de senha',
+        schema: {
+            example: {
+                message: 'Senha alterada com sucesso'
+            }
+        }
+    })
+    async forgotPassword(@Body() body: ForgotPasswordDTO) {
+        return await this.authService.forgotPassword(body)
+    }
+
+    @Post('forgot/verify-code')
+    @ApiBody({
+        description: 'Rota para validar codigo de recuperacao de senha',
+        required: true,
+        schema: {
+            example: {
+                email: 'xs.salles@gmail.com',
+                code: '123456'
+            }
+        }
+    })
+    @ApiResponse({
+        description: 'Resposta de sucesso da validacao do codigo de recuperacao',
+        schema: {
+            example: {
+                message: 'Codigo validado com sucesso'
+            }
+        }
+    })
+    async verifyForgotCode(@Body() body: VerifyForgotCodeDTO) {
+        return await this.authService.verifyForgotCode(body)
+    }
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     @ApiParam({
