@@ -10,6 +10,23 @@ export class RagService {
         url: 'http://localhost:6333'
     })
 
+    async onModuleInit() {
+        const collections = await this.client.getCollections();
+
+        const exists = collections.collections.some(
+            (c) => c.name === "legal_knowledge"
+        );
+
+        if (!exists) {
+            await this.client.createCollection("legal_knowledge", {
+                vectors: {
+                    size: 1536,
+                    distance: "Cosine",
+                },
+            });
+        }
+    }
+
     async retrieve(text: string) {
         const embedding = await this.embeddingService.generate(text)
 

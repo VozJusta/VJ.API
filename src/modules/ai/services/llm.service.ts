@@ -9,26 +9,26 @@ export class LlmService {
     async generate({ input, context }: any) {
         const prompt = `Você é um assistente jurídico
         
-        Relato:
-${input}
+            Relato:
+            ${input}
 
-Contexto:
-${context.map(c => c.content).join('\n')}
+            Contexto:
+            ${context.map(c => c.content).join('\n')}
 
-Responda em JSON:
-{
-  "area": "",
-  "analysis": "",
-  "explanation": "",
-  "next_steps": [],
-  "confidence": 0
-}`
+            Responda em JSON:
+            {
+            "area": "",
+            "analysis": "",
+            "explanation": "",
+            "next_steps": [],
+            "confidence": 0
+            }`
 
         const response = await firstValueFrom(
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'mixtral-8x7b-32768',
+                    model: 'llama-3.1-8b-instant',
                     messages: [{ role: 'user', content: prompt }],
                 },
                 {
@@ -43,12 +43,31 @@ Responda em JSON:
 
         return {
             prompt,
-            output: JSON.parse(this.cleanJson(content)),
+            output: this.extractJson(content),
         };
     }
 
-    private cleanJson(text: string) {
-        return text.replace(/```json|```/g, '').trim();
+    private extractJson(text: string) {
+        try {
+            return JSON.parse(text);
+        } catch {
+            const cleaned = text
+                .replace(/```json|```/g, '')
+                .replace(/\*\*/g, '') 
+                .trim();
+            const match = cleaned.match(/\{[\s\S]*\}/);
+
+            if (!match) {
+                throw new Error('JSON não encontrado na resposta do modelo');
+            }
+
+            try {
+                return JSON.parse(match[0]);
+            } catch (err) {
+                console.error('Erro ao parsear JSON:', match[0]);
+                throw err;
+            }
+        }
     }
 
 }
