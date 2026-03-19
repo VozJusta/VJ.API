@@ -13,13 +13,13 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
+model Citizen {
   id                 String             @id @default(uuid())
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
   stripe_customer_id String?            @unique
-  phone              String?             @unique
+  phone              String?            @unique
   email              String             @unique
   subscription       Subscription?
   report             Report[]
@@ -36,16 +36,16 @@ model Lawyer {
   stripe_customer_id String?          @unique
   full_name          String
   bio                String?
-  cpf                String           @unique
+  cpf                String?          @unique
   avatar_image       String?
   rating             Decimal?         @default(0)
-  specialization     Specialization
+  specialization     Specialization?
   lawyer_status      LawyerStatus     @default(Pending)
-  oab_number         String
-  oab_state          OabState
-  phone              String           @unique
+  oab_number         String?
+  oab_state          OabState?
+  phone              String?          @unique
   email              String           @unique
-  password           String
+  password           String?
   subscription       Subscription?
   report             Report[]
   two_factor_token   TwoFactorToken?
@@ -67,7 +67,7 @@ model Plan {
 
 model Subscription {
   id                     String             @id @default(uuid())
-  user                   User?              @relation(fields: [user_id], references: [id])
+  user                   Citizen?              @relation(fields: [user_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
   user_id                String?            @unique
   lawyer_id              String?            @unique
@@ -90,7 +90,7 @@ model Report {
   user_id                String         @unique
   lawyer_id              String?        @unique
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  user                   User           @relation(fields: [user_id], references: [id])
+  user                   Citizen           @relation(fields: [user_id], references: [id])
   evidence               Evidence[]
   created_at             DateTime       @default(now())
 }
@@ -100,7 +100,7 @@ model ValidationCode {
   type       Types
   user_id    String?
   lawyer_id  String?
-  user       User?    @relation(fields: [user_id], references: [id])
+  user       Citizen?    @relation(fields: [user_id], references: [id])
   lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
   code       String
   validated  Boolean  @default(false)
@@ -116,7 +116,7 @@ model TwoFactorToken {
   type       Types
   user_id    String   @unique
   lawyer_id  String   @unique
-  user       User     @relation(fields: [user_id], references: [id])
+  user       Citizen     @relation(fields: [user_id], references: [id])
   lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
   created_at DateTime @default(now())
   expires_at DateTime
@@ -125,7 +125,7 @@ model TwoFactorToken {
 model Simulation {
   id             String      @id @default(uuid())
   user_id        String      @unique
-  user           User        @relation(fields: [user_id], references: [id])
+  user           Citizen        @relation(fields: [user_id], references: [id])
   personality    Personality
   transcription  String
   score_feedback String
@@ -135,7 +135,7 @@ model SimulationReport {
   id            String @id @default(uuid())
   transcription String
   user_id       String @unique
-  user          User   @relation(fields: [user_id], references: [id])
+  user          Citizen   @relation(fields: [user_id], references: [id])
 }
 
 model Evidence {
