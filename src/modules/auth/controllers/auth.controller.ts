@@ -256,11 +256,11 @@ export class AuthController {
                 req.user.email,
                 `${req.user.firstName} ${req.user.lastName}`
             )
-        } else if(role === 'citizen') {
+        } else if (role === 'citizen') {
             return this.authService.authenticateGoogleCitizen(
-            req.user.email,
-            `${req.user.firstName} ${req.user.lastName}`
-        )
+                req.user.email,
+                `${req.user.firstName} ${req.user.lastName}`
+            )
         }
 
         return this.authService.authenticateGoogleCitizen(
