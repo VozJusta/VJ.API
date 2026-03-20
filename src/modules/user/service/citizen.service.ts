@@ -39,7 +39,9 @@ export class CitizenService {
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
-        const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        if (body.cnpj) {
+            const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        }
 
         if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
