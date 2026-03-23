@@ -2,10 +2,24 @@ import { Module } from '@nestjs/common';
 import { CitizenService } from './service/citizen.service';
 import { CitizenController } from './controllers/citizen.controller';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
+import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.interceptor';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import jwtConfig from '../auth/config/jwt.config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [PrismaModule],
-  providers: [CitizenService],
+  imports: [
+    ConfigModule.forFeature(jwtConfig),
+    JwtModule.registerAsync({
+      imports: [ConfigModule.forFeature(jwtConfig)],
+      inject: [jwtConfig.KEY],
+      useFactory: (config: ConfigType<typeof jwtConfig>) => ({
+        secret: config.accessToken.secret
+      }),
+    }),
+    PrismaModule
+  ],
+  providers: [CitizenService, SecurityTokenInterceptor],
   controllers: [CitizenController]
 })
-export class CitizenModule {}
+export class CitizenModule { }

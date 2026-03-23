@@ -39,7 +39,9 @@ export class CitizenService {
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
-        const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        if(body.cnpj) {
+            const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        }
 
         if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
@@ -57,6 +59,7 @@ export class CitizenService {
                 password: hashedPassword
             },
             select: {
+                id: true,
                 full_name: true,
                 cpf: true,
                 cnpj: true,
@@ -65,6 +68,13 @@ export class CitizenService {
             }
         })
 
-        return newUser
+        return {
+            validated: true,
+            sub: newUser.id,
+            role: 'Citizen',
+            email: newUser.email,
+            full_name: newUser.full_name,
+            loggedWithGoogle: false
+        }
     }
 }
