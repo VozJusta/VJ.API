@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post } from "@nestjs/common";
 import { AiService } from "../services/ai.service";
 
-@Controller('teste')
+@Controller('report')
 export class TesteController {
     constructor(private readonly aiService: AiService) {}
 
