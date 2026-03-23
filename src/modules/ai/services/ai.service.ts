@@ -58,7 +58,7 @@ export class AiService {
                 legal_analysis: response.output.analysis,
                 simplified_explanation: response.output.explanation,
                 category_detected: response.output.area || 'Civil',
-                status: 'Accepted'
+                status: 'Pending'
             }
         })
 
