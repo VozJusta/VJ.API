@@ -1,13 +1,15 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
 import { CitizenService } from '../service/citizen.service';
 import { CreateUserDTO } from '../dto/create-user.dto';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { SecurityTokenInterceptor } from 'src/modules/auth/interceptors/security-token.interceptor';
 
 @Controller('citizen')
 export class CitizenController {
     constructor(private readonly citizenService: CitizenService) {}
 
     @Post()
+    @UseInterceptors(SecurityTokenInterceptor)
     @ApiBody({
         description: 'Criação do usuário',
         required: true,
@@ -22,15 +24,25 @@ export class CitizenController {
         }
     })
     @ApiResponse({
-        description: 'Resposta de sucesso da criação de usuário',
+        description: 'Retorno da criação do usuário',
         status: 201,
         schema: {
             example: {
-                full_name: 'Pedro Sales',
-                cpf: '123.456.789-00',
-                cnpj: 'null',
-                phone: '11 99999-9999',
+                validate: true,
+                sub: '47ff0575-8976-4316-877d-936a2b1d478c',
+                role: 'Citizen',
                 email: 'pedro@gmail.com',
+                full_name: 'Pedro Sales',
+                loggedWithGoogle: false
+            }
+        },
+        headers: {
+            'x-security-token': {
+                description: 'x-security-token para autenticação',
+                schema: {
+                    type: 'string',
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                }
             }
         }
     })

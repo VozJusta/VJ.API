@@ -69,6 +69,7 @@ export class LawyerService {
                 lawyer_status: 'Verified'
             },
             select: {
+                id: true,
                 full_name: true,
                 cpf: true,
                 oab_number: true,
@@ -80,7 +81,14 @@ export class LawyerService {
             }
         })
 
-        return newLawyer
+        return {
+            validated: true,
+            sub: newLawyer.id,
+            role: 'Lawyer',
+            email: newLawyer.email,
+            full_name: newLawyer.full_name,
+            loggedWithGoogle: false
+        }
 
     }
 }
