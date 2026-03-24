@@ -33,6 +33,14 @@ export class AuthService {
     ) { }
 
     async authenticateCitizen(body: SignInDTO) {
+        const lawyer = await this.prisma.lawyer.findFirst({
+            where: { email: body.email }
+        })
+
+        if(lawyer) {
+            throw new UnauthorizedException('Usuario cadastrado como advogado')
+        }
+
         const user = await this.prisma.citizen.findFirst({
             where: {
                 email: body.email
@@ -60,6 +68,14 @@ export class AuthService {
     }
 
     async authenticateLawyer(body: SignInDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: body.email }
+        })
+
+        if(citizen) {
+            throw new UnauthorizedException('Usuario cadastrado como cidadão')
+        }
+
         const lawyer = await this.prisma.lawyer.findFirst({
             where: {
                 email: body.email
