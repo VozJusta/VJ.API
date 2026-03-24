@@ -20,8 +20,7 @@ import { SecurityTokenInterceptor } from '../interceptors/security-token.interce
 import { AuthTokenGuard } from '../guard/access-token.guard';
 import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
-import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
-import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
+
 
 @Controller('auth')
 export class AuthController {
