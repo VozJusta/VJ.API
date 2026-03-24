@@ -8,6 +8,12 @@ export class LlmService {
 
     async generate({ input, context }: any) {
         const prompt = `Você é um assistente jurídico
+
+            Responda EXCLUSIVAMENTE em JSON válido.
+            - NÃO use markdown
+            - NÃO use blocos de código
+            - NÃO use quebras de linha dentro de strings (use \\n)
+            - NÃO escreva nada fora do JSON
         
             Relato:
             ${input}
@@ -20,7 +26,7 @@ export class LlmService {
             "area": "",
             "analysis": "",
             "explanation": "",
-            "next_steps": [],
+            "next_steps": "",
             "confidence": 0
             }`
 
@@ -29,7 +35,10 @@ export class LlmService {
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
                     model: 'llama-3.1-8b-instant',
-                    messages: [{ role: 'user', content: prompt }],
+                    messages: [
+                        { role: 'user', content: prompt },
+                        { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.'}
+                    ],
                 },
                 {
                     headers: {
@@ -53,7 +62,7 @@ export class LlmService {
         } catch {
             const cleaned = text
                 .replace(/```json|```/g, '')
-                .replace(/\*\*/g, '') 
+                .replace(/\*\*/g, '')
                 .trim();
             const match = cleaned.match(/\{[\s\S]*\}/);
 
