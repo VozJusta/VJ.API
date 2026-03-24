@@ -230,7 +230,7 @@ export class AuthService {
 
             const refreshToken = await this.jwtService.signAsync(newPayload, {
                 secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESh_TTL as any
+                expiresIn: process.env.JWT_REFRESH_TTL as any
             })
 
             return {
