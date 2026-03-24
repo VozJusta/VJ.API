@@ -13,7 +13,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
+model Citizen {
   id                 String             @id @default(uuid())
   full_name          String
   cpf                String?            @unique
@@ -67,7 +67,7 @@ model Plan {
 
 model Subscription {
   id                     String             @id @default(uuid())
-  user                   User?              @relation(fields: [user_id], references: [id])
+  user                   Citizen?           @relation(fields: [user_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
   user_id                String?            @unique
   lawyer_id              String?            @unique
@@ -83,16 +83,44 @@ model Subscription {
 model Report {
   id                     String         @id @default(uuid())
   transcription          String
+  normalized_text        String
   legal_analysis         String
   simplified_explanation String
   category_detected      Specialization
+  confidence_score       Float?
   status                 Status         @default(Pending)
-  user_id                String         @unique
+  user_id                String
   lawyer_id              String?        @unique
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  user                   User           @relation(fields: [user_id], references: [id])
+  user                   Citizen        @relation(fields: [user_id], references: [id])
   evidence               Evidence[]
+  ai_versions            AiResponse[]
   created_at             DateTime       @default(now())
+  ragContexts            RagContext[]
+  simulations            Simulation[]
+}
+
+model AiResponse {
+  id          String   @id @default(uuid())
+  report_id   String
+  report      Report   @relation(fields: [report_id], references: [id])
+  model       String
+  provider    String
+  prompt      String
+  response    String
+  tokens_used Int?
+  latency_ms  Int?
+  created_at  DateTime @default(now())
+}
+
+model RagContext {
+  id         String   @id @default(uuid())
+  report_id  String
+  report     Report   @relation(fields: [report_id], references: [id])
+  source     String
+  content    String
+  score      Float
+  created_at DateTime @default(now())
 }
 
 model ValidationCode {
@@ -100,7 +128,7 @@ model ValidationCode {
   type       Types
   user_id    String?
   lawyer_id  String?
-  user       User?    @relation(fields: [user_id], references: [id])
+  user       Citizen? @relation(fields: [user_id], references: [id])
   lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
   code       String
   validated  Boolean  @default(false)
@@ -116,7 +144,7 @@ model TwoFactorToken {
   type       Types
   user_id    String   @unique
   lawyer_id  String   @unique
-  user       User     @relation(fields: [user_id], references: [id])
+  user       Citizen  @relation(fields: [user_id], references: [id])
   lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
   created_at DateTime @default(now())
   expires_at DateTime
@@ -124,18 +152,21 @@ model TwoFactorToken {
 
 model Simulation {
   id             String      @id @default(uuid())
-  user_id        String      @unique
-  user           User        @relation(fields: [user_id], references: [id])
+  user_id        String
+  user           Citizen     @relation(fields: [user_id], references: [id])
+  report_id      String?
+  report         Report?     @relation(fields: [reportId], references: [id])
   personality    Personality
   transcription  String
   score_feedback String
+  reportId       String?
 }
 
 model SimulationReport {
-  id            String @id @default(uuid())
+  id            String  @id @default(uuid())
   transcription String
-  user_id       String @unique
-  user          User   @relation(fields: [user_id], references: [id])
+  user_id       String  @unique
+  user          Citizen @relation(fields: [user_id], references: [id])
 }
 
 model Evidence {
@@ -144,6 +175,7 @@ model Evidence {
   report      Report @relation(fields: [report_id], references: [id])
   file_url    String
   ocr_content String
+  embedding   Json?
 }
 
 enum Specialization {

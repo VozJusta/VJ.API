@@ -7,7 +7,7 @@ import { CpfNumberValidation } from 'src/modules/validation/service/cpf-number-v
 import { CnpjNumberValidation } from 'src/modules/validation/service/cnpj-number-validation.service';
 
 @Injectable()
-export class UserService {
+export class CitizenService {
     constructor(
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
@@ -17,7 +17,7 @@ export class UserService {
 
     async create(body: CreateUserDTO) {
 
-        const existingUser = await this.prisma.user.findFirst({
+        const existingCitizen = await this.prisma.citizen.findFirst({
             where: {
                 OR: [
                     {
@@ -33,13 +33,15 @@ export class UserService {
             }
         })
 
-        if (existingUser) {
-            throw new ConflictException('Usuario já cadastrado')
+        if (existingCitizen) {
+            throw new ConflictException('Cidadão já cadastrado')
         }
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
-        const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        if(body.cnpj) {
+            const cnpjValid = await this.validateCnpj.validate(body.cnpj)
+        }
 
         if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
@@ -47,7 +49,7 @@ export class UserService {
 
         const hashedPassword = await this.hashingService.hash(body.password)
 
-        const newUser = await this.prisma.user.create({
+        const newUser = await this.prisma.citizen.create({
             data: {
                 full_name: body.fullName,
                 cpf: body.cpf,
@@ -57,6 +59,7 @@ export class UserService {
                 password: hashedPassword
             },
             select: {
+                id: true,
                 full_name: true,
                 cpf: true,
                 cnpj: true,
@@ -65,6 +68,13 @@ export class UserService {
             }
         })
 
-        return newUser
+        return {
+            validated: true,
+            sub: newUser.id,
+            role: 'Citizen',
+            email: newUser.email,
+            full_name: newUser.full_name,
+            loggedWithGoogle: false
+        }
     }
 }

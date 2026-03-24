@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { LawyerService } from '../lawyer/service/lawyer.service';
-import { LawyerController } from '../lawyer/controllers/lawyer.controller';
+import { CitizenService } from './service/citizen.service';
+import { CitizenController } from './controllers/citizen.controller';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
 import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.interceptor';
 import { ConfigModule, ConfigType } from '@nestjs/config';
@@ -19,7 +19,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     PrismaModule
   ],
-  providers: [LawyerService, SecurityTokenInterceptor],
-  controllers: [LawyerController]
+  providers: [CitizenService, SecurityTokenInterceptor],
+  controllers: [CitizenController]
 })
-export class LawyerModule { }
+export class CitizenModule { }
