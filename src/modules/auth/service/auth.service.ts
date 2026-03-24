@@ -1,4 +1,11 @@
-import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { SignInDTO } from '../dto/signIn.dto';

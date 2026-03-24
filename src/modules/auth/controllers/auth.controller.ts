@@ -12,6 +12,8 @@ import { AuthService } from '../service/auth.service';
 import { SignInDTO } from '../dto/signIn.dto';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
+import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
+import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
