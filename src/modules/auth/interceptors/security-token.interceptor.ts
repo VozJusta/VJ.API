@@ -27,7 +27,7 @@ export class SecurityTokenInterceptor implements NestInterceptor {
                             fullName: data?.full_name,
                             loggedWithGoogle: data?.loggedWithGoogle
                         },
-                        { expiresIn: '5m' }
+                        { expiresIn: '20m' }
                     )
 
                     response.setHeader('x-security-token', token)
