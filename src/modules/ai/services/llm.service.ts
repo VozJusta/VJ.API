@@ -21,6 +21,58 @@ export class LlmService {
             Contexto:
             ${context.map(c => c.content).join('\n')}
 
+            Areas que você deve colocar dentro do campo area:
+            Administrative
+            Customs
+            Legal_support
+            Aviation
+            Agrarian
+            Environmental
+            Arbitration
+            Copyright
+            Banking_and_financial
+            Biotechnology
+            Civil
+            Commercial
+            International_trade
+            Competition
+            Constitutional
+            Consumer
+            Commercial_contracts
+            Sports
+            Water
+            Third_sector
+            Economic
+            Electoral
+            Corporate_criminal
+            Energy
+            Bankruptcy
+            Family
+            Mergers
+            Real_estate
+            Import_and_export
+            Infrastructure
+            International
+            Internet_and_ECommerce
+            Maritime
+            Capital_markets
+            Mining
+            Financial_operations
+            Criminal
+            Oil_and_gas
+            Social_security
+            Project_finance
+            Intellectual_property
+            Corporate_restructuring
+            Regulatory
+            Health_and_sanitary
+            Insurance
+            Labor_union
+            Corporate
+            Telecommunications
+            Labor_and_employment
+            Tax
+
             Responda em JSON:
             {
             "area": "",
