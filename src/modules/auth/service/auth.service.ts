@@ -32,20 +32,16 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) { }
 
-    async authenticateCitizen(body: SignInDTO) {
-        const lawyer = await this.prisma.lawyer.findFirst({
+    async authenticate(body: SignInDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
             where: { email: body.email }
         })
 
-        if(lawyer) {
-            throw new UnauthorizedException('Usuario cadastrado como advogado')
-        }
+        const lawyer = !citizen ? await this.prisma.lawyer.findFirst({
+            where: { email: body.email }
+        }) : null
 
-        const user = await this.prisma.citizen.findFirst({
-            where: {
-                email: body.email
-            }
-        })
+        const user = citizen || lawyer
 
         if (!user) {
             throw new UnauthorizedException('Email/senha incorretos')
@@ -57,47 +53,14 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
+        const role = citizen ? 'Citizen' : 'Lawyer'
+
         return {
             validated: true,
             sub: user.id,
-            role: 'Citizen',
+            role,
             email: user.email,
             full_name: user.full_name,
-            loggedWithGoogle: false
-        }
-    }
-
-    async authenticateLawyer(body: SignInDTO) {
-        const citizen = await this.prisma.citizen.findFirst({
-            where: { email: body.email }
-        })
-
-        if(citizen) {
-            throw new UnauthorizedException('Usuario cadastrado como cidadão')
-        }
-
-        const lawyer = await this.prisma.lawyer.findFirst({
-            where: {
-                email: body.email
-            }
-        })
-
-        if (!lawyer) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password || '')
-
-        if (!passwordMatch) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        return {
-            validated: true,
-            sub: lawyer.id,
-            role: 'Lawyer',
-            email: lawyer.email,
-            full_name: lawyer.full_name,
             loggedWithGoogle: false
         }
     }
