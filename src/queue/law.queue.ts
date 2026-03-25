@@ -1,6 +1,6 @@
-// import { Queue } from 'bullmq';
-// import { connection } from './redis';
+import { Queue } from 'bullmq';
+import { connection } from './redis';
 
-// export const lawQueue = new Queue('laws', {
-//   connection,
-// });
+export const lawQueue = new Queue('laws', {
+  connection,
+});
