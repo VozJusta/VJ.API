@@ -26,7 +26,7 @@ import { validate } from 'class-validator';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/citizen')
+  @Post('/authenticate')
   @UseInterceptors(SecurityTokenInterceptor)
   @ApiBody({
     description: 'Autenticação do usuário',
@@ -39,13 +39,13 @@ export class AuthController {
     },
   })
   @ApiResponse({
-    description: 'Retorno da autenticação do usuário',
+    description: 'Retorno da autenticação',
     status: 201,
     schema: {
       example: {
         validate: true,
         sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-        role: 'Citizen',
+        role: 'Citizen | Lawyer',
         email: 'pedro@gmail.com',
         full_name: 'Pedro Sales',
         loggedWithGoogle: false,
@@ -73,59 +73,8 @@ export class AuthController {
     },
   })
   
-  async authenticateUser(@Body() body: SignInDTO) {
-    return await this.authService.authenticateCitizen(body);
-  }
-
-  @Post('/lawyer')
-  @UseInterceptors(SecurityTokenInterceptor)
-  @ApiBody({
-    description: 'Autenticação do advogado',
-    required: true,
-    schema: {
-      example: {
-        email: 'thiago@gmail.com',
-        password: '@Za12345678',
-      },
-    },
-  })
-  @ApiResponse({
-    description: 'Retorno da autenticação do advogado',
-    status: 201,
-    schema: {
-      example: {
-        validate: true,
-        sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-        role: 'Lawyer',
-        email: 'thiago@gmail.com',
-        full_name: 'Thiago Menezes',
-        loggedWithGoogle: false,
-      },
-    },
-    headers: {
-      'x-security-token': {
-        description: 'x-security-token para autenticação',
-        schema: {
-          type: 'string',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Acesso não autorizado',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Acesso não autorizado',
-        error: 'Unauthorized',
-      },
-    },
-  })
-  
-  async authenticateLawyer(@Body() body: SignInDTO) {
-    return await this.authService.authenticateLawyer(body);
+  async authenticate(@Body() body: SignInDTO) {
+    return await this.authService.authenticate(body);
   }
 
   @Post('send/email')
