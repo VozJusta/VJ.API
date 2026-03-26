@@ -72,7 +72,6 @@ export class AuthController {
       },
     },
   })
-  
   async authenticate(@Body() body: SignInDTO) {
     return await this.authService.authenticate(body);
   }
