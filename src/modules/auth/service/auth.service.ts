@@ -1,4 +1,11 @@
-import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { SignInDTO } from '../dto/signIn.dto';
@@ -26,6 +33,14 @@ export class AuthService {
     ) { }
 
     async authenticateCitizen(body: SignInDTO) {
+        const lawyer = await this.prisma.lawyer.findFirst({
+            where: { email: body.email }
+        })
+
+        if(lawyer) {
+            throw new UnauthorizedException('Usuario cadastrado como advogado')
+        }
+
         const user = await this.prisma.citizen.findFirst({
             where: {
                 email: body.email
@@ -53,6 +68,14 @@ export class AuthService {
     }
 
     async authenticateLawyer(body: SignInDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: body.email }
+        })
+
+        if(citizen) {
+            throw new UnauthorizedException('Usuario cadastrado como cidadão')
+        }
+
         const lawyer = await this.prisma.lawyer.findFirst({
             where: {
                 email: body.email
@@ -223,7 +246,7 @@ export class AuthService {
 
             const refreshToken = await this.jwtService.signAsync(newPayload, {
                 secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESh_TTL as any
+                expiresIn: process.env.JWT_REFRESH_TTL as any
             })
 
             return {
@@ -231,7 +254,7 @@ export class AuthService {
                 refresh_token: refreshToken
             }
         } catch (err) {
-            throw new UnauthorizedException(err)
+            throw new UnauthorizedException(err.message)
         }
     }
 

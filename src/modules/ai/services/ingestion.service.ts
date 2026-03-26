@@ -7,7 +7,9 @@ export class IngestionService {
     constructor(private embeddingService: EmbeddingsService) { }
 
     private client = new QdrantClient({
-        url: 'http://localhost:6333',
+        url: 'https://vj-ia.onrender.com',
+        port: 443,
+        checkCompatibility: false,
     });
 
     async ingest(items: any[]) {
