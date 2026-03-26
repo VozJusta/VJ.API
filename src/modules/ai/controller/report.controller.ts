@@ -6,7 +6,7 @@ export class ReportController {
     constructor(private readonly aiService: AiService) {}
 
     @Post()
-    async test(@Body('text') text: string, @Body('user_id') userId: string) {
+    async create(@Body('text') text: string, @Body('user_id') userId: string) {
         return await this.aiService.analyzeReport(text, userId)
     }
 }

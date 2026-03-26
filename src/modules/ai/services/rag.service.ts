@@ -3,15 +3,14 @@ import { EmbeddingsService } from "./embeddings.service";
 import { QdrantClient } from '@qdrant/js-client-rest'
 
 @Injectable()
-export class RagService implements OnModuleInit {
-    private client: QdrantClient;
-    constructor(private embeddingService: EmbeddingsService) {
-        this.client = new QdrantClient({
-            url: 'https://vj-ia.onrender.com',
-            port: 443,
-            checkCompatibility: false,
-        });
-    }
+export class RagService {
+    constructor(private embeddingService: EmbeddingsService) { }
+
+    private client = new QdrantClient({
+        url: `${process.env.QDRANT_URL}`,
+        port: 443,
+        checkCompatibility: false,
+    })
 
     async onModuleInit() {
         const collections = await this.client.getCollections();

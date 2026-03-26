@@ -7,7 +7,7 @@ export class IngestionService {
     constructor(private embeddingService: EmbeddingsService) { }
 
     private client = new QdrantClient({
-        url: 'https://vj-ia.onrender.com',
+        url: `${process.env.QDRANT_URL}`,
         port: 443,
         checkCompatibility: false,
     });
