@@ -58,6 +58,7 @@ export class DashboardService {
           avatar_image: true,
           specialization: true,
           lawyer_status: true,
+          report: true,
           created_at: true,
         },
       });
@@ -81,7 +82,8 @@ export class DashboardService {
         phone: true,
         cpf: true,
         cnpj: true,
-        created_at: true,
+        report: true,
+        created_at: true
       },
     });
 
