@@ -16,7 +16,7 @@ async function bootstrap() {
     origin: ['http://localhost:3000', 'https://vozjusta.com.br'],
     methods: ['GET', 'PATCH', 'DELETE', 'POST', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-security-token', 'access-token'],
-    exposedHeaders: ['x-security-token', 'X-security-token'],
+    exposedHeaders: ['x-security-token', 'X-security-token', 'access-token'],
     credentials: true
   })
 
