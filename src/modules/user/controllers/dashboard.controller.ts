@@ -34,6 +34,6 @@ export class DashboardController {
   async getDashboard(@Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     const role = req.user.role;
-    return await this.dashboardService.getProfileByUserId(userId, role);
+    return this.dashboardService.getProfileByUserId(userId, role);
   }
 }
