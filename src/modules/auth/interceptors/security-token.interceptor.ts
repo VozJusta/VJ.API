@@ -25,7 +25,8 @@ export class SecurityTokenInterceptor implements NestInterceptor {
                             role: data?.role,
                             email: data?.email,
                             fullName: data?.full_name,
-                            loggedWithGoogle: data?.loggedWithGoogle
+                            loggedWithGoogle: data?.loggedWithGoogle,
+                            registerCompleted: data?.registerCompleted
                         },
                         { expiresIn: '20m' }
                     )
