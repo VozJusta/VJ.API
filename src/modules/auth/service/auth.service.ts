@@ -1,4 +1,11 @@
-import { ConflictException, Inject, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { SignInDTO } from '../dto/signIn.dto';
@@ -25,12 +32,16 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) { }
 
-    async authenticateCitizen(body: SignInDTO) {
-        const user = await this.prisma.citizen.findFirst({
-            where: {
-                email: body.email
-            }
+    async authenticate(body: SignInDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: body.email }
         })
+
+        const lawyer = !citizen ? await this.prisma.lawyer.findFirst({
+            where: { email: body.email }
+        }) : null
+
+        const user = citizen || lawyer
 
         if (!user) {
             throw new UnauthorizedException('Email/senha incorretos')
@@ -42,39 +53,14 @@ export class AuthService {
             throw new UnauthorizedException('Email/senha incorretos')
         }
 
+        const role = citizen ? 'Citizen' : 'Lawyer'
+
         return {
             validated: true,
             sub: user.id,
-            role: 'Citizen',
+            role,
             email: user.email,
             full_name: user.full_name,
-            loggedWithGoogle: false
-        }
-    }
-
-    async authenticateLawyer(body: SignInDTO) {
-        const lawyer = await this.prisma.lawyer.findFirst({
-            where: {
-                email: body.email
-            }
-        })
-
-        if (!lawyer) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        const passwordMatch = await this.hashingService.compare(body.password, lawyer.password || '')
-
-        if (!passwordMatch) {
-            throw new UnauthorizedException('Email/senha inválidos')
-        }
-
-        return {
-            validated: true,
-            sub: lawyer.id,
-            role: 'Lawyer',
-            email: lawyer.email,
-            full_name: lawyer.full_name,
             loggedWithGoogle: false
         }
     }
@@ -223,7 +209,7 @@ export class AuthService {
 
             const refreshToken = await this.jwtService.signAsync(newPayload, {
                 secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESh_TTL as any
+                expiresIn: process.env.JWT_REFRESH_TTL as any
             })
 
             return {
@@ -231,7 +217,7 @@ export class AuthService {
                 refresh_token: refreshToken
             }
         } catch (err) {
-            throw new UnauthorizedException(err)
+            throw new UnauthorizedException(err.message)
         }
     }
 

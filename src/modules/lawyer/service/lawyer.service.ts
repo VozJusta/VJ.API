@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { CreateLawyerDTO } from '../dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
@@ -17,6 +17,13 @@ export class LawyerService {
     ) { }
 
     async create(body: CreateLawyerDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: body.email }
+        })
+
+        if(citizen) {
+            throw new UnauthorizedException('Usuário cadastrado como cidadão')
+        }
 
         const existingLawyer = await this.prisma.lawyer.findFirst({
             where: {
