@@ -19,9 +19,9 @@ export class DashboardController {
   @Get()
   @UseGuards(AuthTokenGuard)
   @ApiHeader({
-    name: 'access-token',
+    name: 'Authorization',
     required: true,
-    description: 'Access token recebido no login',
+    description: 'Token JWT recebido no login no formato "Bearer <token>"',
   })
   @ApiResponse({
     status: 200,
