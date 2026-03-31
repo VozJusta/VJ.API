@@ -32,7 +32,7 @@ export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getProfileByUserId(userId: string, role: string) {
-    const userRole = role.toLocaleLowerCase();
+    const userRole = role.toLowerCase();
 
     //Advogado
     if (userRole === 'lawyer') {
