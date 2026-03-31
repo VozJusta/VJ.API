@@ -123,7 +123,7 @@ export class AuthService {
     }
 
     async sendForgotPasswordEmail(email: SendCodeEmailDTO) {
-    const codeUsed = await this.prisma.validationCode.findFirst({
+        const codeUsed = await this.prisma.validationCode.findFirst({
             where: {
                 email: email.email,
                 validated: false,
@@ -159,10 +159,10 @@ export class AuthService {
                 expired: false
             }
         })
-    await this.sendEmailCode.sendForgotPasswordCode(email.email, generateCode);
+        await this.sendEmailCode.sendForgotPasswordCode(email.email, generateCode);
 
-    return `Código de recuperação enviado para o email ${email.email}`;
-  }
+        return `Código de recuperação enviado para o email ${email.email}`;
+    }
 
     async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
         try {
@@ -249,6 +249,16 @@ export class AuthService {
                     full_name: name,
                 }
             })
+
+            return {
+                validated: true,
+                sub: citizen.id,
+                role: 'Citizen',
+                email: citizen.email,
+                full_name: citizen.full_name,
+                loggedWithGoogle: true,
+                registerCompleted: false
+            }
         }
 
         return {
@@ -257,7 +267,8 @@ export class AuthService {
             role: 'Citizen',
             email: citizen.email,
             full_name: citizen.full_name,
-            loggedWithGoogle: true
+            loggedWithGoogle: true,
+            registerCompleted: true
         }
     }
 
@@ -276,6 +287,16 @@ export class AuthService {
                     full_name: name,
                 }
             })
+
+            return {
+                validated: true,
+                sub: lawyer.id,
+                role: 'Lawyer',
+                email: lawyer.email,
+                full_name: lawyer.full_name,
+                loggedWithGoogle: true,
+                registerCompleted: false
+            }
         }
 
         return {
@@ -284,118 +305,119 @@ export class AuthService {
             role: 'Lawyer',
             email: lawyer.email,
             full_name: lawyer.full_name,
-            loggedWithGoogle: true
+            loggedWithGoogle: true,
+            registerCompleted: true
         }
     }
     async verifyForgotCode(body: VerifyForgotCodeDTO) {
-    const code = await this.prisma.validationCode.findFirst({
-      where: {
-        email: body.email,
-        code: body.code,
-        validated: false,
-        expired: false,
-      },
-    });
+        const code = await this.prisma.validationCode.findFirst({
+            where: {
+                email: body.email,
+                code: body.code,
+                validated: false,
+                expired: false,
+            },
+        });
 
-    if (!code) {
-      throw new UnauthorizedException('Código inválido');
+        if (!code) {
+            throw new UnauthorizedException('Código inválido');
+        }
+
+        const createdAt = new Date(code.created_at);
+        const now = new Date();
+        const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+        if (diffInMinutes > 15) {
+            await this.prisma.validationCode.update({
+                where: { id: code.id },
+                data: { expired: true },
+            });
+
+            throw new UnauthorizedException('Código expirado');
+        }
+
+        await this.prisma.validationCode.update({
+            where: { id: code.id },
+            data: {
+                validated: true,
+            },
+        });
+
+        return {
+            message: 'Código validado com sucesso',
+        };
     }
 
-    const createdAt = new Date(code.created_at);
-    const now = new Date();
-    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+    async forgotPassword(body: ForgotPasswordDTO) {
+        const validatedCode = await this.prisma.validationCode.findFirst({
+            where: {
+                email: body.email,
+                validated: true,
+                expired: false,
+            },
+            orderBy: {
+                created_at: 'desc',
+            },
+        });
 
-    if (diffInMinutes > 15) {
-      await this.prisma.validationCode.update({
-        where: { id: code.id },
-        data: { expired: true },
-      });
+        if (!validatedCode) {
+            throw new UnauthorizedException('Código não validado para este email');
+        }
 
-      throw new UnauthorizedException('Código expirado');
+        const createdAt = new Date(validatedCode.created_at);
+        const now = new Date();
+        const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+        if (diffInMinutes > 15) {
+            await this.prisma.validationCode.update({
+                where: { id: validatedCode.id },
+                data: { expired: true },
+            });
+
+            throw new UnauthorizedException('Código expirado');
+        }
+
+        const hashedPassword = await this.hashingService.hash(body.new_password);
+
+        const user = await this.prisma.citizen.findFirst({
+            where: {
+                email: body.email,
+            },
+        });
+
+        const lawyer = await this.prisma.lawyer.findFirst({
+            where: {
+                email: body.email,
+            },
+        });
+
+        if (!user && !lawyer) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        if (user) {
+            await this.prisma.citizen.update({
+                where: { id: user.id },
+                data: { password: hashedPassword },
+            });
+        }
+
+        if (lawyer) {
+            await this.prisma.lawyer.update({
+                where: { id: lawyer.id },
+                data: { password: hashedPassword },
+            });
+        }
+
+        await this.prisma.validationCode.update({
+            where: { id: validatedCode.id },
+            data: {
+                expired: true,
+            },
+        });
+
+        return {
+            message: 'Senha alterada com sucesso',
+        };
     }
-
-    await this.prisma.validationCode.update({
-      where: { id: code.id },
-      data: {
-        validated: true,
-      },
-    });
-
-    return {
-      message: 'Código validado com sucesso',
-    };
-  }
-
-  async forgotPassword(body: ForgotPasswordDTO) {
-    const validatedCode = await this.prisma.validationCode.findFirst({
-      where: {
-        email: body.email,
-        validated: true,
-        expired: false,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-
-    if (!validatedCode) {
-      throw new UnauthorizedException('Código não validado para este email');
-    }
-
-    const createdAt = new Date(validatedCode.created_at);
-    const now = new Date();
-    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
-
-    if (diffInMinutes > 15) {
-      await this.prisma.validationCode.update({
-        where: { id: validatedCode.id },
-        data: { expired: true },
-      });
-
-      throw new UnauthorizedException('Código expirado');
-    }
-
-    const hashedPassword = await this.hashingService.hash(body.new_password);
-
-    const user = await this.prisma.citizen.findFirst({
-      where: {
-        email: body.email,
-      },
-    });
-
-    const lawyer = await this.prisma.lawyer.findFirst({
-      where: {
-        email: body.email,
-      },
-    });
-
-    if (!user && !lawyer) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
-    if (user) {
-      await this.prisma.citizen.update({
-        where: { id: user.id },
-        data: { password: hashedPassword },
-      });
-    }
-
-    if (lawyer) {
-      await this.prisma.lawyer.update({
-        where: { id: lawyer.id },
-        data: { password: hashedPassword },
-      });
-    }
-
-    await this.prisma.validationCode.update({
-      where: { id: validatedCode.id },
-      data: {
-        expired: true,
-      },
-    });
-
-    return {
-      message: 'Senha alterada com sucesso',
-    };
-  }
 }
