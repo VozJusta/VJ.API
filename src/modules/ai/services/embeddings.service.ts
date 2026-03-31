@@ -4,7 +4,7 @@ import { firstValueFrom, Observable } from "rxjs";
 
 @Injectable()
 export class EmbeddingsService {
-    constructor(private httpService: HttpService) {}
+    constructor(private httpService: HttpService) { }
 
     async generate(text: string): Promise<number[]> {
         const response = await firstValueFrom(
@@ -22,6 +22,25 @@ export class EmbeddingsService {
             )
         )
 
-        return response.data.data[0].embedding
+        const data = response.data;
+
+        if (!data?.data || !data.data[0]?.embedding) {
+            console.error('Erro no embedding:', data);
+            throw new Error('Falha ao gerar embedding');
+        }
+
+        return data.data[0].embedding
+    }
+
+    async generateBatch(texts: string[]): Promise<number[][]> {
+        const embeddings: number[][] = [];
+
+        for (const text of texts) {
+            embeddings.push(await this.generate(text));
+
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        return embeddings;
     }
 }

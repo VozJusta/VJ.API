@@ -2,79 +2,62 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { firstValueFrom } from "rxjs";
 
+type GenerateInput = {
+    input: string;
+    context: { content: string }[];
+};
+
+type LlmOutput = {
+    area: string;
+    analysis: string;
+    explanation: string;
+    next_steps: string[];
+    confidence: number;
+};
+
 @Injectable()
 export class LlmService {
     constructor(private httpService: HttpService) { }
 
-    async generate({ input, context }: any) {
-        const prompt = `Você é um assistente jurídico
-        
-            Relato:
-            ${input}
+    async generate({ input, context }: GenerateInput): Promise<{
+        prompt: string;
+        output: LlmOutput;
+    }> {
 
-            Contexto:
-            ${context.map(c => c.content).join('\n')}
+        const prompt = `Você é um assistente jurídico.
 
-            Areas que você deve colocar dentro do campo area:
-            Administrative
-            Customs
-            Legal_support
-            Aviation
-            Agrarian
-            Environmental
-            Arbitration
-            Copyright
-            Banking_and_financial
-            Biotechnology
-            Civil
-            Commercial
-            International_trade
-            Competition
-            Constitutional
-            Consumer
-            Commercial_contracts
-            Sports
-            Water
-            Third_sector
-            Economic
-            Electoral
-            Corporate_criminal
-            Energy
-            Bankruptcy
-            Family
-            Mergers
-            Real_estate
-            Import_and_export
-            Infrastructure
-            International
-            Internet_and_ECommerce
-            Maritime
-            Capital_markets
-            Mining
-            Financial_operations
-            Criminal
-            Oil_and_gas
-            Social_security
-            Project_finance
-            Intellectual_property
-            Corporate_restructuring
-            Regulatory
-            Health_and_sanitary
-            Insurance
-            Labor_union
-            Corporate
-            Telecommunications
-            Labor_and_employment
-            Tax
+        Responda EXCLUSIVAMENTE em JSON válido.
+        - NÃO use markdown
+        - NÃO use blocos de código
+        - NÃO use \`\`\`
+        - NÃO escreva nada fora do JSON
+        - "next_steps" DEVE ser um array de strings
 
-            Responda em JSON:
-            {
-            "area": "",
-            "analysis": "",
-            "explanation": "",
-            "next_steps": [],
-            "confidence": 0
-            }`
+        Relato:
+        ${input}
+
+        Contexto:
+        ${context.map(c => c.content).join('\n')}
+
+        Use apenas UMA dessas áreas:
+        Administrative, Customs, Legal_support, Aviation, Agrarian, Environmental, Arbitration, Copyright,
+        Banking_and_financial, Biotechnology, Civil, Commercial, International_trade, Competition,
+        Constitutional, Consumer, Commercial_contracts, Sports, Water, Third_sector, Economic,
+        Electoral, Corporate_criminal, Energy, Bankruptcy, Family, Mergers, Real_estate,
+        Import_and_export, Infrastructure, International, Internet_and_ECommerce, Maritime,
+        Capital_markets, Mining, Financial_operations, Criminal, Oil_and_gas, Social_security,
+        Project_finance, Intellectual_property, Corporate_restructuring, Regulatory,
+        Health_and_sanitary, Insurance, Labor_union, Corporate, Telecommunications,
+        Labor_and_employment, Tax
+
+        Formato:
+        {
+        "area": "",
+        "analysis": "",
+        "explanation": "",
+        "next_steps": [],
+        "confidence": 0
+        }`;
 
         const response = await firstValueFrom(
             this.httpService.post(
@@ -82,6 +65,7 @@ export class LlmService {
                 {
                     model: 'llama-3.1-8b-instant',
                     messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.2
                 },
                 {
                     headers: {
@@ -99,27 +83,22 @@ export class LlmService {
         };
     }
 
-    private extractJson(text: string) {
+    private extractJson(text: string): LlmOutput {
         try {
             return JSON.parse(text);
         } catch {
             const cleaned = text
                 .replace(/```json|```/g, '')
-                .replace(/\*\*/g, '') 
+                .replace(/\*\*/g, '')
                 .trim();
+
             const match = cleaned.match(/\{[\s\S]*\}/);
 
             if (!match) {
-                throw new Error('JSON não encontrado na resposta do modelo');
+                throw new Error('JSON não encontrado');
             }
 
-            try {
-                return JSON.parse(match[0]);
-            } catch (err) {
-                console.error('Erro ao parsear JSON:', match[0]);
-                throw err;
-            }
+            return JSON.parse(match[0]);
         }
     }
-
 }

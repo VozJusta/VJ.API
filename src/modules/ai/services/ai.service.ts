@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { RagService } from "./rag.service";
 import { LlmService } from "./llm.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
+import { Specialization } from "generated/prisma/enums";
 
 @Injectable()
 export class AiService {
@@ -12,6 +13,13 @@ export class AiService {
     ) { }
 
     async analyzeReport(text: string, userId: string) {
+        const classification = await this.llmService.generate({
+            input: `Classifique a área jurídica do texto: ${text}`,
+            context: []
+        });
+
+        const area = parseSpecialization(classification.output?.area)
+
         const report = await this.prisma.report.create({
             data: {
                 transcription: text,
@@ -24,9 +32,11 @@ export class AiService {
             }
         })
 
-        const context = await this.ragService.retrieve(text)
+        let context = await this.ragService.retrieve(text, area)
 
-        if(context.length > 0) {
+        context = context.slice(0, 3)
+
+        if (context.length > 0) {
             await this.prisma.ragContext.createMany({
                 data: context.map((c) => ({
                     report_id: report.id,
@@ -57,7 +67,7 @@ export class AiService {
             data: {
                 legal_analysis: response.output.analysis,
                 simplified_explanation: response.output.explanation,
-                category_detected: response.output.area || 'Civil',
+                category_detected: parseSpecialization(response.output.area),
                 status: 'Pending'
             }
         })
@@ -68,4 +78,14 @@ export class AiService {
             context,
         }
     }
+}
+
+function parseSpecialization(area: string): Specialization {
+    const values = Object.values(Specialization);
+
+    if (values.includes(area as Specialization)) {
+        return area as Specialization;
+    }
+
+    return Specialization.Civil; 
 }

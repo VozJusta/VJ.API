@@ -8,11 +8,12 @@ import { AiService } from './services/ai.service';
 import { LlmService } from './services/llm.service';
 import { IngestionService } from './services/ingestion.service';
 import { IngestionController } from './controller/ingestion.controller';
+import { PdfService } from './services/pdf.service';
 
 @Global()
 @Module({
     imports: [PrismaModule, HttpModule],
-    providers: [EmbeddingsService, RagService, AiService, LlmService, IngestionService],
+    providers: [EmbeddingsService, RagService, AiService, LlmService, IngestionService, PdfService],
     controllers: [ReportController, IngestionController],
     exports: [EmbeddingsService, RagService, AiService, LlmService, IngestionService],
 })
