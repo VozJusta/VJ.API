@@ -64,8 +64,10 @@ export class LlmService {
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
                     model: 'llama-3.1-8b-instant',
-                    messages: [{ role: 'user', content: prompt }],
-                    temperature: 0.2
+                    messages: [
+                        { role: 'user', content: prompt },
+                        { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.'}
+                    ],
                 },
                 {
                     headers: {

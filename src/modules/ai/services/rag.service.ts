@@ -1,4 +1,4 @@
-import { Injectable, Scope } from "@nestjs/common";
+import { Injectable, OnModuleInit, Scope } from "@nestjs/common";
 import { EmbeddingsService } from "./embeddings.service";
 import { QdrantClient } from '@qdrant/js-client-rest'
 
