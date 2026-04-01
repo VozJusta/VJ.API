@@ -26,7 +26,7 @@ export class AiService {
                 normalized_text: text,
                 legal_analysis: '',
                 simplified_explanation: '',
-                category_detected: 'Civil',
+                category_detected: area,
                 user_id: userId,
                 status: 'Pending'
             }
