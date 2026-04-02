@@ -68,7 +68,7 @@ export class DashboardController {
     schema: {
       example: {
         statusCode: 401,
-        message: 'Token não está ausente, inválido ou expirado',
+        message: 'Token está ausente, inválido ou expirado',
         error: 'Unauthorized',
       }
     }
