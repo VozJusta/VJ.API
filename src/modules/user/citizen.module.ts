@@ -6,6 +6,9 @@ import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.in
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { DashboardController } from './controllers/dashboard.controller';
+import { DashboardService } from './service/dashboard.service';
+import { AuthTokenGuard } from '../auth/guard/access-token.guard';
 
 @Module({
   imports: [
@@ -19,7 +22,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     PrismaModule
   ],
-  providers: [CitizenService, SecurityTokenInterceptor],
-  controllers: [CitizenController]
+  providers: [CitizenService, SecurityTokenInterceptor, DashboardService, AuthTokenGuard],
+  controllers: [CitizenController, DashboardController]
 })
 export class CitizenModule { }
