@@ -18,8 +18,7 @@ interface RequestUser extends Request {
 export class ReportController {
     constructor(
         private readonly aiService: AiService,
-        private prisma: PrismaService,
-        private pdfService: PdfService
+        private pdfService: PdfService,
     ) { }
 
     @Post()
@@ -34,29 +33,6 @@ export class ReportController {
 
     @Get('/pdf/:id')
     async generatePdf(@Param('id') id: string, @Res() res: Response) {
-        const report = await this.prisma.report.findUnique({
-            where: { id },
-            include: {
-                ai_versions: true
-            }
-        });
-
-        if (!report) {
-            throw new NotFoundException('Relátorio não encontrado')
-        }
-
-        const aiData = report.ai_versions?.[0] ? JSON.parse(report.ai_versions[0].response)
-            : {};
-
-        const data = {
-            input: report.transcription,
-            area: report.category_detected,
-            analysis: report.legal_analysis,
-            explanation: report.simplified_explanation,
-            next_steps: aiData.next_steps || [],
-            confidence: aiData.confidence || 0,
-        }
-
-        return this.pdfService.generateReportPdf(data, res)
+        return this.pdfService.generateReportPdf(id, res)
     }
 }

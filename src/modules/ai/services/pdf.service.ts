@@ -1,11 +1,37 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PdfReportDTO } from "../dto/pdf-report.dto";
 import PDFDocument from "pdfkit";
 import { Response } from "express";
+import { PrismaService } from "src/modules/prisma/service/prisma.service";
 
 @Injectable()
 export class PdfService {
-    generateReportPdf(data: PdfReportDTO, res: Response) {
+    constructor(private prisma: PrismaService) { }
+
+    async generateReportPdf(id: string, res: Response) {
+        const report = await this.prisma.report.findUnique({
+            where: { id },
+            include: {
+                ai_versions: true
+            }
+        });
+
+        if (!report) {
+            throw new NotFoundException('Relátorio não encontrado')
+        }
+
+        const aiData = report.ai_versions?.[0] ? JSON.parse(report.ai_versions[0].response)
+            : {};
+
+        const data = {
+            input: report.transcription,
+            area: report.category_detected,
+            analysis: report.legal_analysis,
+            explanation: report.simplified_explanation,
+            next_steps: aiData.next_steps || [],
+            confidence: aiData.confidence || 0,
+        }
+
         const doc = new PDFDocument();
 
         res.setHeader('Content-Type', 'application/pdf');
