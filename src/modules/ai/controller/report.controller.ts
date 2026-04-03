@@ -5,6 +5,7 @@ import { PdfService } from "../services/pdf.service";
 import { nextTick } from "process";
 import { Request, Response } from "express";
 import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";
+import { ApiHeader } from "@nestjs/swagger";
 
 interface RequestUser extends Request {
     user: {
@@ -22,6 +23,11 @@ export class ReportController {
     ) { }
 
     @Post()
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Token para acessar rota no formato Bearer <token>',
+        required: true,
+    })
     async create(@Body('text') text: string, @Req() req: RequestUser) {
         return await this.aiService.createReport(text, req.user.sub)
     }
@@ -35,7 +41,7 @@ export class ReportController {
             }
         });
 
-        if(!report) {
+        if (!report) {
             throw new NotFoundException('Relátorio não encontrado')
         }
 
