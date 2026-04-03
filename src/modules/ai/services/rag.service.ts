@@ -3,7 +3,7 @@ import { EmbeddingsService } from "./embeddings.service";
 import { QdrantClient } from '@qdrant/js-client-rest'
 
 @Injectable()
-export class RagService {
+export class RagService implements OnModuleInit {
     constructor(private embeddingService: EmbeddingsService) { }
 
     private client = new QdrantClient({

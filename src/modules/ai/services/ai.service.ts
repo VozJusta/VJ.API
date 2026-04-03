@@ -12,7 +12,7 @@ export class AiService {
         private prisma: PrismaService
     ) { }
 
-    async analyzeReport(text: string, userId: string) {
+    async createReport(text: string, userId: string) {
         const classification = await this.llmService.generate({
             input: `Classifique a área jurídica do texto: ${text}`,
             context: []
@@ -65,8 +65,8 @@ export class AiService {
         await this.prisma.report.update({
             where: { id: report.id },
             data: {
-                legal_analysis: response.output.analysis,
-                simplified_explanation: response.output.explanation,
+                legal_analysis: response.output.legal_analysis,
+                simplified_explanation: response.output.simplified_explanation,
                 category_detected: parseSpecialization(response.output.area),
                 status: 'Pending'
             }

@@ -13,6 +13,7 @@ interface RequestUser extends Request {
 }
 
 @Controller('report')
+@UseGuards(AuthTokenGuard)
 export class ReportController {
     constructor(
         private readonly aiService: AiService,
@@ -21,9 +22,8 @@ export class ReportController {
     ) { }
 
     @Post()
-    @UseGuards(AuthTokenGuard)
     async create(@Body('text') text: string, @Req() req: RequestUser) {
-        return await this.aiService.analyzeReport(text, req.user.sub)
+        return await this.aiService.createReport(text, req.user.sub)
     }
 
     @Get('/pdf/:id')
@@ -45,7 +45,7 @@ export class ReportController {
         const data = {
             input: report.transcription,
             area: report.category_detected,
-            analysis: report.simplified_explanation,
+            analysis: report.legal_analysis,
             explanation: report.simplified_explanation,
             next_steps: aiData.next_steps || [],
             confidence: aiData.confidence || 0,

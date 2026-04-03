@@ -2,7 +2,6 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { Specialization } from "generated/prisma/enums";
 
 export class IngestionDTO {
-
     @IsOptional()
     @IsString()
     readonly id?: string;

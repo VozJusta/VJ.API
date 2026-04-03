@@ -9,8 +9,8 @@ type GenerateInput = {
 
 type LlmOutput = {
     area: string;
-    analysis: string;
-    explanation: string;
+    legal_analysis: string;
+    simplified_explanation: string;
     next_steps: string[];
     confidence: number;
 };
@@ -50,14 +50,42 @@ export class LlmService {
         Health_and_sanitary, Insurance, Labor_union, Corporate, Telecommunications,
         Labor_and_employment, Tax
 
+        REGRAS IMPORTANTES DE QUALIDADE:
+
+        - "legal_analysis" deve ser EXTREMAMENTE detalhado (mínimo 150 palavras)
+        - Analise juridicamente o caso com profundidade
+        - Identifique possíveis violações legais
+        - Explique direitos aplicáveis
+        - Use linguagem técnica, mas clara
+        - Pode citar princípios jurídicos (sem inventar leis específicas)
+
+        - "simplified_explanation" deve ser uma versão mais simples (mínimo 100 palavras)
+        - Explique como se estivesse falando com uma pessoa leiga
+        - Use linguagem acessível
+        - Dê exemplos práticos se possível
+
+        - Evite respostas genéricas
+        - Seja específico com base no relato
+        - Se o contexto ajudar, utilize-o na análise
+
         Formato:
         {
         "area": "",
-        "analysis": "",
-        "explanation": "",
+        "legal_analysis": "",
+        "simplified_explanation": "",
         "next_steps": [],
         "confidence": 0
-        }`;
+        }
+        
+        Exemplo de resposta válida:
+        {
+        "area": "Civil",
+        "legal_analysis": "Texto longo...",
+        "simplified_explanation": "Texto...",
+        "next_steps": ["Passo 1", "Passo 2"],
+        "confidence": 0.85
+        }
+        `;
 
         const response = await firstValueFrom(
             this.httpService.post(
