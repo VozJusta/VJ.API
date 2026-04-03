@@ -8,6 +8,7 @@ export class RagService implements OnModuleInit {
 
     private client = new QdrantClient({
         url: `${process.env.QDRANT_URL}`,
+        apiKey: `${process.env.QDRANT_API_KEY}`,
         port: 443,
         checkCompatibility: false,
     })
@@ -27,30 +28,40 @@ export class RagService implements OnModuleInit {
                 },
             });
         }
+
+        try {
+            await this.client.createPayloadIndex("legal_knowledge", {
+                field_name: "area",
+                field_schema: "keyword",
+            });
+        } catch (error) {
+            console.log(error);
+
+        }
     }
 
-    async retrieve(text: string, area?: string) {
-        const embedding = await this.embeddingService.generate(text)
+    async retrieve(text: string, area ?: string) {
+            const embedding = await this.embeddingService.generate(text)
 
-        const results = await this.client.search('legal_knowledge', {
-            vector: embedding,
-            limit: 10,
-            filter: area
-                ? {
-                    must: [
-                        {
-                            key: 'area',
-                            match: { value: area },
-                        },
-                    ],
-                }
-                : undefined,
-        })
+            const results = await this.client.search('legal_knowledge', {
+                vector: embedding,
+                limit: 10,
+                filter: area
+                    ? {
+                        must: [
+                            {
+                                key: 'area',
+                                match: { value: area },
+                            },
+                        ],
+                    }
+                    : undefined,
+            })
 
-        return results.map(r => ({
-            content: String(r.payload?.content || ''),
-            source: String(r.payload?.source || ''),
-            score: r.score ?? 0
-        }));
+            return results.map(r => ({
+                content: String(r.payload?.content || ''),
+                source: String(r.payload?.source || ''),
+                score: r.score ?? 0
+            }));
+        }
     }
-}
