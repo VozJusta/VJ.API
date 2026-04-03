@@ -9,20 +9,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { DashboardController } from './controllers/dashboard.controller';
 import { DashboardService } from './service/dashboard.service';
 import { AuthTokenGuard } from '../auth/guard/access-token.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(jwtConfig),
-    JwtModule.registerAsync({
-      imports: [ConfigModule.forFeature(jwtConfig)],
-      inject: [jwtConfig.KEY],
-      useFactory: (config: ConfigType<typeof jwtConfig>) => ({
-        secret: config.accessToken.secret
-      }),
-    }),
-    PrismaModule
+    AuthModule,
+    PrismaModule,
   ],
-  providers: [CitizenService, SecurityTokenInterceptor, DashboardService, AuthTokenGuard],
+  providers: [CitizenService, DashboardService, AuthTokenGuard],
   controllers: [CitizenController, DashboardController]
 })
 export class CitizenModule { }

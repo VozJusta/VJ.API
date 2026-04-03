@@ -1,9 +1,16 @@
-import { Body, Controller, Get, NotFoundException, Param, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { AiService } from "../services/ai.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { PdfService } from "../services/pdf.service";
 import { nextTick } from "process";
-import { Response } from "express";
+import { Request, Response } from "express";
+import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";
+
+interface RequestUser extends Request {
+    user: {
+        sub: string
+    }
+}
 
 @Controller('report')
 export class ReportController {
@@ -14,8 +21,9 @@ export class ReportController {
     ) { }
 
     @Post()
-    async create(@Body('text') text: string, @Body('user_id') userId: string) {
-        return await this.aiService.analyzeReport(text, userId)
+    @UseGuards(AuthTokenGuard)
+    async create(@Body('text') text: string, @Req() req: RequestUser) {
+        return await this.aiService.analyzeReport(text, req.user.sub)
     }
 
     @Get('/pdf/:id')

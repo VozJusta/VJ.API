@@ -6,18 +6,12 @@ import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.in
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(jwtConfig),
-    JwtModule.registerAsync({
-      imports: [ConfigModule.forFeature(jwtConfig)],
-      inject: [jwtConfig.KEY],
-      useFactory: (config: ConfigType<typeof jwtConfig>) => ({
-        secret: config.accessToken.secret
-      }),
-    }),
-    PrismaModule
+    AuthModule,
+    PrismaModule,
   ],
   providers: [LawyerService, SecurityTokenInterceptor],
   controllers: [LawyerController]

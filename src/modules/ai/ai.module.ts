@@ -9,10 +9,12 @@ import { LlmService } from './services/llm.service';
 import { IngestionService } from './services/ingestion.service';
 import { IngestionController } from './controller/ingestion.controller';
 import { PdfService } from './services/pdf.service';
+import { AuthModule } from '../auth/auth.module';
+import { AuthTokenGuard } from '../auth/guard/access-token.guard';
 
 @Global()
 @Module({
-    imports: [PrismaModule, HttpModule],
+    imports: [PrismaModule, HttpModule, AuthModule],
     providers: [EmbeddingsService, RagService, AiService, LlmService, IngestionService, PdfService],
     controllers: [ReportController, IngestionController],
     exports: [EmbeddingsService, RagService, AiService, LlmService, IngestionService],
