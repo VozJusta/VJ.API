@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { RagService } from "./rag.service";
 import { LlmService } from "./llm.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { Specialization } from "generated/prisma/enums";
+import { NotFoundError } from "rxjs";
 
 @Injectable()
-export class AiService {
+export class ReportService {
     constructor(
         private ragService: RagService,
         private llmService: LlmService,
@@ -77,6 +78,61 @@ export class AiService {
             ...response.output,
         }
     }
+
+    async acceptReport(reportId: string, lawyerId: string, role: string) {
+        const report = await this.prisma.report.findUnique({
+            where: {
+                id: reportId
+            }
+        })
+
+        if (!report) {
+            throw new NotFoundException('Relatório não encontrado')
+        }
+
+        if (role === "Citizen") {
+            throw new UnauthorizedException('Usuário não autorizado')
+        }
+
+        await this.prisma.report.update({
+            where: { id: reportId },
+            data: {
+                status: 'Accepted',
+                lawyer_id: lawyerId
+            }
+        })
+
+        return {
+            message: 'Relatório aceito com sucesso'
+        }
+    }
+
+    async rejectReport(reportId: string, role: string) {
+        const report = await this.prisma.report.findUnique({
+            where: {
+                id: reportId
+            }
+        })
+
+        if (!report) {
+            throw new NotFoundException('Relatório não encontrado')
+        }
+        
+        if (role === "Citizen") {
+            throw new UnauthorizedException('Usuário não autorizado')
+        }
+
+        await this.prisma.report.update({
+            where: { id: reportId },
+            data: {
+                status: 'Refused',
+            }
+        })
+
+        return {
+            message: 'Relatório recusado'
+        }
+    }
 }
 
 function parseSpecialization(area: string): Specialization {
@@ -86,5 +142,5 @@ function parseSpecialization(area: string): Specialization {
         return area as Specialization;
     }
 
-    return Specialization.Civil; 
+    return Specialization.Civil;
 }
