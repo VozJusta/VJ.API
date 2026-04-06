@@ -216,8 +216,8 @@ export class AuthService {
                 access_token: accessToken,
                 refresh_token: refreshToken
             }
-        } catch (err) {
-            throw new UnauthorizedException(err.message)
+        } catch(err) {
+            throw new UnauthorizedException(err)
         }
     }
 
