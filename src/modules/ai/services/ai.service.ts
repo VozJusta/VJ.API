@@ -75,7 +75,6 @@ export class AiService {
         return {
             input: text,
             ...response.output,
-            context,
         }
     }
 }
