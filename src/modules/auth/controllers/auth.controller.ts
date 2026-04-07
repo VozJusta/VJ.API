@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  HttpCode,
   Post,
   Req,
   UseGuards,
@@ -111,6 +112,7 @@ export class AuthController {
   }
 
   @Post('send/forgot/email')
+  @HttpCode(200)
   @ApiBody({
     description: 'Rota para enviar email com codigo de recuperacao de senha',
     required: true,
@@ -130,12 +132,23 @@ export class AuthController {
     },
   })
   @ApiResponse({
+    status: 404,
+    description: 'Email não encontrado no sistema',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Email não cadastrado',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
     status: 409,
-    description: 'Verifica se o código já foi utilizado ou se o email é valido',
+    description: 'Código já foi enviado há menos de 15 minutos',
     schema: {
       example: {
         statusCode: 409,
-        message: 'Código já utilizado ou expirado',
+        message: 'Código já enviado',
         error: 'Conflict',
       },
     },
