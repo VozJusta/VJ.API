@@ -38,23 +38,55 @@ const DASHBOARD_FIELDS = {
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCitizenByUserId(userId: string, role: string) {
+  async getCitizenReports(userId: string, role: string, page = 1) {
     const userRole = role.toLowerCase();
+    const pageSize = 2;
+
+    if (!Number.isInteger(page) || page < 1) {
+      throw new BadRequestException('Página inválida');
+    }
+
+    const skip = (page - 1) * pageSize;
 
     //Cidadão
     if (userRole === 'citizen') {
       const citizen = await this.prisma.citizen.findUnique({
         where: { id: userId },
-        select: DASHBOARD_FIELDS.citizen,
+        select: { id: true },
       });
 
       if (!citizen) {
         throw new NotFoundException('Cidadão não encontrado');
       }
 
+      const [reports, totalReports] = await this.prisma.$transaction([
+        this.prisma.report.findMany({
+          where: { user_id: userId },
+          select: DASHBOARD_FIELDS.citizen.report.select,
+          orderBy: { created_at: 'desc' },
+          skip,
+          take: pageSize,
+        }),
+        this.prisma.report.count({
+          where: { user_id: userId },
+        }),
+      ]);
+
+      const totalPages = Math.max(1, Math.ceil(totalReports / pageSize));
+
       return {
         role: 'Citizen',
-        user: citizen,
+        user: {
+          report: reports,
+        },
+        pagination: {
+          page,
+          pageSize,
+          totalItems: totalReports,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
       };
     }
 
