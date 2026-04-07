@@ -132,6 +132,7 @@ export class DashboardService {
         },
       });
 
+      //retorna NotFound porque não tem o reportId referente ao usuário
       if (!report) {
         throw new NotFoundException('Relatório não encontrado');
       }

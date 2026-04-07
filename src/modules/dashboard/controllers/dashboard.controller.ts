@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
 import { Request } from 'express';
@@ -8,6 +8,7 @@ interface AuthenticatedRequest extends Request {
   user: {
     sub: string;
     role: string;
+
   };
 }
 
@@ -86,7 +87,7 @@ export class DashboardController {
       },
     },
   })
-  async getDashboard(
+  async getReportsByCitizen(
     @Req() req: AuthenticatedRequest,
     @Query('page') page?: string,
   ) {
@@ -95,5 +96,40 @@ export class DashboardController {
     const parsedPage = page ? Number(page) : 1;
 
     return this.dashboardService.listReportsByCitizen(userId, role, parsedPage);
+  }
+
+  @Get('/citizens/me/reports/:reportId')
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({
+    summary: 'Retorna um relatório do cidadão autenticado por id',
+    description:
+      'Busca um único relatório pelo id, garantindo que pertença ao usuário autenticado.',
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'Token JWT recebido no login no formato "Bearer <token>"',
+  })
+  @ApiParam({
+    name: 'reportId',
+    required: true,
+    description: 'Id do relatório a ser consultado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna um único relatório do cidadão autenticado.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Cidadão ou relatório não encontrado.',
+  })
+  async getCitizenReport(
+    @Req() req: AuthenticatedRequest,
+    @Param('reportId') reportId: string,
+  ) {
+    const userId = req.user.sub
+    const role = req.user.role
+
+    return this.dashboardService.findCitizenReportById(userId, role, reportId)
   }
 }
