@@ -1,5 +1,5 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
 import { Request } from 'express';
@@ -27,6 +27,12 @@ export class DashboardController {
     name: 'Authorization',
     required: true,
     description: 'Token JWT recebido no login no formato "Bearer <token>"',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número da página para paginação dos relatórios (2 por página).',
+    schema: { type: 'integer', minimum: 1, default: 1 },
   })
   @ApiResponse({
     status: 200,
@@ -80,9 +86,14 @@ export class DashboardController {
       },
     },
   })
-  async getDashboard(@Req() req: AuthenticatedRequest) {
+  async getDashboard(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') page?: string,
+  ) {
     const userId = req.user.sub;
     const role = req.user.role;
-    return this.dashboardService.getCitizenByUserId(userId, role);
+    const parsedPage = page ? Number(page) : 1;
+
+    return this.dashboardService.getCitizenReports(userId, role, parsedPage);
   }
 }
