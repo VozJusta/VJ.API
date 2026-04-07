@@ -19,6 +19,7 @@ import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import e from 'express';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
+import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
 
 @Injectable()
 export class AuthService {
@@ -237,19 +238,108 @@ export class AuthService {
         }
     }
 
-    async completeCitizenInformation(body: CompleteCitizenRegisterDTO, token: string, userId: string) {
+    async completeCitizenInformation(body: CompleteCitizenRegisterDTO, token: string) {
         try {
             const payload = await this.jwtService.verify(token)
 
-            const citizen = await this.prisma.citizen.findFirst({
-                where: { id: userId }
+            const { sub, role } = payload
+
+            if (role === "Lawyer") {
+                throw new UnauthorizedException('Usuário não permitido')
+            }
+
+            const datasAlreadyExists = await this.prisma.citizen.findFirst({
+                where: {
+                    OR: [
+                        { cpf: body.cpf },
+                        { phone: body.phone }
+                    ]
+                }
             })
 
-            if(!citizen) {
+            if (datasAlreadyExists) {
+                throw new ConflictException('Dados já cadastrados')
+            }
+
+            const citizen = await this.prisma.citizen.findFirst({
+                where: { id: sub }
+            })
+
+            if (!citizen) {
                 throw new NotFoundException('Usuário não encontrado')
             }
 
-            
+            const hashedPassword = await this.hashingService.hash(body.password)
+
+            await this.prisma.citizen.update({
+                where: { id: sub },
+                data: {
+                    cpf: body.cpf,
+                    phone: body.phone,
+                    password: hashedPassword
+                }
+            })
+
+            return {
+                message: 'Dados atualizados com sucesso'
+            }
+        } catch (err) {
+            throw new UnauthorizedException(err)
+        }
+    }
+
+    async completeLawyerInformation(body: CompleteLawyerRegisterDTO, token: string) {
+        try {
+            const payload = await this.jwtService.verify(token)
+
+            const { sub, role } = payload
+
+            if (role === "Citizen") {
+                throw new UnauthorizedException('Usuário não permitido')
+            }
+
+            const datasAlreadyExists = await this.prisma.lawyer.findFirst({
+                where: {
+                    OR: [
+                        { cpf: body.cpf },
+                        {
+                            oab_number: body.oabNumber,
+                            oab_state: body.oabState
+                        },
+                        { phone: body.phone }
+                    ]
+                }
+            })
+
+            if (datasAlreadyExists) {
+                throw new ConflictException('Dados já cadastrados')
+            }
+
+            const lawyer = await this.prisma.lawyer.findFirst({
+                where: { id: sub }
+            })
+
+            if (!lawyer) {
+                throw new NotFoundException('Usuário não encontrado')
+            }
+
+            const hashedPassword = await this.hashingService.hash(body.password)
+
+            await this.prisma.lawyer.update({
+                where: { id: sub },
+                data: {
+                    cpf: body.cpf,
+                    oab_number: body.oabNumber,
+                    oab_state: body.oabState,
+                    specialization: body.specialization,
+                    phone: body.phone,
+                    password: hashedPassword
+                }
+            })
+
+            return {
+                message: 'Dados atualizados com sucesso'
+            }
         } catch (err) {
             throw new UnauthorizedException(err)
         }

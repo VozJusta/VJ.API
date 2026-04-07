@@ -24,12 +24,13 @@ import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { Request } from 'express';
+import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
 
 interface RequestUser extends Request {
-    user: {
-        sub: string,
-        role: string
-    }
+  user: {
+    sub: string,
+    role: string
+  }
 }
 
 @Controller('auth')
@@ -214,10 +215,17 @@ export class AuthController {
   @Put('complete/citizen')
   async completeCitizenInformation(
     @Body() body: CompleteCitizenRegisterDTO,
-    @Headers('x-security-token') token: string,
-    @Req() req: RequestUser
+    @Headers('x-security-token') token: string
   ) {
-    return await this.authService.completeCitizenInformation(body, token, req.user.sub)
+    return await this.authService.completeCitizenInformation(body, token)
+  }
+
+  @Put('complete/lawyer')
+  async completeLayerInformation(
+    @Body() body: CompleteLawyerRegisterDTO,
+    @Headers('x-security-token') token: string
+  ) {
+    return await this.authService.completeLawyerInformation(body, token)
   }
 
   @Post('forgot/password')
