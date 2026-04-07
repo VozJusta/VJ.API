@@ -5,6 +5,7 @@ import {
   Headers,
   HttpCode,
   Post,
+  Put,
   Req,
   UseGuards,
   UseInterceptors,
@@ -21,11 +22,19 @@ import { SecurityTokenInterceptor } from '../interceptors/security-token.interce
 import { AuthTokenGuard } from '../guard/access-token.guard';
 import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
+import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
+import { Request } from 'express';
 
+interface RequestUser extends Request {
+    user: {
+        sub: string,
+        role: string
+    }
+}
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('/authenticate')
   @UseInterceptors(SecurityTokenInterceptor)
@@ -202,6 +211,15 @@ export class AuthController {
     return await this.authService.validateEmailCode(body, token);
   }
 
+  @Put('complete/citizen')
+  async completeCitizenInformation(
+    @Body() body: CompleteCitizenRegisterDTO,
+    @Headers('x-security-token') token: string,
+    @Req() req: RequestUser
+  ) {
+    return await this.authService.completeCitizenInformation(body, token, req.user.sub)
+  }
+
   @Post('forgot/password')
   @ApiBody({
     description: 'Rota para redefinir senha apos validacao de codigo',
@@ -291,7 +309,7 @@ export class AuthController {
       state: 'citizen || lawyer',
     },
   })
-  async googleLogin() {}
+  async googleLogin() { }
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)

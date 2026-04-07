@@ -1,10 +1,10 @@
 import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  RequestTimeoutException,
-  UnauthorizedException,
+    ConflictException,
+    Inject,
+    Injectable,
+    NotFoundException,
+    RequestTimeoutException,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
@@ -13,12 +13,12 @@ import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/modules/email/service/email.service';
-import { SmsService } from 'src/modules/sms/service/sms.service';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import e from 'express';
+import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +26,6 @@ export class AuthService {
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
         private readonly sendEmailCode: EmailService,
-        private readonly sendSms: SmsService,
 
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
@@ -150,7 +149,7 @@ export class AuthService {
                 throw new ConflictException('Código já enviado')
             }
         }
-        
+
         const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
 
         await this.prisma.validationCode.create({
@@ -233,7 +232,25 @@ export class AuthService {
                 access_token: accessToken,
                 refresh_token: refreshToken
             }
-        } catch(err) {
+        } catch (err) {
+            throw new UnauthorizedException(err)
+        }
+    }
+
+    async completeCitizenInformation(body: CompleteCitizenRegisterDTO, token: string, userId: string) {
+        try {
+            const payload = await this.jwtService.verify(token)
+
+            const citizen = await this.prisma.citizen.findFirst({
+                where: { id: userId }
+            })
+
+            if(!citizen) {
+                throw new NotFoundException('Usuário não encontrado')
+            }
+
+            
+        } catch (err) {
             throw new UnauthorizedException(err)
         }
     }
