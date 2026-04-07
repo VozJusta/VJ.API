@@ -201,14 +201,6 @@ export class AuthService {
                 throw new UnauthorizedException('Código expirado')
             }
 
-            await this.prisma.validationCode.update({
-                where: { id: code?.id },
-                data: {
-                    validated: true,
-                    expired: false,
-                }
-            })
-
             const newPayload = {
                 sub,
                 email,
@@ -227,6 +219,14 @@ export class AuthService {
             const refreshToken = await this.jwtService.signAsync(newPayload, {
                 secret: process.env.JWT_REFRESH_SECRET,
                 expiresIn: process.env.JWT_REFRESH_TTL as any
+            })
+
+            await this.prisma.validationCode.update({
+                where: { id: code.id },
+                data: {
+                    validated: true,
+                    expired: false,
+                }
             })
 
             return {
