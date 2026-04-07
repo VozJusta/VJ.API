@@ -6,8 +6,8 @@ import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.in
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
-import { DashboardController } from './controllers/dashboard.controller';
-import { DashboardService } from './service/dashboard.service';
+import { DashboardController } from '../dashboard/controllers/dashboard.controller';
+import { DashboardService } from '../dashboard/service/dashboard.service';
 import { AuthTokenGuard } from '../auth/guard/access-token.guard';
 import { AuthModule } from '../auth/auth.module';
 
