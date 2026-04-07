@@ -18,6 +18,7 @@ import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
+import e from 'express';
 
 @Injectable()
 export class AuthService {
@@ -109,6 +110,22 @@ export class AuthService {
     }
 
     async sendForgotPasswordEmail(email: SendCodeEmailDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: {
+                email: email.email,
+            },
+        })
+
+        const lawyer = !citizen ? await this.prisma.lawyer.findFirst({
+            where: {
+                email: email.email,
+            },
+        }) : null
+
+        if (!citizen && !lawyer) {
+            return `Código de recuperação enviado para o email ${email.email}`;
+        }
+
         const codeUsed = await this.prisma.validationCode.findFirst({
             where: {
                 email: email.email,
@@ -133,7 +150,7 @@ export class AuthService {
                 throw new ConflictException('Código já enviado')
             }
         }
-
+        
         const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
 
         await this.prisma.validationCode.create({
