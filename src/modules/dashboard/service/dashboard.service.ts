@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 
 const DASHBOARD_FIELDS = {
@@ -18,7 +22,7 @@ const DASHBOARD_FIELDS = {
         category_detected: true,
         status: true,
         created_at: true,
-      }
+      },
     },
     created_at: true,
   },
@@ -29,7 +33,7 @@ const DASHBOARD_FIELDS = {
         category_detected: true,
         status: true,
         created_at: true,
-      }
+      },
     },
   },
 };
@@ -38,7 +42,7 @@ const DASHBOARD_FIELDS = {
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCitizenReports(userId: string, role: string, page = 1) {
+  async listReportsByCitizen(userId: string, role: string, page = 1) {
     const userRole = role.toLowerCase();
     const pageSize = 2;
 
@@ -62,7 +66,12 @@ export class DashboardService {
       const [reports, totalReports] = await this.prisma.$transaction([
         this.prisma.report.findMany({
           where: { user_id: userId },
-          select: DASHBOARD_FIELDS.citizen.report.select,
+          select: {
+            id: true,
+            category_detected: true,
+            status: true,
+            created_at: true,
+          },
           orderBy: { created_at: 'desc' },
           skip,
           take: pageSize,
@@ -86,6 +95,51 @@ export class DashboardService {
           totalPages,
           hasNextPage: page < totalPages,
           hasPreviousPage: page > 1,
+        },
+      };
+    }
+
+    throw new BadRequestException('Role inválida');
+  }
+
+  async findCitizenReportById(userId: string, role: string, reportId: string) {
+    const userRole = role.toLowerCase();
+
+    if (userRole === 'citizen') {
+      const citizen = await this.prisma.citizen.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+
+      if (!citizen) {
+        throw new NotFoundException('Cidadão não encontrado');
+      }
+
+      const report = await this.prisma.report.findFirst({
+        where: {
+          id: reportId,
+          user_id: userId,
+        },
+        select: {
+          id: true,
+          transcription: true,
+          simplified_explanation: true,
+          legal_analysis: true,
+          category_detected: true,
+          status: true,
+          evidence: true,
+          lawyer: true,
+        },
+      });
+
+      if (!report) {
+        throw new NotFoundException('Relatório não encontrado');
+      }
+
+      return {
+        role: 'Citizen',
+        user: {
+          report,
         },
       };
     }

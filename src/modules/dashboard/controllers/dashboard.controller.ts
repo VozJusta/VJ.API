@@ -94,6 +94,6 @@ export class DashboardController {
     const role = req.user.role;
     const parsedPage = page ? Number(page) : 1;
 
-    return this.dashboardService.getCitizenReports(userId, role, parsedPage);
+    return this.dashboardService.listReportsByCitizen(userId, role, parsedPage);
   }
 }
