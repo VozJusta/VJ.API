@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  Patch,
   Post,
   Put,
   Req,
@@ -25,6 +26,7 @@ import { validate } from 'class-validator';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { Request } from 'express';
 import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
+import { ChangePasswordDTO } from '../dto/change-password.dto';
 
 interface RequestUser extends Request {
   user: {
@@ -226,6 +228,12 @@ export class AuthController {
     @Headers('x-security-token') token: string
   ) {
     return await this.authService.completeLawyerInformation(body, token)
+  }
+
+  @Patch('change-password')
+  @UseGuards(AuthTokenGuard)
+  async changePassword(@Body() body: ChangePasswordDTO, @Req() req: RequestUser) {
+    return await this.authService.changePassword(body, req.user.sub)
   }
 
   @Post('forgot/password')
