@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
+import { PaginationReportsDto } from '../dto/pagination-reports.dto';
 
 const DASHBOARD_FIELDS = {
   lawyer: {
@@ -42,12 +43,17 @@ const DASHBOARD_FIELDS = {
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listReportsByCitizen(userId: string, role: string, page = 1) {
+  async listReportsByCitizen(userId: string, role: string, pagination: PaginationReportsDto) {
     const userRole = role.toLowerCase();
-    const pageSize = 2;
+    const page = pagination.page ?? 1
+    const pageSize = Math.min(pagination.pageSize ?? 2, 10);
 
     if (!Number.isInteger(page) || page < 1) {
       throw new BadRequestException('Página inválida');
+    }
+
+    if(!Number.isInteger(pageSize) || pageSize < 1) {
+      throw new BadRequestException('PageSize inválido')
     }
 
     const skip = (page - 1) * pageSize;
@@ -81,12 +87,12 @@ export class DashboardService {
         }),
       ]);
 
-      const totalPages = Math.max(1, Math.ceil(totalReports / pageSize));
+      const totalPages = Math.ceil(totalReports / pageSize);
 
       return {
         role: 'Citizen',
         user: {
-          report: reports,
+          data: reports,
         },
         pagination: {
           page,
@@ -100,7 +106,7 @@ export class DashboardService {
     }
 
     throw new BadRequestException('Role inválida');
-  }
+  } 
 
   async findCitizenReportById(userId: string, role: string, reportId: string) {
     const userRole = role.toLowerCase();
@@ -128,7 +134,14 @@ export class DashboardService {
           category_detected: true,
           status: true,
           evidence: true,
-          lawyer: true,
+          lawyer: {
+            select: {
+              full_name: true,
+              bio: true,
+              phone: true,
+              email: true,
+            }
+          },
         },
       });
 
