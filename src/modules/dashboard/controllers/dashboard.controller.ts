@@ -10,7 +10,7 @@ import {
 import { DashboardService } from '../../dashboard/service/dashboard.service';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
 import { Request } from 'express';
-import { PaginationReportsDto } from '../dto/pagination-reports.dto';
+import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -95,7 +95,7 @@ export class DashboardController {
   })
   async getReportsByCitizen(
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationReportsDto,
+    @Query() pagination: PaginationReportsDTO,
   ) {
     const userId = req.user.sub;
     const role = req.user.role;

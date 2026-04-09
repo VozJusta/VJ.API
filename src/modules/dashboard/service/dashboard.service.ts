@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { PaginationReportsDto } from '../dto/pagination-reports.dto';
+import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
 
 const DASHBOARD_FIELDS = {
   lawyer: {
@@ -43,7 +43,7 @@ const DASHBOARD_FIELDS = {
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listReportsByCitizen(userId: string, role: string, pagination: PaginationReportsDto) {
+  async listReportsByCitizen(userId: string, role: string, pagination: PaginationReportsDTO) {
     const userRole = role.toLowerCase();
     const page = pagination.page ?? 1
     const pageSize = Math.min(pagination.pageSize ?? 2, 10);
