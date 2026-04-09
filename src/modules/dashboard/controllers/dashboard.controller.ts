@@ -1,14 +1,21 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiHeader,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
 import { Request } from 'express';
+import { PaginationReportsDto } from '../dto/pagination-reports.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {
     sub: string;
     role: string;
-
   };
 }
 
@@ -21,8 +28,7 @@ export class DashboardController {
   @UseGuards(AuthTokenGuard)
   @ApiOperation({
     summary: 'Retorna o dashboard do usuário autenticado',
-    description:
-      'Busca os dados do perfil presente no token JWT.',
+    description: 'Busca os dados do perfil presente no token JWT.',
   })
   @ApiHeader({
     name: 'Authorization',
@@ -32,7 +38,8 @@ export class DashboardController {
   @ApiQuery({
     name: 'page',
     required: false,
-    description: 'Número da página para paginação dos relatórios (2 por página).',
+    description:
+      'Número da página para paginação dos relatórios (2 por página).',
     schema: { type: 'integer', minimum: 1, default: 1 },
   })
   @ApiResponse({
@@ -46,13 +53,12 @@ export class DashboardController {
             id: '91b84236-6d06-4792-8366-1ba35a3b8676',
             category_detected: 'Labor_and_employment',
             status: 'Pending',
-            created_at: '2026-04-07 18:08:09.824'
+            created_at: '2026-04-07 18:08:09.824',
           },
-          
         },
-        message: 'Informações de usuário retornadas com sucesso'
-      }
-    }
+        message: 'Informações de usuário retornadas com sucesso',
+      },
+    },
   })
   @ApiResponse({
     status: 400,
@@ -73,8 +79,8 @@ export class DashboardController {
         statusCode: 401,
         message: 'Token está ausente, inválido ou expirado',
         error: 'Unauthorized',
-      }
-    }
+      },
+    },
   })
   @ApiResponse({
     status: 404,
@@ -89,13 +95,12 @@ export class DashboardController {
   })
   async getReportsByCitizen(
     @Req() req: AuthenticatedRequest,
-    @Query('page') page?: string,
+    @Query() pagination: PaginationReportsDto,
   ) {
     const userId = req.user.sub;
     const role = req.user.role;
-    const parsedPage = page ? Number(page) : 1;
 
-    return this.dashboardService.listReportsByCitizen(userId, role, parsedPage);
+    return this.dashboardService.listReportsByCitizen(userId, role, pagination);
   }
 
   @Get('/citizens/me/reports/:reportId')
@@ -127,9 +132,9 @@ export class DashboardController {
     @Req() req: AuthenticatedRequest,
     @Param('reportId') reportId: string,
   ) {
-    const userId = req.user.sub
-    const role = req.user.role
+    const userId = req.user.sub;
+    const role = req.user.role;
 
-    return this.dashboardService.findCitizenReportById(userId, role, reportId)
+    return this.dashboardService.findCitizenReportById(userId, role, reportId);
   }
 }
