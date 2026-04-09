@@ -137,4 +137,13 @@ export class DashboardController {
 
     return this.dashboardService.findCitizenReportById(userId, role, reportId);
   }
+
+  @Get('/lawyer/analytics')
+  @UseGuards(AuthTokenGuard)
+  async getReportsAcceptedLawyer(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    const role = req.user.role;
+
+    return this.dashboardService.getAcceptedRequestAnalytics(userId, role)
+  }
 }
