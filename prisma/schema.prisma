@@ -90,7 +90,7 @@ model Report {
   confidence_score       Float?
   status                 Status         @default(Pending)
   user_id                String
-  lawyer_id              String?        @unique
+  lawyer_id              String?        
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
   user                   Citizen        @relation(fields: [user_id], references: [id])
   evidence               Evidence[]
