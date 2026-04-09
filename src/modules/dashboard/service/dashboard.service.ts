@@ -6,38 +6,6 @@ import {
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
 
-const DASHBOARD_FIELDS = {
-  lawyer: {
-    id: true,
-    full_name: true,
-    email: true,
-    phone: true,
-    cpf: true,
-    bio: true,
-    avatar_image: true,
-    specialization: true,
-    lawyer_status: true,
-    report: {
-      select: {
-        id: true,
-        category_detected: true,
-        status: true,
-        created_at: true,
-      },
-    },
-    created_at: true,
-  },
-  citizen: {
-    report: {
-      select: {
-        id: true,
-        category_detected: true,
-        status: true,
-        created_at: true,
-      },
-    },
-  },
-};
 
 @Injectable()
 export class DashboardService {
