@@ -149,7 +149,10 @@ export class DashboardService {
         throw new NotFoundException('Advogado não encontrado');
       }
       const acceptedReports = await this.prisma.report.findMany({
-        where: { status: 'Accepted' },
+        where: {
+          status: 'Accepted',
+          lawyer_id: userId,
+        },
         select: { created_at: true },
         orderBy: { created_at: 'asc' },
       });
