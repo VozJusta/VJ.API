@@ -6,8 +6,8 @@ import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.in
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
-import { DashboardController } from '../dashboard/controllers/dashboard.controller';
-import { DashboardService } from '../dashboard/service/dashboard.service';
+import { DashboardCitizenController } from '../dashboard/controllers/dashboard-citizen.controller';
+import { DashboardCitizenService } from '../dashboard/service/dashboard-citizen.service';
 import { AuthTokenGuard } from '../auth/guard/access-token.guard';
 import { AuthModule } from '../auth/auth.module';
 
@@ -16,7 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
     PrismaModule,
   ],
-  providers: [CitizenService, DashboardService, AuthTokenGuard],
-  controllers: [CitizenController, DashboardController]
+  providers: [CitizenService, DashboardCitizenService, AuthTokenGuard],
+  controllers: [CitizenController, DashboardCitizenController]
 })
 export class CitizenModule { }
