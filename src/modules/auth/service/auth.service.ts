@@ -1,10 +1,10 @@
 import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  RequestTimeoutException,
-  UnauthorizedException,
+    ConflictException,
+    Inject,
+    Injectable,
+    NotFoundException,
+    RequestTimeoutException,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { HashingServiceProtocol } from '../hash/hashing.service';
@@ -13,12 +13,14 @@ import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/modules/email/service/email.service';
-import { SmsService } from 'src/modules/sms/service/sms.service';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import e from 'express';
+import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
+import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
+import { ChangePasswordDTO } from '../dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +28,6 @@ export class AuthService {
         private prisma: PrismaService,
         private readonly hashingService: HashingServiceProtocol,
         private readonly sendEmailCode: EmailService,
-        private readonly sendSms: SmsService,
 
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
@@ -150,7 +151,7 @@ export class AuthService {
                 throw new ConflictException('Código já enviado')
             }
         }
-        
+
         const generateCode = Math.floor(100000 + Math.random() * 900000).toString()
 
         await this.prisma.validationCode.create({
@@ -233,8 +234,162 @@ export class AuthService {
                 access_token: accessToken,
                 refresh_token: refreshToken
             }
-        } catch(err) {
+        } catch (err) {
             throw new UnauthorizedException(err)
+        }
+    }
+
+    async completeCitizenInformation(body: CompleteCitizenRegisterDTO, token: string) {
+        try {
+            const payload = await this.jwtService.verify(token)
+
+            const { sub, role } = payload
+
+            if (role === "Lawyer") {
+                throw new UnauthorizedException('Usuário não permitido')
+            }
+
+            const datasAlreadyExists = await this.prisma.citizen.findFirst({
+                where: {
+                    OR: [
+                        { cpf: body.cpf },
+                        { phone: body.phone }
+                    ]
+                }
+            })
+
+            if (datasAlreadyExists) {
+                throw new ConflictException('Dados já cadastrados')
+            }
+
+            const citizen = await this.prisma.citizen.findFirst({
+                where: { id: sub }
+            })
+
+            if (!citizen) {
+                throw new NotFoundException('Usuário não encontrado')
+            }
+
+            const hashedPassword = await this.hashingService.hash(body.password)
+
+            await this.prisma.citizen.update({
+                where: { id: sub },
+                data: {
+                    cpf: body.cpf,
+                    phone: body.phone,
+                    password: hashedPassword
+                }
+            })
+
+            return {
+                message: 'Dados atualizados com sucesso'
+            }
+        } catch (err) {
+            throw new UnauthorizedException(err)
+        }
+    }
+
+    async completeLawyerInformation(body: CompleteLawyerRegisterDTO, token: string) {
+        try {
+            const payload = await this.jwtService.verify(token)
+
+            const { sub, role } = payload
+
+            if (role === "Citizen") {
+                throw new UnauthorizedException('Usuário não permitido')
+            }
+
+            const datasAlreadyExists = await this.prisma.lawyer.findFirst({
+                where: {
+                    OR: [
+                        { cpf: body.cpf },
+                        {
+                            oab_number: body.oabNumber,
+                            oab_state: body.oabState
+                        },
+                        { phone: body.phone }
+                    ]
+                }
+            })
+
+            if (datasAlreadyExists) {
+                throw new ConflictException('Dados já cadastrados')
+            }
+
+            const lawyer = await this.prisma.lawyer.findFirst({
+                where: { id: sub }
+            })
+
+            if (!lawyer) {
+                throw new NotFoundException('Usuário não encontrado')
+            }
+
+            const hashedPassword = await this.hashingService.hash(body.password)
+
+            await this.prisma.lawyer.update({
+                where: { id: sub },
+                data: {
+                    cpf: body.cpf,
+                    oab_number: body.oabNumber,
+                    oab_state: body.oabState,
+                    specialization: body.specialization,
+                    phone: body.phone,
+                    password: hashedPassword
+                }
+            })
+
+            return {
+                message: 'Dados atualizados com sucesso'
+            }
+        } catch (err) {
+            throw new UnauthorizedException(err)
+        }
+    }
+
+    async changePassword(body: ChangePasswordDTO, userId: string) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { id: userId }
+        })
+
+        const lawyer = !citizen ? await this.prisma.lawyer.findFirst({
+            where: { id: userId }
+        }) : null
+
+        const user = citizen || lawyer
+        const userType = citizen ? 'citizen' : 'lawyer'
+
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado')
+        }
+
+        const wrongPassword = await this.hashingService.compare(body.currentPassword, user.password || '')
+
+        if (!wrongPassword) {
+            throw new UnauthorizedException('Senha incorreta')
+        }
+
+        const samePassword = await this.hashingService.compare(body.newPassword, user.password || '')
+
+        if (samePassword) {
+            throw new ConflictException('Senha não pode ser igual a anterior')
+        }
+
+        const hashedPassword = await this.hashingService.hash(body.newPassword)
+
+        if (userType === 'citizen') {
+            await this.prisma.citizen.update({
+                where: { id: userId },
+                data: { password: hashedPassword }
+            })
+        } else {
+            await this.prisma.lawyer.update({
+                where: { id: userId },
+                data: { password: hashedPassword }
+            })
+        }
+
+        return {
+            message: 'Senha atualizada com sucesso'
         }
     }
 
