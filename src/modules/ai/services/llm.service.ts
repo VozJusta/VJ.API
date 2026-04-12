@@ -89,11 +89,11 @@ export class LlmService {
         
         Exemplo de resposta válida:
         {
-        "area": "Civil",
+        "area": "área",
         "legal_analysis": "Texto longo...",
         "simplified_explanation": "Texto...",
         "next_steps": ["Passo 1", "Passo 2"],
-        "confidence": 0.85
+        "confidence": "entre 1 e 100"
         }
         `;
 

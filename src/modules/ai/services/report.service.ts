@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { RagService } from "./rag.service";
 import { LlmService } from "./llm.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
@@ -6,6 +6,7 @@ import { Specialization } from "generated/prisma/enums";
 import { NotFoundError } from "rxjs";
 import { finished } from "stream";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
+import { ContinueConversationDto } from "../dto/continue-conversation.dto";
 
 const MAX_TURNS = 6;
 
@@ -131,6 +132,59 @@ export class ReportService {
         }
     }
 
+    async continueConversation(continueConversation: ContinueConversationDto, userId: string) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: { id: continueConversation.conversationId },
+            include: { messages: { orderBy: { created_at: 'desc' } } }
+        });
+
+        if (!conversation) throw new NotFoundException('Conversa não encontrada');
+        if (conversation.is_closed) throw new BadRequestException('Conversa já encerrada');
+
+        await this.prisma.message.create({
+            data: {
+                conversation_id: continueConversation.conversationId,
+                role: 'User',
+                content: continueConversation.message,
+            }
+        });
+
+        const allMessages = [
+            ...conversation.messages,
+            { role: 'User' as const, content: continueConversation.message }
+        ];
+
+        const userTurns = allMessages.filter(m => m.role === 'User').length;
+        const forcedGenerate = userTurns >= MAX_TURNS;
+
+        if (forcedGenerate) {
+            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
+        }
+
+        const { shouldGenerate, questionOrAck } = await this.llmService.chat(
+            allMessages.map(m => ({ role: m.role as 'User' | 'Assistant', content: m.content }))
+        );
+
+        await this.prisma.message.create({
+            data: {
+                conversation_id: continueConversation.conversationId,
+                role: 'Assistant',
+                content: questionOrAck,
+            }
+        });
+
+        if (shouldGenerate) {
+            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
+        }
+
+        return {
+            conversationId: conversation.id,
+            caseId: conversation.case_id,
+            question: questionOrAck,
+            finished: false,
+        };
+    }
+
     private async generateReportFromConversation(
         conversationId: string,
         caseId: string,
@@ -216,60 +270,60 @@ export class ReportService {
         };
     }
 
-    // async acceptReport(reportId: string, lawyerId: string, role: string) {
-    //     const report = await this.prisma.report.findUnique({
-    //         where: {
-    //             id: reportId
-    //         }
-    //     })
+    async acceptCase(caseId: string, lawyerId: string, role: string) {
+        const caso = await this.prisma.case.findUnique({
+            where: {
+                id: caseId
+            }
+        })
 
-    //     if (!report) {
-    //         throw new NotFoundException('Relatório não encontrado')
-    //     }
+        if (!caso) {
+            throw new NotFoundException('Caso não encontrado')
+        }
 
-    //     if (role === "Citizen") {
-    //         throw new UnauthorizedException('Usuário não autorizado')
-    //     }
+        if (role === "Citizen") {
+            throw new UnauthorizedException('Usuário não autorizado')
+        }
 
-    //     await this.prisma.report.update({
-    //         where: { id: reportId },
-    //         data: {
-    //             status: 'Accepted',
-    //             lawyer_id: lawyerId
-    //         }
-    //     })
+        await this.prisma.case.update({
+            where: { id: caseId },
+            data: {
+                status: 'Accepted',
+                lawyer_id: lawyerId
+            }
+        })
 
-    //     return {
-    //         message: 'Relatório aceito com sucesso'
-    //     }
-    // }
+        return {
+            message: 'Caso aceito com sucesso'
+        }
+    }
 
-    // async rejectReport(reportId: string, role: string) {
-    //     const report = await this.prisma.report.findUnique({
-    //         where: {
-    //             id: reportId
-    //         }
-    //     })
+    async rejectCase(caseId: string, role: string) {
+        const caso = await this.prisma.case.findUnique({
+            where: {
+                id: caseId
+            }
+        })
 
-    //     if (!report) {
-    //         throw new NotFoundException('Relatório não encontrado')
-    //     }
+        if (!caso) {
+            throw new NotFoundException('Caso não encontrado')
+        }
 
-    //     if (role === "Citizen") {
-    //         throw new UnauthorizedException('Usuário não autorizado')
-    //     }
+        if (role === "Citizen") {
+            throw new UnauthorizedException('Usuário não autorizado')
+        }
 
-    //     await this.prisma.report.update({
-    //         where: { id: reportId },
-    //         data: {
-    //             status: 'Refused',
-    //         }
-    //     })
+        await this.prisma.case.update({
+            where: { id: caseId },
+            data: {
+                status: 'Refused',
+            }
+        })
 
-    //     return {
-    //         message: 'Relatório recusado'
-    //     }
-    // }
+        return {
+            message: 'Caso recusado'
+        }
+    }
 }
 
 function parseSpecialization(area: string): Specialization {
