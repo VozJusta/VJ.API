@@ -341,6 +341,7 @@ export class ReportService {
             where: { id: caseId },
             data: {
                 status: 'Refused',
+                
             }
         })
 
