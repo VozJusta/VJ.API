@@ -126,6 +126,7 @@ export class DashboardLawyerService {
           confidence_score: true,
           category_detected: true,
         },
+        take: 3,
         orderBy: {
           confidence_score: 'desc'
         }
