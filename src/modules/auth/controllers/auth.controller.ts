@@ -17,12 +17,10 @@ import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 import { AuthTokenGuard } from '../guard/access-token.guard';
 import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { validate } from 'class-validator';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { Request } from 'express';
 import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
@@ -37,57 +35,7 @@ interface RequestUser extends Request {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
-
-  @Post('/authenticate')
-  @UseInterceptors(SecurityTokenInterceptor)
-  @ApiBody({
-    description: 'Autenticação do usuário',
-    required: true,
-    schema: {
-      example: {
-        email: 'pedro@gmail.com',
-        password: '@Za12345678',
-      },
-    },
-  })
-  @ApiResponse({
-    description: 'Retorno da autenticação',
-    status: 201,
-    schema: {
-      example: {
-        validate: true,
-        sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-        role: 'Citizen | Lawyer',
-        email: 'pedro@gmail.com',
-        full_name: 'Pedro Sales',
-        loggedWithGoogle: false,
-      },
-    },
-    headers: {
-      'x-security-token': {
-        description: 'x-security-token para autenticação',
-        schema: {
-          type: 'string',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Acesso não autorizado',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Acesso não autorizado',
-        error: 'Unauthorized',
-      },
-    },
-  })
-  async authenticate(@Body() body: SignInDTO) {
-    return await this.authService.authenticate(body);
-  }
+  constructor(private authService: AuthService) {}
 
   @Post('send/email')
   @ApiBody({

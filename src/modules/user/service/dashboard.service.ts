@@ -34,7 +34,6 @@ export class DashboardService {
   async getProfileByUserId(userId: string, role: string) {
     const userRole = role.toLowerCase();
 
-    //Advogado
     if (userRole === 'lawyer') {
       const lawyer = await this.prisma.lawyer.findUnique({
         where: { id: userId },
@@ -51,7 +50,6 @@ export class DashboardService {
       };
     }
 
-    //Cidadão
     if (userRole === 'citizen') {
       const citizen = await this.prisma.citizen.findUnique({
         where: { id: userId },

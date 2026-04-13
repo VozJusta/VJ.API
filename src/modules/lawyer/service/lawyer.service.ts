@@ -57,12 +57,6 @@ export class LawyerService {
             uf: body.oabState
         }
 
-        //const validateLawyer = await this.validateOab.validate(validationOabDTO)
-        
-        // if(validateLawyer['Data'].length === 0) {
-        //     throw new NotFoundException('Advogado não encontrado no banco de dados da OAB')
-        // }
-
         const newLawyer = await this.prisma.lawyer.create({
             data: {
                 full_name: body.fullName,
