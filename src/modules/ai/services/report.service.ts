@@ -185,6 +185,25 @@ export class ReportService {
         };
     }
 
+    async getHistoryChat(id: string) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: {
+                id: id,
+            },
+            include: {
+                messages: true
+            },
+        })
+
+        if (!conversation) {
+            throw new NotFoundException('Conversa não encontrada')
+        }
+
+        return {
+            messages: conversation.messages
+        }
+    }
+
     private async generateReportFromConversation(
         conversationId: string,
         caseId: string,
@@ -261,9 +280,14 @@ export class ReportService {
             data: { is_closed: true }
         });
 
+        await this.prisma.message.deleteMany({
+            where: { conversation_id: conversationId }
+        })
+
         return {
             finished: true,
             caseId,
+            conversationId: conversationId,
             reportId: report.id,
             input: fullText,
             ...response.output,

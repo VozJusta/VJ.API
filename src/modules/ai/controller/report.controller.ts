@@ -56,6 +56,11 @@ export class ReportController {
         return await this.reportService.continueConversation(body, req.user.sub)
     }
 
+    @Get('chat/:id')
+    async getHistory(@Param('id') id: string) {
+        return await this.reportService.getHistoryChat(id)
+    }
+
     @Put('accept/:id')
     @ApiOperation({ summary: 'Aceita um relatório pendente vinculando-o ao advogado (Acesso restrito)' })
     @ApiParam({ name: 'id', type: 'string', description: 'ID único do relatório gerado' })
