@@ -4,7 +4,9 @@ import {
   Get,
   Headers,
   HttpCode,
+  Patch,
   Post,
+  Put,
   Req,
   UseGuards,
   UseInterceptors,
@@ -21,11 +23,21 @@ import { SecurityTokenInterceptor } from '../interceptors/security-token.interce
 import { AuthTokenGuard } from '../guard/access-token.guard';
 import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'class-validator';
+import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
+import { Request } from 'express';
+import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
+import { ChangePasswordDTO } from '../dto/change-password.dto';
 
+interface RequestUser extends Request {
+  user: {
+    sub: string,
+    role: string
+  }
+}
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('/authenticate')
   @UseInterceptors(SecurityTokenInterceptor)
@@ -202,6 +214,28 @@ export class AuthController {
     return await this.authService.validateEmailCode(body, token);
   }
 
+  @Put('complete/citizen')
+  async completeCitizenInformation(
+    @Body() body: CompleteCitizenRegisterDTO,
+    @Headers('x-security-token') token: string
+  ) {
+    return await this.authService.completeCitizenInformation(body, token)
+  }
+
+  @Put('complete/lawyer')
+  async completeLayerInformation(
+    @Body() body: CompleteLawyerRegisterDTO,
+    @Headers('x-security-token') token: string
+  ) {
+    return await this.authService.completeLawyerInformation(body, token)
+  }
+
+  @Patch('change-password')
+  @UseGuards(AuthTokenGuard)
+  async changePassword(@Body() body: ChangePasswordDTO, @Req() req: RequestUser) {
+    return await this.authService.changePassword(body, req.user.sub)
+  }
+
   @Post('forgot/password')
   @ApiBody({
     description: 'Rota para redefinir senha apos validacao de codigo',
@@ -291,7 +325,7 @@ export class AuthController {
       state: 'citizen || lawyer',
     },
   })
-  async googleLogin() {}
+  async googleLogin() { }
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
