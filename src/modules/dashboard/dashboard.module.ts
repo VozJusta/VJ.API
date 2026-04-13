@@ -9,7 +9,7 @@ import { DashboardLawyerController } from './controllers/dashboard-lawyer.contro
 
 @Module({
   imports: [AuthModule, PrismaModule],
-  providers: [DashboardCitizenService,DashboardLawyerService , AuthTokenGuard],
+  providers: [DashboardCitizenService, DashboardLawyerService, AuthTokenGuard],
   controllers: [DashboardCitizenController, DashboardLawyerController],
 })
 export class DashboardModule {}

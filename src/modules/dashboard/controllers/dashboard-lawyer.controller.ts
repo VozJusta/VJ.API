@@ -34,9 +34,9 @@ export class DashboardLawyerController {
     schema: {
       example: {
         data: [
-          { date: '01 jan', value: 2 },
-          { date: '02 jan', value: 4 },
-          { date: '03 jan', value: 1 },
+          { date: '2026-04-08', value: 2 },
+          { date: '2026-04-07', value: 4 },
+          { date: '2026-04-06', value: 1 },
         ],
       },
     },
@@ -78,6 +78,15 @@ export class DashboardLawyerController {
     const userId = req.user.sub;
     const role = req.user.role;
 
-    return this.dashboardService.getAcceptedRequestAnalytics(userId, role);
+    return this.dashboardService.acceptedRequestAnalytics(userId, role);
+  }
+
+  @Get('/lawyer/operational-status')
+  @UseGuards(AuthTokenGuard)
+  async getOperationalStatus(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    const role = req.user.role;
+
+    return this.dashboardService.operationalStatus(userId, role);
   }
 }
