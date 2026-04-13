@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config'
 import { EmailModule } from 'src/modules/email/email.module';
 import { SmsModule } from 'src/modules/sms/sms.module';
 import { AiModule } from '../ai/ai.module';
+import { DashboardModule } from '../dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AiModule } from '../ai/ai.module';
     EmailModule,
     SmsModule,
     AiModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
