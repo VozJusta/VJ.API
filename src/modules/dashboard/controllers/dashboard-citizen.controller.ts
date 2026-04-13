@@ -42,6 +42,13 @@ export class DashboardCitizenController {
       'Número da página para paginação dos relatórios (2 por página).',
     schema: { type: 'integer', minimum: 1, default: 1 },
   })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    description:
+      'Quantidade de relatórios por página. O valor está sujeito ao limite máximo definido pelo backend.',
+    schema: { type: 'integer', minimum: 1 },
+  })
   @ApiResponse({
     status: 200,
     description: 'Retorna os dados do usuário autenticado .',
