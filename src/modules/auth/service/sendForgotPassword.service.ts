@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { EmailService } from "src/modules/email/service/email.service";
+import { SendForgotPasswordCodeService } from "src/modules/email/service/sendForgotPasswordCode.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
 
@@ -7,8 +7,8 @@ import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
 export class SendForgotPasswordEmailService {
   constructor(
     private prisma: PrismaService,
-    private readonly sendEmailCode: EmailService,
-  ) {}
+    private readonly sendEmailCode: SendForgotPasswordCodeService,
+  ) { }
 
   async sendForgotPasswordEmail(email: SendCodeEmailDTO) {
     const citizen = await this.prisma.citizen.findFirst({
@@ -19,10 +19,10 @@ export class SendForgotPasswordEmailService {
 
     const lawyer = !citizen
       ? await this.prisma.lawyer.findFirst({
-          where: {
-            email: email.email,
-          },
-        })
+        where: {
+          email: email.email,
+        },
+      })
       : null;
 
     if (!citizen && !lawyer) {

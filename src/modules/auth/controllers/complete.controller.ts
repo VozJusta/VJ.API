@@ -1,17 +1,21 @@
 import { Put, Body, Headers, Controller } from '@nestjs/common';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
-import { AuthService } from '../service/auth.service';
+import { CititzenInformationService } from '../service/citizenInformation.service';
+import { LawyerInformationService } from '../service/lawyerInformation.service';
 
 @Controller('complete')
 export class CompleteController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authCitizenService: CititzenInformationService,
+    private authLawyerService: LawyerInformationService
+  ) { }
   @Put('citizen')
   async completeCitizenInformation(
     @Body() body: CompleteCitizenRegisterDTO,
     @Headers('x-security-token') token: string,
   ) {
-    return await this.authService.completeCitizenInformation(body, token);
+    return await this.authCitizenService.completeCitizenInformation(body, token);
   }
 
   @Put('lawyer')
@@ -19,6 +23,6 @@ export class CompleteController {
     @Body() body: CompleteLawyerRegisterDTO,
     @Headers('x-security-token') token: string,
   ) {
-    return await this.authService.completeLawyerInformation(body, token);
+    return await this.authLawyerService.completeLawyerInformation(body, token);
   }
 }

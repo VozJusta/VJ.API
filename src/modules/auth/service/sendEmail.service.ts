@@ -1,4 +1,4 @@
-import { EmailService } from "src/modules/email/service/email.service";
+import { SendCodeEmailService } from "src/modules/email/service/sendCode.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
 import { ConflictException, Injectable } from "@nestjs/common";
@@ -7,8 +7,8 @@ import { ConflictException, Injectable } from "@nestjs/common";
 export class SendEmailService {
   constructor(
     private prisma: PrismaService,
-    private readonly sendEmailCode: EmailService,
-  ) {}
+    private readonly sendEmailCode: SendCodeEmailService,
+  ) { }
   async sendEmail(email: SendCodeEmailDTO) {
     const codeUsed = await this.prisma.validationCode.findFirst({
       where: {
