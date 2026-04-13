@@ -101,5 +101,38 @@ export class DashboardLawyerService {
 
     throw new BadRequestException('Role inválida');
   }
-// ...existing code...
+
+  async highRelevance(userId: string, role: string) {
+    const userRole = role.toLowerCase();
+
+    if (userRole === 'lawyer') {
+      const lawyer = await this.prisma.lawyer.findFirst({
+        where: { id: userId },
+        select: { id: true },
+      });
+
+      if (!lawyer) {
+        throw new NotFoundException('Advogado não encontrado');
+      }
+
+      const scoreRelevance = await this.prisma.report.findMany({
+        where: { 
+          lawyer_id: userId,
+          confidence_score: { not: null }
+         },
+        select: {
+          id: true,
+          //title: true,
+          confidence_score: true,
+          category_detected: true,
+        },
+        orderBy: {
+          confidence_score: 'desc'
+        }
+      });
+
+      return scoreRelevance;
+    }
+    throw new BadRequestException('Role inválida');
+  }
 }
