@@ -51,19 +51,89 @@ export class DashboardCitizenController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Retorna os dados do usuário autenticado .',
+    description: 'Retorna os dados do usuário autenticado.',
     schema: {
+      type: 'object',
+      properties: {
+        role: {
+          type: 'string',
+          example: 'Citizen',
+        },
+        user: {
+          type: 'object',
+          properties: {
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'string',
+                    example: '91b84236-6d06-4792-8366-1ba35a3b8676',
+                  },
+                  category_detected: {
+                    type: 'string',
+                    example: 'Labor_and_employment',
+                  },
+                  status: {
+                    type: 'string',
+                    example: 'Pending',
+                  },
+                  created_at: {
+                    type: 'string',
+                    example: '2026-04-07 18:08:09.824',
+                  },
+                },
+              },
+            },
+          },
+        },
+        pagination: {
+          type: 'object',
+          properties: {
+            page: {
+              type: 'integer',
+              example: 1,
+            },
+            perPage: {
+              type: 'integer',
+              example: 2,
+            },
+            total: {
+              type: 'integer',
+              example: 10,
+            },
+            totalPages: {
+              type: 'integer',
+              example: 5,
+            },
+          },
+        },
+      },
       example: {
         role: 'Citizen',
         user: {
-          report: {
-            id: '91b84236-6d06-4792-8366-1ba35a3b8676',
-            category_detected: 'Labor_and_employment',
-            status: 'Pending',
-            created_at: '2026-04-07 18:08:09.824',
-          },
+          data: [
+            {
+              id: '91b84236-6d06-4792-8366-1ba35a3b8676',
+              category_detected: 'Labor_and_employment',
+              status: 'Pending',
+              created_at: '2026-04-07 18:08:09.824',
+            },
+            {
+              id: '3ad8f318-c730-4e1a-b4d7-545f1a6d55c2',
+              category_detected: 'Health',
+              status: 'Resolved',
+              created_at: '2026-04-06 14:22:31.102',
+            },
+          ],
         },
-        message: 'Informações de usuário retornadas com sucesso',
+        pagination: {
+          page: 1,
+          perPage: 2,
+          total: 10,
+          totalPages: 5,
+        },
       },
     },
   })
