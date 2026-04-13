@@ -89,4 +89,13 @@ export class DashboardLawyerController {
 
     return this.dashboardService.operationalStatus(userId, role);
   }
+
+  @Get('/lawyer/high-relevance')
+  @UseGuards(AuthTokenGuard)
+  async getHighRelevance(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    const role = req.user.role;
+
+    return this.dashboardService.highRelevance(userId, role)
+  }
 }
