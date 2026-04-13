@@ -9,7 +9,7 @@ import { LawyerAnalyticsResponseDTO } from '../dto/lawyer-analytics.dto';
 @Injectable()
 export class DashboardLawyerService {
   constructor(private readonly prisma: PrismaService) {}
-  async getAcceptedRequestAnalytics(
+  async acceptedRequestAnalytics(
     userId: string,
     role: string,
   ): Promise<LawyerAnalyticsResponseDTO> {
@@ -52,4 +52,54 @@ export class DashboardLawyerService {
 
     throw new BadRequestException('Role inválida');
   }
+
+  async operationalStatus(
+    userId: string,
+    role: string,
+  ): Promise<{ pending: number; refused: number; accepted: number }> {
+    const userRole = role.toLowerCase();
+
+    if (userRole === 'lawyer') {
+      const lawyer = await this.prisma.lawyer.findFirst({
+        where: { id: userId },
+        select: { id: true },
+      });
+
+      if (!lawyer) {
+        throw new NotFoundException('Advogado não encontrado');
+      }
+
+      const statusReports = await this.prisma.report.findMany({
+        where: {
+          lawyer_id: userId,
+          status: {
+            in: ['Pending', 'Refused', 'Accepted'],
+          },
+        },
+        select: { status: true },
+      });
+
+      const counts = statusReports.reduce<{
+        pending: number;
+        refused: number;
+        accepted: number;
+      }>(
+        (acc, report) => {
+          const status = report.status.toLowerCase();
+
+          if (status === 'pending') acc.pending += 1;
+          if (status === 'refused') acc.refused += 1;
+          if (status === 'accepted') acc.accepted += 1;
+
+          return acc;
+        },
+        { pending: 0, refused: 0, accepted: 0 },
+      );
+
+      return counts;
+    }
+
+    throw new BadRequestException('Role inválida');
+  }
+// ...existing code...
 }
