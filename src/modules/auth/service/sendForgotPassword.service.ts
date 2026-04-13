@@ -1,8 +1,9 @@
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { EmailService } from "src/modules/email/service/email.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
 
+@Injectable()
 export class SendForgotPasswordEmailService {
   constructor(
     private prisma: PrismaService,

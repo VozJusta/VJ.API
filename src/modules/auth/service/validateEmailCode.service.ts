@@ -1,8 +1,9 @@
-import { UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { ValidateCodeEmailDTO } from "../dto/validateCode-email.dto";
 
+@Injectable()
 export class ValidateEmailCodeService {
   constructor(
     private prisma: PrismaService,

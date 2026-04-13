@@ -1,8 +1,9 @@
 import { EmailService } from "src/modules/email/service/email.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
 import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 
+@Injectable()
 export class SendEmailService {
   constructor(
     private prisma: PrismaService,

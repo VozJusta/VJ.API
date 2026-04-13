@@ -2,12 +2,14 @@ import {
   UnauthorizedException,
   ConflictException,
   NotFoundException,
+  Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 
+@Injectable()
 export class CititzenInformationService {
   constructor(
     private prisma: PrismaService,
