@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
-import { LawyerAnalyticsResponseDTO } from '../dto/lawyer-analytics.dto';
 
 @Injectable()
 export class DashboardCitizenService {
