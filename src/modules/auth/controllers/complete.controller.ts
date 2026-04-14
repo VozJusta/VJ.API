@@ -5,13 +5,13 @@ import { CititzenInformationService } from '../service/citizenInformation.servic
 import { LawyerInformationService } from '../service/lawyerInformation.service';
 import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('complete')
 export class CompleteController {
   constructor(
     private authCitizenService: CititzenInformationService,
     private authLawyerService: LawyerInformationService,
   ) {}
-  @ApiTags('Auth')
   @Put('citizen')
   async completeCitizenInformation(
     @Body() body: CompleteCitizenRegisterDTO,
@@ -22,7 +22,6 @@ export class CompleteController {
       token,
     );
   }
-
   @Put('lawyer')
   async completeLawyerInformation(
     @Body() body: CompleteLawyerRegisterDTO,

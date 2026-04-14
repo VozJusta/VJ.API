@@ -3,12 +3,12 @@ import { SendForgotPasswordEmailService } from '../service/sendForgotPassword.se
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 
+ @ApiTags('Auth')
 @Controller()
 export class SendForgotEmailController {
   constructor(
     private sendForgotPasswordEmailService: SendForgotPasswordEmailService,
   ) {}
-  @ApiTags('Auth')
   @Post('send/forgot/email')
   @HttpCode(200)
   @ApiBody({

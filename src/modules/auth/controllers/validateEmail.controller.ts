@@ -3,10 +3,10 @@ import { ApiHeader, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ValidateEmailCodeService } from '../service/validateEmailCode.service';
 
+ @ApiTags('Auth')
 @Controller()
 export class ValidateEmailController {
   constructor(private validateEmailCodeService: ValidateEmailCodeService) {}
-  @ApiTags('Auth')
   @Post('validate/email')
   @ApiHeader({
     name: 'x-security-token',

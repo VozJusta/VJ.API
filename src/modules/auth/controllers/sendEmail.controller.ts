@@ -2,10 +2,11 @@ import { Post, Body, Controller } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { SendEmailService } from '../service/sendEmail.service';
+@ApiTags('Auth')
 @Controller()
 export class SendEmailController {
   constructor(private sendEmailService: SendEmailService) {}
-  @ApiTags('Auth')
+
   @Post('send/email')
   @ApiBody({
     description: 'Rota para enviar email para 2FA',

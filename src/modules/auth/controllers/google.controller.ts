@@ -10,14 +10,14 @@ import { AuthenticateGoogleLawyerService } from '../service/authGoogleLawyer.ser
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
-
+@ApiTags('Auth')
 @Controller('google')
 export class GoogleController {
   constructor(
     private authService: AuthenticateGoogleCitizenService,
     private authLawyerService: AuthenticateGoogleLawyerService,
   ) {}
-  @ApiTags('Auth')
+ 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiParam({
@@ -28,7 +28,7 @@ export class GoogleController {
     },
   })
   async googleLogin() {}
-
+ 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @UseInterceptors(SecurityTokenInterceptor)

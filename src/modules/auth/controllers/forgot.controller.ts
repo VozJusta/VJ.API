@@ -4,14 +4,14 @@ import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { ForgotPasswordService } from '../service/forgotPassword.service';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
 import { VerifyForgotCodeService } from '../service/verifyForgotCode.service';
-
+@ApiTags('Auth')
 @Controller('forgot')
 export class ForgotController {
   constructor(
     private forgotPasswordService: ForgotPasswordService,
     private verifyForgotCodeService: VerifyForgotCodeService,
   ) {}
-  @ApiTags('Auth')
+
   @Post('forgot/password')
   @ApiBody({
     description: 'Rota para redefinir senha apos validacao de codigo',
