@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
 import { CitizenService } from '@m/user/service/citizen.service';
 import { CreateUserDTO } from '@m/user/dto/create-user.dto';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 
+@ApiTags('Citizen')
 @Controller('citizen')
 export class CitizenController {
     constructor(private readonly citizenService: CitizenService) {}

@@ -16,10 +16,7 @@ async function bootstrap() {
     .addTag('Report', 'Trade-related routes')
     .addTag('Ingestion', 'Routes related to data ingestion')
     .addTag('Dashboard', 'Password-secret creation route')
-    .addTag(
-      'Refresh',
-      'Refresh token endpoint: validates the current token and returns a new access token.',
-    )
+    .addTag('Refresh','Refresh token endpoint: validates the current token and returns a new access token.')
     .addBearerAuth()
     .build();
 

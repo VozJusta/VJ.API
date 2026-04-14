@@ -11,7 +11,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-@ApiTags('dashboard')
+@ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardLawyerController {
   constructor(private readonly dashboardService: DashboardLawyerService) {}

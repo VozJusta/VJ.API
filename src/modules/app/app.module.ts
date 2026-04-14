@@ -26,6 +26,10 @@ import { RouterModule } from '@nestjs/core';
         path: '/auth',
         module: AuthModule,
       },
+      {
+        path: '/dashboard',
+        module: DashboardModule,
+      },
     ]),
   ],
 })

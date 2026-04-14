@@ -7,7 +7,6 @@ import { Request, Response } from "express";
 import { AuthTokenGuard } from "@m/auth/guard/access-token.guard";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ReportResponseDto } from "@m/ai/dto/report-response.dto";
-
 interface RequestUser extends Request {
     user: {
         sub: string,
