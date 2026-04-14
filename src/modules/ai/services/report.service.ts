@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, OnModuleInit, UnauthorizedException } from "@nestjs/common";
 import { RagService } from "./rag.service";
 import { LlmService } from "./llm.service";
 import { PrismaService } from "src/modules/prisma/service/prisma.service";
@@ -7,11 +7,23 @@ import { NotFoundError } from "rxjs";
 import { finished } from "stream";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
 import { ContinueConversationDto } from "../dto/continue-conversation.dto";
+import { toFile } from 'groq-sdk/uploads';
+import { Groq } from "groq-sdk";
+import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
+
 
 const MAX_TURNS = 6;
 
 @Injectable()
-export class ReportService {
+export class ReportService implements OnModuleInit {
+    private groq!: Groq
+
+    onModuleInit() {
+        this.groq = new Groq({
+            apiKey: process.env.GROQ_API_KEY
+        })
+    }
+
     constructor(
         private ragService: RagService,
         private llmService: LlmService,
@@ -204,6 +216,29 @@ export class ReportService {
         }
     }
 
+    async transcribeAudio(file: TranscribeAudioDTO) {
+        try {
+            if (!file) {
+                throw new BadRequestException('Nenhum arquivo enviado');
+            }
+
+            const audioFile = await toFile(file.buffer, file.originalname, {
+                type: file.mimetype,
+            });
+
+            const response = await this.groq.audio.transcriptions.create({
+                file: audioFile,
+                model: 'whisper-large-v3',
+                language: 'pt',
+                response_format: 'text',
+            });
+
+            return response as unknown as string;
+        } catch (error) {
+            throw new InternalServerErrorException('Erro ao transcrever o áudio: ' + error);
+        }
+    }
+
     private async generateReportFromConversation(
         conversationId: string,
         caseId: string,
@@ -341,7 +376,7 @@ export class ReportService {
             where: { id: caseId },
             data: {
                 status: 'Refused',
-                
+
             }
         })
 
