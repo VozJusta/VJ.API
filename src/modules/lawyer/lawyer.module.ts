@@ -7,13 +7,15 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '../auth/auth.module';
+import { LawyerRequestsService } from './service/lawyer-requests.service';
+import { LawyerRequestController } from './controllers/lawyer-requests.controller';
 
 @Module({
   imports: [
     AuthModule,
     PrismaModule,
   ],
-  providers: [LawyerService, SecurityTokenInterceptor],
-  controllers: [LawyerController]
+  providers: [LawyerService, LawyerRequestsService,SecurityTokenInterceptor],
+  controllers: [LawyerController, LawyerRequestController]
 })
 export class LawyerModule { }
