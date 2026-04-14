@@ -1,10 +1,11 @@
-import { Post, Body, Controller } from "@nestjs/common";
-import { ApiBody, ApiResponse } from "@nestjs/swagger";
-import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
-import { AuthService } from "../service/auth.service";
+import { Post, Body, Controller } from '@nestjs/common';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
+import { SendEmailService } from '../service/sendEmail.service';
 @Controller()
 export class SendEmailController {
-  constructor(private authService: AuthService) {}
+  constructor(private sendEmailService: SendEmailService) {}
+  @ApiTags('Auth')
   @Post('send/email')
   @ApiBody({
     description: 'Rota para enviar email para 2FA',
@@ -36,6 +37,6 @@ export class SendEmailController {
     },
   })
   async sendEmailCode(@Body() body: SendCodeEmailDTO) {
-    return await this.authService.sendEmail(body);
+    return await this.sendEmailService.sendEmail(body);
   }
 }

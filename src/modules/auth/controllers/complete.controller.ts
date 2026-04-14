@@ -3,19 +3,24 @@ import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto
 import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
 import { CititzenInformationService } from '../service/citizenInformation.service';
 import { LawyerInformationService } from '../service/lawyerInformation.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('complete')
 export class CompleteController {
   constructor(
     private authCitizenService: CititzenInformationService,
-    private authLawyerService: LawyerInformationService
-  ) { }
+    private authLawyerService: LawyerInformationService,
+  ) {}
+  @ApiTags('Auth')
   @Put('citizen')
   async completeCitizenInformation(
     @Body() body: CompleteCitizenRegisterDTO,
     @Headers('x-security-token') token: string,
   ) {
-    return await this.authCitizenService.completeCitizenInformation(body, token);
+    return await this.authCitizenService.completeCitizenInformation(
+      body,
+      token,
+    );
   }
 
   @Put('lawyer')

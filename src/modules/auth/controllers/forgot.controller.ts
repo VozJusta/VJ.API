@@ -1,12 +1,17 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
-import { AuthService } from '../service/auth.service';
+import { ForgotPasswordService } from '../service/forgotPassword.service';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
+import { VerifyForgotCodeService } from '../service/verifyForgotCode.service';
 
 @Controller('forgot')
 export class ForgotController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private forgotPasswordService: ForgotPasswordService,
+    private verifyForgotCodeService: VerifyForgotCodeService,
+  ) {}
+  @ApiTags('Auth')
   @Post('forgot/password')
   @ApiBody({
     description: 'Rota para redefinir senha apos validacao de codigo',
@@ -50,7 +55,7 @@ export class ForgotController {
     },
   })
   async forgotPassword(@Body() body: ForgotPasswordDTO) {
-    return await this.authService.forgotPassword(body);
+    return await this.forgotPasswordService.forgotPassword(body);
   }
 
   @Post('forgot/verify-code')
@@ -85,6 +90,6 @@ export class ForgotController {
     },
   })
   async verifyForgotCode(@Body() body: VerifyForgotCodeDTO) {
-    return await this.authService.verifyForgotCode(body);
+    return await this.verifyForgotCodeService.verifyForgotCode(body);
   }
 }

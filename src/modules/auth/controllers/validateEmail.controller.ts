@@ -1,11 +1,12 @@
 import { Post, Body, Headers, Controller } from '@nestjs/common';
-import { ApiHeader, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiHeader, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
-import { AuthService } from '../service/auth.service';
+import { ValidateEmailCodeService } from '../service/validateEmailCode.service';
 
 @Controller()
 export class ValidateEmailController {
-  constructor(private authService: AuthService) {}
+  constructor(private validateEmailCodeService: ValidateEmailCodeService) {}
+  @ApiTags('Auth')
   @Post('validate/email')
   @ApiHeader({
     name: 'x-security-token',
@@ -48,6 +49,6 @@ export class ValidateEmailController {
     @Body() body: ValidateCodeEmailDTO,
     @Headers('x-security-token') token: string,
   ) {
-    return await this.authService.validateEmailCode(body, token);
+    return await this.validateEmailCodeService.validateEmailCode(body, token);
   }
 }

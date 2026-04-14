@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { BcryptService } from '../hash/bcrypt.service';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
-import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport';
@@ -18,7 +18,7 @@ import { LawyerInformationService } from '../service/lawyerInformation.service';
 import { AuthenticateService } from '../service/authenticate.service';
 import { ValidateEmailCodeService } from '../service/validateEmailCode.service';
 import { VerifyForgotCodeService } from '../service/verifyForgotCode.service';
-import { CitizenService } from 'src/modules/user/service/citizen.service';
+
 import { AuthenticateController } from '../controllers/authenticate.controller';
 import { CompleteController } from '../controllers/complete.controller';
 import { RefreshToken } from '../controllers/refreshToken.controller';
@@ -28,6 +28,9 @@ import { GoogleController } from '../controllers/google.controller';
 import { ValidateEmailController } from '../controllers/validateEmail.controller';
 import { SendForgotEmailController } from '../controllers/sendForgotEmail.controller';
 import { SendEmailController } from '../controllers/sendEmail.controller';
+import { CititzenInformationService } from '../service/citizenInformation.service';
+import { ForgotPasswordService } from '../service/forgotPassword.service';
+import { RefreshTokenService } from '../service/refreshToken.service';
 
 
 
@@ -57,11 +60,14 @@ import { SendEmailController } from '../controllers/sendEmail.controller';
         AuthenticateService,
         ValidateEmailCodeService,
         VerifyForgotCodeService,
-        CitizenService,
-
+        CititzenInformationService,
+        LawyerInformationService,
         AuthenticateGoogleLawyerService,
         AuthenticateGoogleCitizenService,
+        VerifyForgotCodeService,
+        ForgotPasswordService,
         GoogleStrategy,
+        RefreshTokenService,
         SecurityTokenInterceptor,
         AuthTokenGuard,
     ],

@@ -1,13 +1,14 @@
 import { Controller, Body, UseInterceptors } from '@nestjs/common';
 import { SignInDTO } from '../dto/signIn.dto';
-import { AuthService } from '../service/auth.service';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { AuthenticateService } from '../service/authenticate.service';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 
 @Controller('authenticate')
 export class AuthenticateController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthenticateService) {}
   @UseInterceptors(SecurityTokenInterceptor)
+  @ApiTags('Auth')
   @ApiBody({
     description: 'Autenticação do usuário',
     required: true,

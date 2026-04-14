@@ -5,14 +5,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthService } from '../service/auth.service';
-import { ApiParam, ApiResponse } from '@nestjs/swagger';
+import { AuthenticateGoogleCitizenService } from '../service/authGoogleCitizen.service';
+import { AuthenticateGoogleLawyerService } from '../service/authGoogleLawyer.service';
+import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 
 @Controller('google')
 export class GoogleController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthenticateGoogleCitizenService,
+    private authLawyerService: AuthenticateGoogleLawyerService,
+  ) {}
+  @ApiTags('Auth')
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiParam({
@@ -53,7 +58,7 @@ export class GoogleController {
     const role = req.query.state;
 
     if (role === 'lawyer') {
-      return this.authService.authenticateGoogleLawyer(
+      return this.authLawyerService.authenticateGoogleLawyer(
         req.user.email,
         `${req.user.firstName} ${req.user.lastName}`,
       );

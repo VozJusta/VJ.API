@@ -1,12 +1,14 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { AuthService } from '../service/auth.service';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { SendForgotPasswordEmailService } from '../service/sendForgotPassword.service';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 
 @Controller()
 export class SendForgotEmailController {
-  constructor(private authService: AuthService) {}
-
+  constructor(
+    private sendForgotPasswordEmailService: SendForgotPasswordEmailService,
+  ) {}
+  @ApiTags('Auth')
   @Post('send/forgot/email')
   @HttpCode(200)
   @ApiBody({
@@ -50,6 +52,8 @@ export class SendForgotEmailController {
     },
   })
   async sendForgotEmailCode(@Body() body: SendCodeEmailDTO) {
-    return await this.authService.sendForgotPasswordEmail(body);
+    return await this.sendForgotPasswordEmailService.sendForgotPasswordEmail(
+      body,
+    );
   }
 }
