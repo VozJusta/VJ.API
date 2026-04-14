@@ -1,14 +1,14 @@
 import { Global, Module } from '@nestjs/common';
-import { EmailService } from './service/email.service';
-import { Resend } from 'resend';
-import { ResendProvider } from './resend.config';
+import { ResendProvider } from '../config/resend.config';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
+import { SendCodeEmailService } from '../service/sendCode.service';
+import { SendForgotPasswordCodeService } from '../service/sendForgotPasswordCode.service';
 
 @Global()
 @Module({
     imports: [ConfigModule, PrismaModule],
-    providers: [EmailService, ResendProvider],
-    exports: [EmailService]
+    providers: [SendCodeEmailService,SendForgotPasswordCodeService , ResendProvider],
+    exports: [SendCodeEmailService,SendForgotPasswordCodeService]
 })
 export class EmailModule {}

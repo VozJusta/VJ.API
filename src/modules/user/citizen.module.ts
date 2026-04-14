@@ -3,7 +3,7 @@ import { CitizenService } from './service/citizen.service';
 import { CitizenController } from './controllers/citizen.controller';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
 import { AuthTokenGuard } from '../auth/guard/access-token.guard';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../auth/module/auth.module';
 
 @Module({
   imports: [

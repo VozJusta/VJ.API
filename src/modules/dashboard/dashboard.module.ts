@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../auth/module/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthTokenGuard } from '../auth/guard/access-token.guard';
 import { DashboardCitizenController } from './controllers/dashboard-citizen.controller';
