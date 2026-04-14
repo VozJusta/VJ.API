@@ -1,6 +1,6 @@
-import { SendCodeEmailService } from "src/modules/email/service/sendCode.service";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
+import { SendCodeEmailService } from "@m/email/service/sendCode.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { SendCodeEmailDTO } from "@m/auth/dto/sendCode-email.dto";
 import { ConflictException, Injectable } from "@nestjs/common";
 
 @Injectable()

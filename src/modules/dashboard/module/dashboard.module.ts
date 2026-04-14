@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../../auth/module/auth.module';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { AuthTokenGuard } from '../../auth/guard/access-token.guard';
-import { DashboardCitizenController } from '../controllers/dashboard-citizen.controller';
-import { DashboardCitizenService } from '../service/dashboard-citizen.service';
-import { DashboardLawyerService } from '../service/dashboard-lawyer.service';
-import { DashboardLawyerController } from '../controllers/dashboard-lawyer.controller';
+import { AuthModule } from '@m/auth/module/auth.module';
+import { PrismaModule } from '@m/prisma/prisma.module';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { DashboardCitizenController } from '@m/dashboard/controllers/dashboard-citizen.controller';
+import { DashboardCitizenService } from '@m/dashboard/service/dashboard-citizen.service';
+import { DashboardLawyerService } from '@m/dashboard/service/dashboard-lawyer.service';
+import { DashboardLawyerController } from '@m/dashboard/controllers/dashboard-lawyer.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule],

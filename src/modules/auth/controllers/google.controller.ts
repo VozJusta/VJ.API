@@ -5,11 +5,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthenticateGoogleCitizenService } from '../service/authGoogleCitizen.service';
-import { AuthenticateGoogleLawyerService } from '../service/authGoogleLawyer.service';
+import { AuthenticateGoogleCitizenService } from '@m/auth/service/authGoogleCitizen.service';
+import { AuthenticateGoogleLawyerService } from '@m/auth/service/authGoogleLawyer.service';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GoogleAuthGuard } from '../guard/googleAuth.guard';
-import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
+import { GoogleAuthGuard } from '@m/auth/guard/googleAuth.guard';
+import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 @ApiTags('Auth')
 @Controller('google')
 export class GoogleController {

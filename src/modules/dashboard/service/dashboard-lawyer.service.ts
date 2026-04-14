@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { LawyerAnalyticsResponseDTO } from '../dto/lawyer-analytics.dto';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { LawyerAnalyticsResponseDTO } from '@m/dashboard/dto/lawyer-analytics.dto';
 
 @Injectable()
 export class DashboardLawyerService {

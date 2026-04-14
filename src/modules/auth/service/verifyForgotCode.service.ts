@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { VerifyForgotCodeDTO } from "../dto/verify-forgot-code.dto";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { VerifyForgotCodeDTO } from "@m/auth/dto/verify-forgot-code.dto";
 
 @Injectable()
 export class VerifyForgotCodeService {

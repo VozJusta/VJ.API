@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { PaginationReportsDTO } from '@m/dashboard/dto/pagination-reports.dto';
 
 @Injectable()
 export class DashboardCitizenService {

@@ -7,10 +7,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { DashboardCitizenService } from '../service/dashboard-citizen.service';
-import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
+import { DashboardCitizenService } from '@m/dashboard/service/dashboard-citizen.service';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { Request } from 'express';
-import { PaginationReportsDTO } from '../dto/pagination-reports.dto';
+import { PaginationReportsDTO } from '@m/dashboard/dto/pagination-reports.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {

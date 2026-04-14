@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { IngestionService } from "../services/ingestion.service";
-import { IngestionDTO } from "../dto/ingestion.dto";
+import { IngestionService } from "@m/ai/services/ingestion.service";
+import { IngestionDTO } from "@m/ai/dto/ingestion.dto";
 import { ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @Controller('ingest')

@@ -1,7 +1,7 @@
 import { UnauthorizedException, NotFoundException, Injectable } from "@nestjs/common";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { ForgotPasswordDTO } from "../dto/forgot-password.dto";
-import { HashingServiceProtocol } from "../hash/hashing.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { ForgotPasswordDTO } from "@m/auth/dto/forgot-password.dto";
+import { HashingServiceProtocol } from "@m/auth/hash/hashing.service";
 
 @Injectable()
 export class ForgotPasswordService {

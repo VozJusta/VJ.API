@@ -1,13 +1,13 @@
-import { Controller, Body, UseInterceptors } from '@nestjs/common';
-import { SignInDTO } from '../dto/signIn.dto';
-import { AuthenticateService } from '../service/authenticate.service';
+import { Controller, Body, UseInterceptors, Post } from '@nestjs/common';
+import { SignInDTO } from '@m/auth/dto/signIn.dto';
+import { AuthenticateService } from '@m/auth/service/authenticate.service';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
+import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 
- @ApiTags('Auth')
-@Controller('authenticate')
+@ApiTags('Auth')
+@Controller()
 export class AuthenticateController {
-  constructor(private readonly authService: AuthenticateService) {}
+  constructor(private readonly authService: AuthenticateService) { }
   @UseInterceptors(SecurityTokenInterceptor)
   @ApiBody({
     description: 'Autenticação do usuário',
@@ -53,6 +53,7 @@ export class AuthenticateController {
       },
     },
   })
+  @Post('authenticate')
   async authenticate(@Body() body: SignInDTO) {
     return await this.authService.authenticate(body);
   }

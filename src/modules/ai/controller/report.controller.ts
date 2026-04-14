@@ -1,12 +1,12 @@
 import { Body, Controller, Get, NotFoundException, Param, Post, Put, Req, Res, UseGuards } from "@nestjs/common";
-import { ReportService } from "../services/report.service";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { PdfService } from "../services/pdf.service";
+import { ReportService } from "@m/ai/services/report.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { PdfService } from "@m/ai/services/pdf.service";
 import { nextTick } from "process";
 import { Request, Response } from "express";
-import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";
+import { AuthTokenGuard } from "@m/auth/guard/access-token.guard";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ReportResponseDto } from "../dto/report-response.dto";
+import { ReportResponseDto } from "@m/ai/dto/report-response.dto";
 
 interface RequestUser extends Request {
     user: {

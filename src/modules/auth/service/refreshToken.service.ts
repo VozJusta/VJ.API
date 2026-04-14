@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import jwtConfig from '../config/jwt.config';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import jwtConfig from '@m/auth/config/jwt.config';
 
 interface tokenTypes {
   sub: string;

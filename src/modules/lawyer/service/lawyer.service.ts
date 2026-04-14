@@ -1,11 +1,11 @@
 import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { CreateLawyerDTO } from '../dto/create-lawyer.dto';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { CreateLawyerDTO } from '@m/lawyer/dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
-import { OabNumberValidationService } from 'src/modules/validation/service/oab-number-validation.service';
-import { ValidateLawyerDTO } from '../dto/validate-lawyer.dto';
-import { HashingServiceProtocol } from 'src/modules/auth/hash/hashing.service';
-import { CpfNumberValidation } from 'src/modules/validation/service/cpf-number-validation.service';
+import { OabNumberValidationService } from '@m/validation/service/oab-number-validation.service';
+import { ValidateLawyerDTO } from '@m/lawyer/dto/validate-lawyer.dto';
+import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
+import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
 
 @Injectable()
 export class LawyerService {

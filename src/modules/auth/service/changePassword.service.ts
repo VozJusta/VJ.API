@@ -1,7 +1,7 @@
 import { NotFoundException, UnauthorizedException, ConflictException, Injectable } from "@nestjs/common"
-import { PrismaService } from "src/modules/prisma/service/prisma.service"
-import { ChangePasswordDTO } from "../dto/change-password.dto"
-import { HashingServiceProtocol } from "../hash/hashing.service"
+import { PrismaService } from "@m/prisma/service/prisma.service"
+import { ChangePasswordDTO } from "@m/auth/dto/change-password.dto"
+import { HashingServiceProtocol } from "@m/auth/hash/hashing.service"
 
 @Injectable()
 export class ChangePasswordService {

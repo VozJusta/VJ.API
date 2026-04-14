@@ -1,7 +1,7 @@
 import { Post, Body, Headers, Controller } from '@nestjs/common';
 import { ApiHeader, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
-import { ValidateEmailCodeService } from '../service/validateEmailCode.service';
+import { ValidateCodeEmailDTO } from '@m/auth/dto/validateCode-email.dto';
+import { ValidateEmailCodeService } from '@m/auth/service/validateEmailCode.service';
 
  @ApiTags('Auth')
 @Controller()

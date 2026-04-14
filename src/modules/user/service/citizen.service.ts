@@ -5,12 +5,12 @@ import {
   NotAcceptableException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { CreateUserDTO } from '../dto/create-user.dto';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { CreateUserDTO } from '@m/user/dto/create-user.dto';
 import { hash } from 'bcryptjs';
-import { HashingServiceProtocol } from 'src/modules/auth/hash/hashing.service';
-import { CpfNumberValidation } from 'src/modules/validation/service/cpf-number-validation.service';
-import { CnpjNumberValidation } from 'src/modules/validation/service/cnpj-number-validation.service';
+import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
+import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
+import { CnpjNumberValidation } from '@m/validation/service/cnpj-number-validation.service';
 
 @Injectable()
 export class CitizenService {

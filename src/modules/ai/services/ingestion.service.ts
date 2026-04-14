@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { EmbeddingsService } from "./embeddings.service";
+import { EmbeddingsService } from "@m/ai/services/embeddings.service";
 import { QdrantClient } from "@qdrant/js-client-rest";
-import { IngestionDTO } from "../dto/ingestion.dto";
+import { IngestionDTO } from "@m/ai/dto/ingestion.dto";
 
 type QdrantPoint = {
     id: string;

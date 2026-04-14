@@ -1,7 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DashboardLawyerService } from '../service/dashboard-lawyer.service';
-import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
+import { DashboardLawyerService } from '@m/dashboard/service/dashboard-lawyer.service';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {

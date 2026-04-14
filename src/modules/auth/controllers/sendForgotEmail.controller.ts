@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { SendForgotPasswordEmailService } from '../service/sendForgotPassword.service';
+import { SendForgotPasswordEmailService } from '@m/auth/service/sendForgotPassword.service';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
+import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
 
  @ApiTags('Auth')
 @Controller()

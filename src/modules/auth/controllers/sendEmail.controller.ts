@@ -1,7 +1,7 @@
 import { Post, Body, Controller } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
-import { SendEmailService } from '../service/sendEmail.service';
+import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
+import { SendEmailService } from '@m/auth/service/sendEmail.service';
 @ApiTags('Auth')
 @Controller()
 export class SendEmailController {

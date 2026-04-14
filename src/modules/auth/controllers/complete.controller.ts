@@ -1,8 +1,8 @@
 import { Put, Body, Headers, Controller } from '@nestjs/common';
-import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
-import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
-import { CititzenInformationService } from '../service/citizenInformation.service';
-import { LawyerInformationService } from '../service/lawyerInformation.service';
+import { CompleteCitizenRegisterDTO } from '@m/auth/dto/complete-citizen-register.dto';
+import { CompleteLawyerRegisterDTO } from '@m/auth/dto/complete-lawyer-register.dto';
+import { CititzenInformationService } from '@m/auth/service/citizenInformation.service';
+import { LawyerInformationService } from '@m/auth/service/lawyerInformation.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
