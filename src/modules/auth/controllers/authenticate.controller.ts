@@ -7,7 +7,8 @@ import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.in
 @ApiTags('Auth')
 @Controller()
 export class AuthenticateController {
-  constructor(private readonly authService: AuthenticateService) { }
+  constructor(private readonly authService: AuthenticateService) {}
+  @Post('/authenticate')
   @UseInterceptors(SecurityTokenInterceptor)
   @ApiBody({
     description: 'Autenticação do usuário',
@@ -53,7 +54,6 @@ export class AuthenticateController {
       },
     },
   })
-  @Post('authenticate')
   async authenticate(@Body() body: SignInDTO) {
     return await this.authService.authenticate(body);
   }

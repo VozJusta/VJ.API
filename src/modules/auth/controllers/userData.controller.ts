@@ -28,18 +28,17 @@ export class userDataController {
   async getUserData(@Headers('token') token: string) {
     try {
       const payload = this.jwtService.verify<tokenTypes>(token);
-        const { sub, role } = payload;
-        if(role === 'Citizen') {
-            const user = await this.prisma.citizen.findUnique({
-                where: { id: sub },
-                select: {
-                    id: true,
-                    full_name:true,
-                    
+      const { sub, role } = payload;
+      if (role === 'Citizen') {
+        const user = await this.prisma.citizen.findUnique({
+          where: { id: sub },
+          select: {
+            id: true,
+            full_name: true,
+          },
+        });
+      }
 
-                }
-            )}
-                    
       return payload;
     } catch (err) {
       throw new BadRequestException('Token inválido');

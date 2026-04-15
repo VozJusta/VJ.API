@@ -8,8 +8,9 @@ import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
 export class SendForgotEmailController {
   constructor(
     private sendForgotPasswordEmailService: SendForgotPasswordEmailService,
+    private readonly authService: SendForgotPasswordEmailService,
   ) {}
-  @Post('send/forgot/email')
+@Post('send/forgot/email')
   @HttpCode(200)
   @ApiBody({
     description: 'Rota para enviar email com codigo de recuperacao de senha',
@@ -52,8 +53,6 @@ export class SendForgotEmailController {
     },
   })
   async sendForgotEmailCode(@Body() body: SendCodeEmailDTO) {
-    return await this.sendForgotPasswordEmailService.sendForgotPasswordEmail(
-      body,
-    );
+    return await this.authService.sendForgotPasswordEmail(body);
   }
 }

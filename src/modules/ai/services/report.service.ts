@@ -1,41 +1,286 @@
+<<<<<<< HEAD
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { RagService } from "@m/ai/services/rag.service";
 import { LlmService } from "@m/ai/services/llm.service";
 import { PrismaService } from "@m/prisma/service/prisma.service";
+=======
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, OnModuleInit, UnauthorizedException } from "@nestjs/common";
+import { RagService } from "./rag.service";
+import { LlmService } from "./llm.service";
+import { PrismaService } from "src/modules/prisma/service/prisma.service";
+>>>>>>> 905cd95523070efc1ed633f4c8d38326f49a8027
 import { Specialization } from "generated/prisma/enums";
 import { NotFoundError } from "rxjs";
+import { finished } from "stream";
+import { StartConversationDTO } from "../dto/start-conversation.dto";
+import { ContinueConversationDto } from "../dto/continue-conversation.dto";
+import { toFile } from 'groq-sdk/uploads';
+import { Groq } from "groq-sdk";
+import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
+
+
+const MAX_TURNS = 6;
 
 @Injectable()
-export class ReportService {
+export class ReportService implements OnModuleInit {
+    private groq!: Groq
+
+    onModuleInit() {
+        this.groq = new Groq({
+            apiKey: process.env.GROQ_API_KEY
+        })
+    }
+
     constructor(
         private ragService: RagService,
         private llmService: LlmService,
         private prisma: PrismaService
     ) { }
 
-    async createReport(text: string, userId: string) {
-        const classification = await this.llmService.generate({
-            input: `Classifique a área jurídica do texto: ${text}`,
-            context: []
-        });
+    // async createReport(text: string, userId: string) {
+    //     const classification = await this.llmService.generate({
+    //         input: `Classifique a área jurídica do texto: ${text}`,
+    //         context: []
+    //     });
 
-        const area = parseSpecialization(classification.output?.area)
+    //     const area = parseSpecialization(classification.output?.area)
 
-        const report = await this.prisma.report.create({
+    //     const report = await this.prisma.report.create({
+    //         data: {
+    //             transcription: text,
+    //             normalized_text: text,
+    //             legal_analysis: '',
+    //             simplified_explanation: '',
+    //             category_detected: area,
+    //             user_id: userId,
+    //             status: 'Pending'
+    //         }
+    //     })
+
+    //     let context = await this.ragService.retrieve(text, area)
+
+    //     context = context.slice(0, 3)
+
+    //     if (context.length > 0) {
+    //         await this.prisma.ragContext.createMany({
+    //             data: context.map((c) => ({
+    //                 report_id: report.id,
+    //                 source: (c.source as string) || 'qdrant',
+    //                 content: String(c.content),
+    //                 score: Number(c.score)
+    //             }))
+    //         })
+    //     }
+
+    //     const response = await this.llmService.generate({
+    //         input: text,
+    //         context,
+    //     })
+
+    //     await this.prisma.aiResponse.create({
+    //         data: {
+    //             report_id: report.id,
+    //             model: 'llama-3.1-8b-instant',
+    //             provider: 'groq',
+    //             prompt: response.prompt,
+    //             response: JSON.stringify(response.output)
+    //         }
+    //     })
+
+    //     await this.prisma.report.update({
+    //         where: { id: report.id },
+    //         data: {
+    //             legal_analysis: response.output.legal_analysis,
+    //             simplified_explanation: response.output.simplified_explanation,
+    //             category_detected: parseSpecialization(response.output.area),
+    //             status: 'Pending'
+    //         }
+    //     })
+
+    //     return {
+    //         input: text,
+    //         ...response.output,
+    //     }
+    // }
+
+    async startConversation(firstMessage: StartConversationDTO, userId: string) {
+        const newCase = await this.prisma.case.create({
             data: {
-                transcription: text,
-                normalized_text: text,
-                legal_analysis: '',
-                simplified_explanation: '',
-                category_detected: area,
+                title: firstMessage.message.slice(0, 60),
                 user_id: userId,
                 status: 'Pending'
             }
         })
 
-        let context = await this.ragService.retrieve(text, area)
+        const conversation = await this.prisma.conversation.create({
+            data: {
+                case_id: newCase.id,
+                messages: {
+                    create: {
+                        role: 'User',
+                        content: firstMessage.message,
+                    }
+                }
+            },
+            include: {
+                messages: true
+            }
+        })
 
-        context = context.slice(0, 3)
+        const { shouldGenerate, questionOrAck } = await this.llmService.chat([
+            { role: 'User', content: firstMessage.message }
+        ])
+
+        await this.prisma.message.create({
+            data: {
+                conversation_id: conversation.id,
+                role: 'Assistant',
+                content: questionOrAck
+            }
+        })
+
+        if (shouldGenerate) {
+            await this.generateReportFromConversation(conversation.id, newCase.id, userId)
+        }
+
+        return {
+            conversationId: conversation.id,
+            caseId: newCase.id,
+            question: questionOrAck,
+            finished: false,
+        }
+    }
+
+    async continueConversation(continueConversation: ContinueConversationDto, userId: string) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: { id: continueConversation.conversationId },
+            include: { messages: { orderBy: { created_at: 'desc' } } }
+        });
+
+        if (!conversation) throw new NotFoundException('Conversa não encontrada');
+        if (conversation.is_closed) throw new BadRequestException('Conversa já encerrada');
+
+        await this.prisma.message.create({
+            data: {
+                conversation_id: continueConversation.conversationId,
+                role: 'User',
+                content: continueConversation.message,
+            }
+        });
+
+        const allMessages = [
+            ...conversation.messages,
+            { role: 'User' as const, content: continueConversation.message }
+        ];
+
+        const userTurns = allMessages.filter(m => m.role === 'User').length;
+        const forcedGenerate = userTurns >= MAX_TURNS;
+
+        if (forcedGenerate) {
+            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
+        }
+
+        const { shouldGenerate, questionOrAck } = await this.llmService.chat(
+            allMessages.map(m => ({ role: m.role as 'User' | 'Assistant', content: m.content }))
+        );
+
+        await this.prisma.message.create({
+            data: {
+                conversation_id: continueConversation.conversationId,
+                role: 'Assistant',
+                content: questionOrAck,
+            }
+        });
+
+        if (shouldGenerate) {
+            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
+        }
+
+        return {
+            conversationId: conversation.id,
+            caseId: conversation.case_id,
+            question: questionOrAck,
+            finished: false,
+        };
+    }
+
+    async getHistoryChat(id: string) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: {
+                id: id,
+            },
+            include: {
+                messages: true
+            },
+        })
+
+        if (!conversation) {
+            throw new NotFoundException('Conversa não encontrada')
+        }
+
+        return {
+            messages: conversation.messages
+        }
+    }
+
+    async transcribeAudio(file: TranscribeAudioDTO) {
+        try {
+            if (!file) {
+                throw new BadRequestException('Nenhum arquivo enviado');
+            }
+
+            const audioFile = await toFile(file.buffer, file.originalname, {
+                type: file.mimetype,
+            });
+
+            const response = await this.groq.audio.transcriptions.create({
+                file: audioFile,
+                model: 'whisper-large-v3',
+                language: 'pt',
+                response_format: 'text',
+            });
+
+            return response as unknown as string;
+        } catch (error) {
+            throw new InternalServerErrorException('Erro ao transcrever o áudio: ' + error);
+        }
+    }
+
+    async generateReportFromConversation(
+        conversationId: string,
+        caseId: string,
+        userId: string
+    ) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: { id: conversationId },
+            include: { messages: { orderBy: { created_at: 'asc' } } }
+        });
+
+        const fullText = conversation?.messages
+            .map(m => `${m.role === 'User' ? 'Usuário' : 'Assistente'}: ${m.content}`)
+            .join('\n');
+
+        const classification = await this.llmService.generate({
+            input: `Classifique a área jurídica do texto: ${fullText}`,
+            context: []
+        });
+
+        const area = parseSpecialization(classification.output?.area);
+
+        const report = await this.prisma.report.create({
+            data: {
+                transcription: fullText || '',
+                normalized_text: fullText || '',
+                legal_analysis: '',
+                simplified_explanation: '',
+                category_detected: area,
+                user_id: userId,
+                caseId: caseId,
+            }
+        });
+
+        let context = await this.ragService.retrieve(fullText || '', area);
+        context = context.slice(0, 3);
 
         if (context.length > 0) {
             await this.prisma.ragContext.createMany({
@@ -45,13 +290,13 @@ export class ReportService {
                     content: String(c.content),
                     score: Number(c.score)
                 }))
-            })
+            });
         }
 
         const response = await this.llmService.generate({
-            input: text,
+            input: fullText || '',
             context,
-        })
+        });
 
         await this.prisma.aiResponse.create({
             data: {
@@ -61,7 +306,7 @@ export class ReportService {
                 prompt: response.prompt,
                 response: JSON.stringify(response.output)
             }
-        })
+        });
 
         await this.prisma.report.update({
             where: { id: report.id },
@@ -69,33 +314,45 @@ export class ReportService {
                 legal_analysis: response.output.legal_analysis,
                 simplified_explanation: response.output.simplified_explanation,
                 category_detected: parseSpecialization(response.output.area),
-                status: 'Pending'
             }
+        });
+
+        await this.prisma.conversation.update({
+            where: { id: conversationId },
+            data: { is_closed: true }
+        });
+
+        await this.prisma.message.deleteMany({
+            where: { conversation_id: conversationId }
         })
 
         return {
-            input: text,
+            finished: true,
+            caseId,
+            conversationId: conversationId,
+            reportId: report.id,
+            input: fullText,
             ...response.output,
-        }
+        };
     }
 
-    async acceptReport(reportId: string, lawyerId: string, role: string) {
-        const report = await this.prisma.report.findUnique({
+    async acceptCase(caseId: string, lawyerId: string, role: string) {
+        const caso = await this.prisma.case.findUnique({
             where: {
-                id: reportId
+                id: caseId
             }
         })
 
-        if (!report) {
-            throw new NotFoundException('Relatório não encontrado')
+        if (!caso) {
+            throw new NotFoundException('Caso não encontrado')
         }
 
         if (role === "Citizen") {
             throw new UnauthorizedException('Usuário não autorizado')
         }
 
-        await this.prisma.report.update({
-            where: { id: reportId },
+        await this.prisma.case.update({
+            where: { id: caseId },
             data: {
                 status: 'Accepted',
                 lawyer_id: lawyerId
@@ -103,34 +360,35 @@ export class ReportService {
         })
 
         return {
-            message: 'Relatório aceito com sucesso'
+            message: 'Caso aceito com sucesso'
         }
     }
 
-    async rejectReport(reportId: string, role: string) {
-        const report = await this.prisma.report.findUnique({
+    async rejectCase(caseId: string, role: string) {
+        const caso = await this.prisma.case.findUnique({
             where: {
-                id: reportId
+                id: caseId
             }
         })
 
-        if (!report) {
-            throw new NotFoundException('Relatório não encontrado')
+        if (!caso) {
+            throw new NotFoundException('Caso não encontrado')
         }
-        
+
         if (role === "Citizen") {
             throw new UnauthorizedException('Usuário não autorizado')
         }
 
-        await this.prisma.report.update({
-            where: { id: reportId },
+        await this.prisma.case.update({
+            where: { id: caseId },
             data: {
                 status: 'Refused',
+
             }
         })
 
         return {
-            message: 'Relatório recusado'
+            message: 'Caso recusado'
         }
     }
 }

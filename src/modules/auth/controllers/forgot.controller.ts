@@ -10,6 +10,7 @@ export class ForgotController {
   constructor(
     private forgotPasswordService: ForgotPasswordService,
     private verifyForgotCodeService: VerifyForgotCodeService,
+
   ) {}
 
   @Post('forgot/password')

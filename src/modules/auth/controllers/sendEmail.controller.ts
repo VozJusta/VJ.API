@@ -5,7 +5,10 @@ import { SendEmailService } from '@m/auth/service/sendEmail.service';
 @ApiTags('Auth')
 @Controller()
 export class SendEmailController {
-  constructor(private sendEmailService: SendEmailService) {}
+  constructor(
+    private sendEmailService: SendEmailService,
+    private readonly authService: SendEmailService,
+  ) {}
 
   @Post('send/email')
   @ApiBody({
@@ -38,6 +41,6 @@ export class SendEmailController {
     },
   })
   async sendEmailCode(@Body() body: SendCodeEmailDTO) {
-    return await this.sendEmailService.sendEmail(body);
+    return await this.authService.sendEmail(body);
   }
 }
