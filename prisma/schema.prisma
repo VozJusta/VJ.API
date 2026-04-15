@@ -29,6 +29,7 @@ model Citizen {
   password           String?
   created_at         DateTime           @default(now())
   validationCodes    ValidationCode[]
+  cases              Case[]
 }
 
 model Lawyer {
@@ -51,6 +52,7 @@ model Lawyer {
   two_factor_token   TwoFactorToken?
   created_at         DateTime         @default(now())
   validationCodes    ValidationCode[]
+  cases              Case[]
 }
 
 model Plan {
@@ -88,9 +90,8 @@ model Report {
   simplified_explanation String
   category_detected      Specialization
   confidence_score       Float?
-  status                 Status         @default(Pending)
   user_id                String
-  lawyer_id              String?        
+  lawyer_id              String?
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
   user                   Citizen        @relation(fields: [user_id], references: [id])
   evidence               Evidence[]
@@ -98,6 +99,40 @@ model Report {
   created_at             DateTime       @default(now())
   ragContexts            RagContext[]
   simulations            Simulation[]
+  case                   Case           @relation(fields: [caseId], references: [id])
+  caseId                 String
+}
+
+model Case {
+  id            String         @id @default(uuid())
+  user_id       String
+  lawyer_id     String?
+  user          Citizen        @relation(fields: [user_id], references: [id])
+  lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
+  title         String
+  status        Status         @default(Pending)
+  reports       Report[]
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  conversations Conversation[]
+}
+
+model Conversation {
+  id         String    @id @default(uuid())
+  case_id    String
+  case       Case      @relation(fields: [case_id], references: [id])
+  messages   Message[]
+  is_closed  Boolean   @default(false)
+  created_at DateTime  @default(now())
+}
+
+model Message {
+  id              String       @id @default(uuid())
+  conversation_id String
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  role            MessageRole
+  content         String
+  created_at      DateTime     @default(now())
 }
 
 model AiResponse {
@@ -241,6 +276,11 @@ enum LawyerStatus {
 enum PlanType {
   Citizen
   Lawyer
+}
+
+enum MessageRole {
+  User
+  Assistant
 }
 
 enum BillingType {
