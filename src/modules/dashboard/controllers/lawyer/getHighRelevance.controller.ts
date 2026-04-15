@@ -1,6 +1,6 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
 import { DashboardLawyerService } from '@modules/dashboard/service/dashboard-lawyer.service';
-import { Get, UseGuards, Req, Controller } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 interface AuthenticatedRequest extends Request {
@@ -12,14 +12,14 @@ interface AuthenticatedRequest extends Request {
 
 @ApiTags('Dashboard')
 @Controller()
-export class GetReportsAcceptedLawyerController {
+export class GetHighRelevanceController {
   constructor(private readonly dashboardService: DashboardLawyerService) {}
-  @Get('/lawyer/analytics')
+  @Get('/lawyer/high-relevance')
   @UseGuards(AuthTokenGuard)
   @ApiOperation({
-    summary: 'Retorna analytics de solicitações aceitas do advogado',
+    summary: 'Retorna relatórios com maior relevância para o advogado',
     description:
-      'Busca os dados agregados por dia para exibição em gráfico no dashboard do advogado autenticado.',
+      'Busca os relatórios do advogado autenticado ordenados por confidence_score em ordem decrescente.',
   })
   @ApiHeader({
     name: 'Authorization',
@@ -28,15 +28,20 @@ export class GetReportsAcceptedLawyerController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Retorna os dados de analytics para o dashboard do advogado.',
+    description: 'Retorna a lista de relatórios com maior relevância.',
     schema: {
-      example: {
-        data: [
-          { date: '2026-04-08', value: 2 },
-          { date: '2026-04-07', value: 4 },
-          { date: '2026-04-06', value: 1 },
-        ],
-      },
+      example: [
+        {
+          id: 'cly4v7sdm0000q8x2ptv0h9k1',
+          confidence_score: 0.97,
+          category_detected: 'Direito do Consumidor',
+        },
+        {
+          id: 'cly4v8a6k0001q8x2zr2j3j8l',
+          confidence_score: 0.91,
+          category_detected: 'Direito Trabalhista',
+        },
+      ],
     },
   })
   @ApiResponse({
@@ -72,10 +77,10 @@ export class GetReportsAcceptedLawyerController {
       },
     },
   })
-  async getReportsAcceptedLawyer(@Req() req: AuthenticatedRequest) {
+  async getHighRelevance(@Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     const role = req.user.role;
 
-    return this.dashboardService.acceptedRequestAnalytics(userId, role);
+    return this.dashboardService.highRelevance(userId, role);
   }
 }

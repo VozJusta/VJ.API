@@ -2,14 +2,20 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { PrismaModule } from '@m/prisma/prisma.module';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
-import { DashboardCitizenController } from '@m/dashboard/controllers/dashboard-citizen.controller';
+
 import { DashboardCitizenService } from '@m/dashboard/service/dashboard-citizen.service';
 import { DashboardLawyerService } from '@m/dashboard/service/dashboard-lawyer.service';
-import { DashboardLawyerController } from '@m/dashboard/controllers/dashboard-lawyer.controller';
+import { GetAllReportCitizenController } from '../controllers/citizen/getAllReportsCitizen.controller';
+import { GetOneReportsCitizenController } from '../controllers/citizen/getOneReportsCitizen.controller';
+import { GetHighRelevanceController } from '../controllers/lawyer/getHighRelevance.controller';
+import { GetOperationStatusController } from '../controllers/lawyer/getOperationalStatus.controller';
+import { GetReportsAcceptedLawyerController } from '../controllers/lawyer/getReportsAcceptedLawyer.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule],
   providers: [DashboardCitizenService, DashboardLawyerService, AuthTokenGuard],
-  controllers: [DashboardCitizenController, DashboardLawyerController],
+  controllers: [GetAllReportCitizenController, GetOneReportsCitizenController,GetHighRelevanceController,
+    GetOperationStatusController, GetReportsAcceptedLawyerController
+  ],
 })
 export class DashboardModule {}

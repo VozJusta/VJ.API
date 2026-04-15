@@ -1,7 +1,14 @@
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
-import { DashboardCitizenService } from "@modules/dashboard/service/dashboard-citizen.service";
-import { Get, UseGuards, Req, Param, Controller } from "@nestjs/common";
-import { ApiOperation, ApiHeader, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { DashboardCitizenService } from '@modules/dashboard/service/dashboard-citizen.service';
+import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiHeader,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import Api from 'twilio/lib/rest/Api';
 interface AuthenticatedRequest extends Request {
   user: {
     sub: string;
@@ -9,43 +16,43 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-
+@ApiTags('Dashboard')
 @Controller()
 export class GetOneReportsCitizenController {
-    constructor(private readonly dashboardService: DashboardCitizenService) { }
+  constructor(private readonly dashboardService: DashboardCitizenService) {}
 
-    @Get('/citizens/me/reports/:reportId')
-    @UseGuards(AuthTokenGuard)
-    @ApiOperation({
-        summary: 'Retorna um relatório do cidadão autenticado por id',
-        description:
-            'Busca um único relatório pelo id, garantindo que pertença ao usuário autenticado.',
-    })
-    @ApiHeader({
-        name: 'Authorization',
-        required: true,
-        description: 'Token JWT recebido no login no formato "Bearer <token>"',
-    })
-    @ApiParam({
-        name: 'reportId',
-        required: true,
-        description: 'Id do relatório a ser consultado.',
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Retorna um único relatório do cidadão autenticado.',
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Cidadão ou relatório não encontrado.',
-    })
-    async getOneReportCitizen(
-        @Req() req: AuthenticatedRequest,
-        @Param('reportId') reportId: string,
-    ) {
-        const userId = req.user.sub;
-        const role = req.user.role;
+  @Get('/citizens/me/reports/:reportId')
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({
+    summary: 'Retorna um relatório do cidadão autenticado por id',
+    description:
+      'Busca um único relatório pelo id, garantindo que pertença ao usuário autenticado.',
+  })
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'Token JWT recebido no login no formato "Bearer <token>"',
+  })
+  @ApiParam({
+    name: 'reportId',
+    required: true,
+    description: 'Id do relatório a ser consultado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna um único relatório do cidadão autenticado.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Cidadão ou relatório não encontrado.',
+  })
+  async getOneReportCitizen(
+    @Req() req: AuthenticatedRequest,
+    @Param('reportId') reportId: string,
+  ) {
+    const userId = req.user.sub;
+    const role = req.user.role;
 
-        return this.dashboardService.findCitizenReportById(userId, role, reportId);
-    }
+    return this.dashboardService.findCitizenReportById(userId, role, reportId);
+  }
 }

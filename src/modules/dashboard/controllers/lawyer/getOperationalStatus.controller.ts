@@ -1,7 +1,7 @@
 import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
 import { DashboardLawyerService } from "@modules/dashboard/service/dashboard-lawyer.service";
 import { Get, UseGuards, Req, Controller } from "@nestjs/common";
-import { ApiOperation, ApiHeader, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from "@nestjs/swagger";
 interface AuthenticatedRequest extends Request {
   user: {
     sub: string;
@@ -9,9 +9,9 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+@ApiTags('Dashboard')
 @Controller()
-
-export class GetOperationStatus {
+export class GetOperationStatusController {
     constructor(private readonly dashboardService: DashboardLawyerService) { }
     
       @Get('/lawyer/operational-status')
