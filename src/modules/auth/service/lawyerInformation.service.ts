@@ -1,8 +1,8 @@
 import { UnauthorizedException, ConflictException, NotFoundException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { CompleteLawyerRegisterDTO } from "../dto/complete-lawyer-register.dto";
-import { HashingServiceProtocol } from "../hash/hashing.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { CompleteLawyerRegisterDTO } from "@m/auth/dto/complete-lawyer-register.dto";
+import { HashingServiceProtocol } from "@m/auth/hash/hashing.service";
 
 @Injectable()
 export class LawyerInformationService {

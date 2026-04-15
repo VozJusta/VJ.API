@@ -1,9 +1,9 @@
 import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
-import { LawyerService } from '../service/lawyer.service';
-import { CreateLawyerDTO } from '../dto/create-lawyer.dto';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
-import { SecurityTokenInterceptor } from 'src/modules/auth/interceptors/security-token.interceptor';
-
+import { LawyerService } from '@m/lawyer/service/lawyer.service';
+import { CreateLawyerDTO } from '@m/lawyer/dto/create-lawyer.dto';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
+@ApiTags('Lawyer')
 @Controller('lawyer')
 export class LawyerController {
     constructor(private readonly lawyerService: LawyerService) {}

@@ -5,7 +5,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { ValidateLawyerDTO } from 'src/modules/lawyer/dto/validate-lawyer.dto';
+import { ValidateLawyerDTO } from '@m/lawyer/dto/validate-lawyer.dto';
 
 @Injectable()
 export class OabNumberValidationService {

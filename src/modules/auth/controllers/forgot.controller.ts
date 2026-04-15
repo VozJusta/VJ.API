@@ -1,9 +1,9 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
-import { ForgotPasswordService } from '../service/forgotPassword.service';
-import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
-import { VerifyForgotCodeService } from '../service/verifyForgotCode.service';
+import { ForgotPasswordDTO } from '@m/auth/dto/forgot-password.dto';
+import { ForgotPasswordService } from '@m/auth/service/forgotPassword.service';
+import { VerifyForgotCodeDTO } from '@m/auth/dto/verify-forgot-code.dto';
+import { VerifyForgotCodeService } from '@m/auth/service/verifyForgotCode.service';
 @ApiTags('Auth')
 @Controller('forgot')
 export class ForgotController {

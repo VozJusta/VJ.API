@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedExceptio
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { Observable } from "rxjs";
-import jwtConfig from "../config/jwt.config";
+import jwtConfig from "@m/auth/config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 
 @Injectable()

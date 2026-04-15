@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common"
-import { PrismaService } from "src/modules/prisma/service/prisma.service"
-import { SignInDTO } from "../dto/signIn.dto"
-import { HashingServiceProtocol } from "../hash/hashing.service"
+import { PrismaService } from "@m/prisma/service/prisma.service"
+import { SignInDTO } from "@m/auth/dto/signIn.dto"
+import { HashingServiceProtocol } from "@m/auth/hash/hashing.service"
 
 @Injectable()
 export class AuthenticateService {

@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Observable, tap } from "rxjs";
-import jwtConfig from "../config/jwt.config";
+import jwtConfig from "@m/auth/config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 
 @Injectable()

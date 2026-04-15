@@ -1,7 +1,7 @@
 import { Patch, UseGuards, Body, Req, Controller } from '@nestjs/common';
-import { ChangePasswordDTO } from '../dto/change-password.dto';
-import { AuthTokenGuard } from '../guard/access-token.guard';
-import { ChangePasswordService } from '../service/changePassword.service';
+import { ChangePasswordDTO } from '@m/auth/dto/change-password.dto';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { ChangePasswordService } from '@m/auth/service/changePassword.service';
 import { ApiTags } from '@nestjs/swagger';
 
 interface RequestUser extends Request {

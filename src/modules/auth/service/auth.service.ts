@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { SignInDTO } from '../dto/signIn.dto';
-import { ChangePasswordDTO } from '../dto/change-password.dto';
-import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
-import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
-import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
-import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
-import { AuthenticateService } from './authenticate.service';
-import { ChangePasswordService } from './changePassword.service';
-import { ForgotPasswordService } from './forgotPassword.service';
-import { VerifyForgotCodeService } from './verifyForgotCode.service';
-import { SendEmailService } from './sendEmail.service';
-import { SendForgotPasswordEmailService } from './sendForgotPassword.service';
-import { ValidateEmailCodeService } from './validateEmailCode.service';
-import { AuthenticateGoogleLawyerService } from './authGoogleLawyer.service';
-import { AuthenticateGoogleCitizenService } from './authGoogleCitizen.service';
+import { SignInDTO } from '@m/auth/dto/signIn.dto';
+import { ChangePasswordDTO } from '@m/auth/dto/change-password.dto';
+import { ForgotPasswordDTO } from '@m/auth/dto/forgot-password.dto';
+import { VerifyForgotCodeDTO } from '@m/auth/dto/verify-forgot-code.dto';
+import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
+import { ValidateCodeEmailDTO } from '@m/auth/dto/validateCode-email.dto';
+import { AuthenticateService } from '@m/auth/service/authenticate.service';
+import { ChangePasswordService } from '@m/auth/service/changePassword.service';
+import { ForgotPasswordService } from '@m/auth/service/forgotPassword.service';
+import { VerifyForgotCodeService } from '@m/auth/service/verifyForgotCode.service';
+import { SendEmailService } from '@m/auth/service/sendEmail.service';
+import { SendForgotPasswordEmailService } from '@m/auth/service/sendForgotPassword.service';
+import { ValidateEmailCodeService } from '@m/auth/service/validateEmailCode.service';
+import { AuthenticateGoogleLawyerService } from '@m/auth/service/authGoogleLawyer.service';
+import { AuthenticateGoogleCitizenService } from '@m/auth/service/authGoogleCitizen.service';
 
 @Injectable()
 export class AuthService {

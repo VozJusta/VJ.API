@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { SendForgotPasswordCodeService } from "src/modules/email/service/sendForgotPasswordCode.service";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
-import { SendCodeEmailDTO } from "../dto/sendCode-email.dto";
+import { SendForgotPasswordCodeService } from "@m/email/service/sendForgotPasswordCode.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
+import { SendCodeEmailDTO } from "@m/auth/dto/sendCode-email.dto";
 
 @Injectable()
 export class SendForgotPasswordEmailService {

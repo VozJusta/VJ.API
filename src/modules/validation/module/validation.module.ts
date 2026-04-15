@@ -1,8 +1,8 @@
 import { HttpModule} from '@nestjs/axios'
 import { Global, Module } from '@nestjs/common';
-import { OabNumberValidationService } from './service/oab-number-validation.service';
-import { CpfNumberValidation } from './service/cpf-number-validation.service';
-import { CnpjNumberValidation } from './service/cnpj-number-validation.service';
+import { OabNumberValidationService } from '@m/validation/service/oab-number-validation.service';
+import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
+import { CnpjNumberValidation } from '@m/validation/service/cnpj-number-validation.service';
 
 @Global()
 @Module({
