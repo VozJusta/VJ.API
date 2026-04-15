@@ -239,7 +239,7 @@ export class ReportService implements OnModuleInit {
         }
     }
 
-    private async generateReportFromConversation(
+    async generateReportFromConversation(
         conversationId: string,
         caseId: string,
         userId: string
