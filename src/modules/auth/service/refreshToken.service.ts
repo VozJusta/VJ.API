@@ -10,7 +10,7 @@ import jwtConfig from '../config/jwt.config';
 
 interface tokenTypes {
   sub: string;
-  role: 'citizen' | 'lawyer';
+  role: 'Citizen' | 'Lawyer';
   email: string;
   fullName: string;
   loggedWithGoogle: boolean;
@@ -26,13 +26,19 @@ export class RefreshTokenService {
   ) {}
 
   async refreshToken(refreshToken: string) {
+    console.log(refreshToken);
     try {
-      const payload = this.jwtService.verify<tokenTypes>(refreshToken);
+      console.log('Verificando token...');
+      const payload = this.jwtService.verify<tokenTypes>(refreshToken, {
+        secret: this.jwtConfiguration.refreshToken.secret,
+      });
+      console.log(payload);
       const { role, sub } = payload;
 
       let user;
+      console.log(role, sub);
 
-      if (role === 'citizen') {
+      if (role === 'Citizen') {
         user = await this.prisma.citizen.findUnique({ where: { id: sub } });
       } else {
         user = await this.prisma.lawyer.findUnique({ where: { id: sub } });
@@ -41,6 +47,7 @@ export class RefreshTokenService {
       if (!user) {
         throw new NotFoundException('Usuário não encontrado');
       }
+      console.log(user);
 
       const newPayload = {
         id: user.id,
@@ -58,6 +65,7 @@ export class RefreshTokenService {
         }),
       };
     } catch (error) {
+      console.error('Erro ao verificar o token:', error);
       throw new UnauthorizedException(
         'Refresh token está inválido ou expirado',
       );

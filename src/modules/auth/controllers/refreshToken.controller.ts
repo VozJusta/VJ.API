@@ -1,7 +1,7 @@
 import { Controller, Headers, Post } from '@nestjs/common';
 import { RefreshTokenService } from '../service/refreshToken.service';
 import { ApiTags } from '@nestjs/swagger';
-@ApiTags('Auth')
+@ApiTags('Refresh')
 @Controller()
 export class RefreshToken {
   constructor(private refreshTokenService: RefreshTokenService) {}
