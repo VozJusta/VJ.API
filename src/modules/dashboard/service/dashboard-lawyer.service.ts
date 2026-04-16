@@ -26,8 +26,8 @@ export class DashboardLawyerService {
       }
       const acceptedReports = await this.prisma.report.findMany({
         where: {
-          lawyer_id: userId,
           case: {
+            lawyer_id: userId,
             status: 'Accepted',
           },
         },
