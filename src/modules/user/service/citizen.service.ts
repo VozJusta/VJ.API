@@ -59,7 +59,6 @@ export class CitizenService {
     if (!cpfValid) {
       throw new NotAcceptableException('CPF inválido');
     }
-
     const hashedPassword = await this.hashingService.hash(body.password);
 
     const newUser = await this.prisma.citizen.create({
@@ -70,6 +69,24 @@ export class CitizenService {
         phone: body.phone,
         email: body.email,
         password: hashedPassword,
+        subscription: {
+          create: {
+            plan: {
+              create: {
+                billing_type: body.billingType,
+                max_interviews: 3,
+                max_simulation: 0,
+                stripe_price_id: 'price_1N8Xo2KqYjYp3sQh7n9v5ZtL',
+                name: body.namePlan,
+              },
+            },
+            stripe_subscription_id: 'sub_1N8Xo2KqYjYp3sQh7n9v5ZtL',
+            subscription_status: 'active',
+            current_period_end: new Date(
+              new Date().setMonth(new Date().getMonth() + 1),
+            ),
+          },
+        },
       },
       select: {
         id: true,
@@ -78,6 +95,17 @@ export class CitizenService {
         cnpj: true,
         phone: true,
         email: true,
+        subscription: {
+          include: {
+            plan: {
+              select: {
+                type: true,
+                billing_type: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -88,6 +116,13 @@ export class CitizenService {
       email: newUser.email,
       full_name: newUser.full_name,
       loggedWithGoogle: false,
+      subscription: {
+        plan: {
+          type: newUser.subscription?.plan.type,
+          billing_type: newUser.subscription?.plan.billing_type,
+          name: newUser.subscription?.plan.name,
+        },
+      },
     };
   }
 }

@@ -23,7 +23,6 @@ model Citizen {
   email              String             @unique
   subscription       Subscription?
   report             Report[]
-  two_factor_token   TwoFactorToken?
   simulation         Simulation[]
   simulation_report  SimulationReport[]
   password           String?
@@ -49,7 +48,6 @@ model Lawyer {
   password           String?
   subscription       Subscription?
   report             Report[]
-  two_factor_token   TwoFactorToken?
   created_at         DateTime         @default(now())
   validationCodes    ValidationCode[]
   cases              Case[]
@@ -62,7 +60,6 @@ model Plan {
   type            PlanType    @default(FREE)
   billing_type    BillingType
   max_interviews  Int
-
   max_simulation   Int
   has_ia_petitions Boolean        @default(false)
   has_analytics    Boolean        @default(false)
@@ -175,18 +172,6 @@ model ValidationCode {
   expired    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-}
-
-model TwoFactorToken {
-  id         String   @id @default(uuid())
-  code       String
-  type       Types
-  user_id    String   @unique
-  lawyer_id  String   @unique
-  user       Citizen  @relation(fields: [user_id], references: [id])
-  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
-  created_at DateTime @default(now())
-  expires_at DateTime
 }
 
 model Simulation {
