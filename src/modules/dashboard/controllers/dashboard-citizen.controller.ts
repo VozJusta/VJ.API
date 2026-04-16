@@ -95,17 +95,25 @@ export class DashboardCitizenController {
               type: 'integer',
               example: 1,
             },
-            perPage: {
+            pageSize: {
               type: 'integer',
               example: 2,
             },
-            total: {
+            totalItems: {
               type: 'integer',
               example: 10,
             },
             totalPages: {
               type: 'integer',
               example: 5,
+            },
+            hasNextPage: {
+              type: 'boolean',
+              example: true,
+            },
+            hasPreviousPage: {
+              type: 'boolean',
+              example: false,
             },
           },
         },
@@ -130,9 +138,11 @@ export class DashboardCitizenController {
         },
         pagination: {
           page: 1,
-          perPage: 2,
-          total: 10,
+          pageSize: 2,
+          totalItems: 10,
           totalPages: 5,
+          hasNextPage: true,
+          hasPreviousPage: false,
         },
       },
     },
