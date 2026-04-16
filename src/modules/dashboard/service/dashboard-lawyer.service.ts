@@ -73,28 +73,41 @@ export class DashboardLawyerService {
 
       const reportsWithStatus = await this.prisma.report.findMany({
         where: {
-          lawyer_id: userId,
           case: {
+            lawyer_id: userId,
             status: {
               in: ['Pending', 'Refused', 'Accepted'],
             },
           },
-        }),
-        this.prisma.report.count({
-          where: {
-            lawyer_id: userId,
-            case: {
-              status: 'Accepted',
+        },
+        select: {
+          case: {
+            select: {
+              status: true,
             },
           },
-        }),
-      ]);
+        },
+      });
 
-      return {
-        pending,
-        refused,
-        accepted,
-      };
+      const counts = reportsWithStatus.reduce<{
+        pending: number;
+        refused: number;
+        accepted: number;
+      }>((acc, report) => {
+        const status = report.case.status.toLowerCase();
+
+        if (status === 'pending') acc.pending += 1;
+        if (status === 'refused') acc.refused += 1;
+        if (status === 'accepted') acc.accepted += 1;
+
+        return acc;
+      }, {
+        pending: 0,
+        refused: 0,
+        accepted: 0,
+      });
+
+      return counts;
     }
 
     throw new BadRequestException('Role inválida');
@@ -115,7 +128,9 @@ export class DashboardLawyerService {
 
       const scoreRelevance = await this.prisma.report.findMany({
         where: { 
-          lawyer_id: userId,
+          case: {
+            lawyer_id: userId,
+          },
           confidence_score: { not: null }
          },
         select: {
