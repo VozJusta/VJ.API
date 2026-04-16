@@ -122,10 +122,10 @@ export class DashboardLawyerService {
       }
 
       const scoreRelevance = await this.prisma.report.findMany({
-        where: { 
-          lawyer_id: userId,
-          confidence_score: { not: null }
-         },
+        where: {
+          case: { lawyer_id: userId },
+          confidence_score: { not: null },
+        },
         select: {
           id: true,
           case: { select: {title: true}},
