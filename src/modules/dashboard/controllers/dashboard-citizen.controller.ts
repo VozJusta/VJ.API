@@ -130,8 +130,8 @@ export class DashboardCitizenController {
             },
             {
               id: '3ad8f318-c730-4e1a-b4d7-545f1a6d55c2',
-              category_detected: 'Health',
-              status: 'Resolved',
+              category_detected: 'Labor_and_employment',
+              status: 'Accepted',
               created_at: '2026-04-06 14:22:31.102',
             },
           ],
