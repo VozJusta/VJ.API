@@ -2,10 +2,15 @@ import { Module } from '@nestjs/common';
 import { CitizenService } from './service/citizen.service';
 import { CitizenController } from './controllers/citizen.controller';
 import { PrismaModule } from 'src/modules/prisma/prisma.module';
+import { AuthTokenGuard } from '../auth/guard/access-token.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [PrismaModule],
-  providers: [CitizenService],
+  imports: [
+    AuthModule,
+    PrismaModule,
+  ],
+  providers: [CitizenService, AuthTokenGuard],
   controllers: [CitizenController]
 })
-export class CitizenModule {}
+export class CitizenModule { }

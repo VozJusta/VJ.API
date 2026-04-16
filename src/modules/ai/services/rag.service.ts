@@ -1,13 +1,16 @@
-import { Injectable, Scope } from "@nestjs/common";
+import { Injectable, OnModuleInit, Scope } from "@nestjs/common";
 import { EmbeddingsService } from "./embeddings.service";
 import { QdrantClient } from '@qdrant/js-client-rest'
 
 @Injectable()
-export class RagService {
+export class RagService implements OnModuleInit {
     constructor(private embeddingService: EmbeddingsService) { }
 
     private client = new QdrantClient({
-        url: 'http://localhost:6333'
+        url: `${process.env.QDRANT_URL}`,
+        apiKey: `${process.env.QDRANT_API_KEY}`,
+        port: 443,
+        checkCompatibility: false,
     })
 
     async onModuleInit() {
@@ -25,21 +28,40 @@ export class RagService {
                 },
             });
         }
+
+        try {
+            await this.client.createPayloadIndex("legal_knowledge", {
+                field_name: "area",
+                field_schema: "keyword",
+            });
+        } catch (error) {
+            console.log(error);
+
+        }
     }
 
-    async retrieve(text: string) {
-        const embedding = await this.embeddingService.generate(text)
+    async retrieve(text: string, area ?: string) {
+            const embedding = await this.embeddingService.generate(text)
 
-        const results = await this.client.search('legal_knowledge', {
-            vector: embedding,
-            limit: 5,
-        })
+            const results = await this.client.search('legal_knowledge', {
+                vector: embedding,
+                limit: 10,
+                filter: area
+                    ? {
+                        must: [
+                            {
+                                key: 'area',
+                                match: { value: area },
+                            },
+                        ],
+                    }
+                    : undefined,
+            })
 
-        return results.map(r => ({
-            content: r.payload?.content,
-            source: r.payload?.source,
-            score: r.score
-        }));
-
+            return results.map(r => ({
+                content: String(r.payload?.content || ''),
+                source: String(r.payload?.source || ''),
+                score: r.score ?? 0
+            }));
+        }
     }
-}

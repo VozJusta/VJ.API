@@ -10,12 +10,14 @@ async function bootstrap() {
     .setTitle('Voz Justa')
     .setDescription('Voz Justa API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   app.enableCors({
     origin: ['http://localhost:3000', 'https://vozjusta.com.br'],
     methods: ['GET', 'PATCH', 'DELETE', 'POST', 'PUT'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-security-token', 'access-token'],
+    exposedHeaders: ['x-security-token', 'X-security-token', 'access-token'],
     credentials: true
   })
 

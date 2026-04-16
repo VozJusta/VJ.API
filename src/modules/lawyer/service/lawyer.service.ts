@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { CreateLawyerDTO } from '../dto/create-lawyer.dto';
 import { hash, hashSync } from 'bcryptjs';
@@ -17,6 +17,13 @@ export class LawyerService {
     ) { }
 
     async create(body: CreateLawyerDTO) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: body.email }
+        })
+
+        if(citizen) {
+            throw new UnauthorizedException('Usuário cadastrado como cidadão')
+        }
 
         const existingLawyer = await this.prisma.lawyer.findFirst({
             where: {
@@ -50,11 +57,11 @@ export class LawyerService {
             uf: body.oabState
         }
 
-        const validateLawyer = await this.validateOab.validate(validationOabDTO)
+        //const validateLawyer = await this.validateOab.validate(validationOabDTO)
         
-        if(validateLawyer['Data'].length === 0) {
-            throw new NotFoundException('Advogado não encontrado no banco de dados da OAB')
-        }
+        // if(validateLawyer['Data'].length === 0) {
+        //     throw new NotFoundException('Advogado não encontrado no banco de dados da OAB')
+        // }
 
         const newLawyer = await this.prisma.lawyer.create({
             data: {
@@ -69,6 +76,7 @@ export class LawyerService {
                 lawyer_status: 'Verified'
             },
             select: {
+                id: true,
                 full_name: true,
                 cpf: true,
                 oab_number: true,
@@ -80,7 +88,14 @@ export class LawyerService {
             }
         })
 
-        return newLawyer
+        return {
+            validated: true,
+            sub: newLawyer.id,
+            role: 'Lawyer',
+            email: newLawyer.email,
+            full_name: newLawyer.full_name,
+            loggedWithGoogle: false
+        }
 
     }
 }
