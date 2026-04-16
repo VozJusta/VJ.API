@@ -56,25 +56,29 @@ model Lawyer {
 }
 
 model Plan {
-  id               String      @id @default(uuid())
-  name             String
-  stripe_price_id  String      @unique
-  type             PlanType
-  billing_type     BillingType
-  max_interviews   Int
+  id              String      @id @default(uuid())
+  name            String
+  stripe_price_id String      @unique
+  type            PlanType    @default(FREE)
+  billing_type    BillingType
+  max_interviews  Int
+
   max_simulation   Int
-  has_ia_petitions Boolean     @default(false)
-  has_analytics    Boolean     @default(false)
+  has_ia_petitions Boolean        @default(false)
+  has_analytics    Boolean        @default(false)
+  subscriptions    Subscription[]
 }
 
 model Subscription {
   id                     String             @id @default(uuid())
+  stripe_subscription_id String
+  subscription_status    SubscriptionStatus
   user                   Citizen?           @relation(fields: [user_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
   user_id                String?            @unique
   lawyer_id              String?            @unique
-  stripe_subscription_id String
-  subscription_status    SubscriptionStatus
+  planId                 String
+  plan                   Plan               @relation(fields: [planId], references: [id])
   interviews_used        Int                @default(0)
   simulations_used       Int                @default(0)
   leads_used             Int                @default(0)
@@ -274,8 +278,9 @@ enum LawyerStatus {
 }
 
 enum PlanType {
-  Citizen
-  Lawyer
+  MEDIUM
+  PREMIUM
+  FREE
 }
 
 enum MessageRole {

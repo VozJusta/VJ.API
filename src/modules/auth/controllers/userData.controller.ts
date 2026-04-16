@@ -26,8 +26,11 @@ export class userDataController {
   @Get('/me')
   @HttpCode(200)
   async getUserData(@Headers('token') token: string) {
+    console.log('teste::: ',token);
     try {
+      console.log('Verificando token...');
       const payload = this.jwtService.verify<tokenTypes>(token);
+      console.log(payload);
       const { sub, role } = payload;
       if (role === 'Citizen') {
         const user = await this.prisma.citizen.findUnique({
@@ -35,11 +38,24 @@ export class userDataController {
           select: {
             id: true,
             full_name: true,
+            subscription: {
+              where: {
+                user_id: sub,
+              },
+              select: {
+                plan: {
+                  select: {
+                    type: true,
+                  },
+                },
+              },
+            },
           },
         });
+        console.log('user:', user);
+        return user;
       }
-
-      return payload;
+      return;
     } catch (err) {
       throw new BadRequestException('Token inválido');
     }
