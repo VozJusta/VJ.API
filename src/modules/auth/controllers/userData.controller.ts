@@ -21,12 +21,12 @@ export class userDataController {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Get('/me')
   @HttpCode(200)
   async getUserData(@Headers('token') token: string) {
-    console.log('teste::: ',token);
+    console.log('teste::: ', token);
     try {
       console.log('Verificando token...');
       const payload = this.jwtService.verify<tokenTypes>(token);
@@ -52,10 +52,30 @@ export class userDataController {
             },
           },
         });
-        console.log('user:', user);
+      
+        return user;
+      } else {
+        const user = await this.prisma.lawyer.findUnique({
+          where: { id: sub },
+          select: {
+            id: true,
+            full_name: true,
+            subscription: {
+              where: {
+                user_id: sub,
+              },
+              select: {
+                plan: {
+                  select: {
+                    type: true,
+                  },
+                },
+              },
+            },
+          },
+        });
         return user;
       }
-      return;
     } catch (err) {
       throw new BadRequestException('Token inválido');
     }

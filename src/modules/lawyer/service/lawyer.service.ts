@@ -21,7 +21,7 @@ export class LawyerService {
             where: { email: body.email }
         })
 
-        if(citizen) {
+        if (citizen) {
             throw new UnauthorizedException('Usuário cadastrado como cidadão')
         }
 
@@ -47,7 +47,7 @@ export class LawyerService {
 
         const cpfValid = await this.validateCPF.validate(body.cpf)
 
-        if(!cpfValid) {
+        if (!cpfValid) {
             throw new NotAcceptableException('CPF inválido')
         }
 
@@ -67,7 +67,23 @@ export class LawyerService {
                 phone: body.phone,
                 email: body.email,
                 password: hashedPassword,
-                lawyer_status: 'Verified'
+                lawyer_status: 'Verified',
+                subscription: {
+                    create: {
+                        plan: {
+                            create: {
+                                billing_type: body.billingType,
+                                max_interviews: 3,
+                                max_simulation: 0,
+                                name: body.namePlan,
+                            },
+                        },
+                        subscription_status: 'active',
+                        current_period_end: new Date(
+                            new Date().setMonth(new Date().getMonth() + 1),
+                        ),
+                    },
+                },
             },
             select: {
                 id: true,

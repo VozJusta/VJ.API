@@ -54,12 +54,12 @@ model Lawyer {
 }
 
 model Plan {
-  id              String      @id @default(uuid())
-  name            String
-  stripe_price_id String      @unique
-  type            PlanType    @default(FREE)
-  billing_type    BillingType
-  max_interviews  Int
+  id               String         @id @default(uuid())
+  name             String
+  stripe_price_id  String         @unique @default(uuid())
+  type             PlanType       @default(FREE)
+  billing_type     BillingType
+  max_interviews   Int
   max_simulation   Int
   has_ia_petitions Boolean        @default(false)
   has_analytics    Boolean        @default(false)
@@ -68,7 +68,7 @@ model Plan {
 
 model Subscription {
   id                     String             @id @default(uuid())
-  stripe_subscription_id String
+  stripe_subscription_id String             @unique @default(uuid())
   subscription_status    SubscriptionStatus
   user                   Citizen?           @relation(fields: [user_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
