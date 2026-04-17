@@ -37,23 +37,23 @@ export class LawyerRequestsService {
         throw new NotFoundException('Advogado não encontrado');
       }
 
-
       const reportsByStatus = await this.prisma.report.findMany({
-        where: { lawyer_id: userId, status: reportStatus },
+        where: { lawyer_id: userId, case: { status: reportStatus } },
         select: {
           id: true,
           user: {
             select: { full_name: true },
           },
           category_detected: true,
-          status: true,
+          case: { select: { status: true } },
           created_at: true,
-        }
+        },
       });
 
-      return reportsByStatus.map(({ user, ...report }) => ({
+      return reportsByStatus.map(({ user, case: reportCase, ...report }) => ({
         ...report,
         clientName: user.full_name,
+        statusCase: reportCase.status,
         created_at: report.created_at.toISOString().split('T')[0],
       }));
     }
