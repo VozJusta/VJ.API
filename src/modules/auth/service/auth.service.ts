@@ -394,6 +394,14 @@ export class AuthService {
     }
 
     async authenticateGoogleCitizen(email: string, name: string) {
+        const lawyer = await this.prisma.lawyer.findFirst({
+            where: { email: email}
+        })
+
+        if(lawyer) {
+            throw new ConflictException('Usuário já cadastrado')
+        }
+
         let citizen = await this.prisma.citizen.findFirst({
             where: {
                 email: email
@@ -431,6 +439,13 @@ export class AuthService {
     }
 
     async authenticateGoogleLawyer(email: string, name: string) {
+        const citizen = await this.prisma.citizen.findFirst({
+            where: { email: email }
+        })
+
+        if(citizen) {
+            throw new ConflictException('Usuário já cadastrado')
+        }
 
         let lawyer = await this.prisma.lawyer.findFirst({
             where: {

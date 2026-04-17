@@ -46,7 +46,11 @@ export class DashboardCitizenService {
           select: {
             id: true,
             category_detected: true,
-            status: true,
+            case: {
+              select: {
+                status: true,
+              },
+            },
             created_at: true,
           },
           orderBy: { created_at: 'desc' },
@@ -58,12 +62,19 @@ export class DashboardCitizenService {
         }),
       ]);
 
+      const reportsWithStatus = reports.map((report) => ({
+        id: report.id,
+        category_detected: report.category_detected,
+        status: report.case.status,
+        created_at: report.created_at,
+      }));
+
       const totalPages = Math.ceil(totalReports / pageSize);
 
       return {
         role: 'Citizen',
         user: {
-          data: reports,
+          data: reportsWithStatus,
         },
         pagination: {
           page,
@@ -103,7 +114,11 @@ export class DashboardCitizenService {
           simplified_explanation: true,
           legal_analysis: true,
           category_detected: true,
-          status: true,
+          case: {
+            select: {
+              status: true,
+            },
+          },
           evidence: true,
           lawyer: {
             select: {
@@ -121,10 +136,16 @@ export class DashboardCitizenService {
         throw new NotFoundException('Relatório não encontrado');
       }
 
+      const { case: reportCase, ...reportData } = report;
+      const reportWithStatus = {
+        ...reportData,
+        status: reportCase.status,
+      };
+
       return {
         role: 'Citizen',
         user: {
-          report,
+          report: reportWithStatus,
         },
       };
     }

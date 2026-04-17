@@ -26,8 +26,10 @@ export class DashboardLawyerService {
       }
       const acceptedReports = await this.prisma.report.findMany({
         where: {
-          status: 'Accepted',
-          lawyer_id: userId,
+          case: {
+            lawyer_id: userId,
+            status: 'Accepted',
+          },
         },
         select: { created_at: true },
         orderBy: { created_at: 'asc' },
@@ -69,30 +71,34 @@ export class DashboardLawyerService {
         throw new NotFoundException('Advogado não encontrado');
       }
 
-      const statusCounts = await this.prisma.report.groupBy({
-        by: ['status'],
+      const reportsWithStatus = await this.prisma.report.findMany({
         where: {
-          lawyer_id: userId,
-          status: {
-            in: ['Pending', 'Refused', 'Accepted'],
+          case: {
+            lawyer_id: userId,
+            status: {
+              in: ['Pending', 'Refused', 'Accepted'],
+            },
           },
         },
-        _count: {
-          status: true,
+        select: {
+          case: {
+            select: {
+              status: true,
+            },
+          },
         },
       });
 
-      const counts = statusCounts.reduce<{
+      const counts = reportsWithStatus.reduce<{
         pending: number;
         refused: number;
         accepted: number;
       }>((acc, report) => {
-        const status = report.status.toLowerCase();
-        const total = report._count.status;
+        const status = report.case.status.toLowerCase();
 
-        if (status === 'pending') acc.pending = total;
-        if (status === 'refused') acc.refused = total;
-        if (status === 'accepted') acc.accepted = total;
+        if (status === 'pending') acc.pending += 1;
+        if (status === 'refused') acc.refused += 1;
+        if (status === 'accepted') acc.accepted += 1;
 
         return acc;
       }, {
@@ -122,12 +128,14 @@ export class DashboardLawyerService {
 
       const scoreRelevance = await this.prisma.report.findMany({
         where: { 
-          lawyer_id: userId,
+          case: {
+            lawyer_id: userId,
+          },
           confidence_score: { not: null }
          },
         select: {
           id: true,
-          //title: true,
+          case: { select: {title: true}},
           confidence_score: true,
           category_detected: true,
         },
@@ -137,7 +145,12 @@ export class DashboardLawyerService {
         }
       });
 
-      return scoreRelevance;
+      return scoreRelevance.map((report) => ({
+        id: report.id,
+        title: report.case.title,
+        confidence_score: report.confidence_score,
+        category_detected: report.category_detected,
+      }));
     }
     throw new BadRequestException('Role inválida');
   }

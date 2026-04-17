@@ -17,12 +17,10 @@ import { SendCodeEmailDTO } from '../dto/sendCode-email.dto';
 import { ValidateCodeEmailDTO } from '../dto/validateCode-email.dto';
 import { ForgotPasswordDTO } from '../dto/forgot-password.dto';
 import { VerifyForgotCodeDTO } from '../dto/verify-forgot-code.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from '../guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '../interceptors/security-token.interceptor';
 import { AuthTokenGuard } from '../guard/access-token.guard';
-import { ApiBody, ApiHeader, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { validate } from 'class-validator';
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CompleteCitizenRegisterDTO } from '../dto/complete-citizen-register.dto';
 import { Request } from 'express';
 import { CompleteLawyerRegisterDTO } from '../dto/complete-lawyer-register.dto';
@@ -36,6 +34,7 @@ interface RequestUser extends Request {
 }
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
 
@@ -215,6 +214,46 @@ export class AuthController {
   }
 
   @Put('complete/citizen')
+  @ApiOperation({ summary: 'Completa o cadastro do cidadão após validação de email' })
+  @ApiHeader({
+    name: 'x-security-token',
+    description: 'Token temporário retornado na autenticação inicial',
+    required: true,
+  })
+  @ApiBody({
+    type: CompleteCitizenRegisterDTO,
+    description: 'Dados complementares para finalizar o cadastro de cidadão',
+    examples: {
+      default: {
+        summary: 'Cadastro de cidadão',
+        value: {
+          cpf: '12345678901',
+          phone: '11999998888',
+          password: '@Za12345678',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cadastro do cidadão concluído com sucesso',
+    schema: { example: { message: 'Dados atualizados com sucesso' } },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido/expirado ou usuário sem permissão',
+    schema: { example: { statusCode: 401, message: 'Usuário não permitido', error: 'Unauthorized' } },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário não encontrado',
+    schema: { example: { statusCode: 404, message: 'Usuário não encontrado', error: 'Not Found' } },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Dados já cadastrados',
+    schema: { example: { statusCode: 409, message: 'Dados já cadastrados', error: 'Conflict' } },
+  })
   async completeCitizenInformation(
     @Body() body: CompleteCitizenRegisterDTO,
     @Headers('x-security-token') token: string
@@ -223,6 +262,49 @@ export class AuthController {
   }
 
   @Put('complete/lawyer')
+  @ApiOperation({ summary: 'Completa o cadastro do advogado após validação de email' })
+  @ApiHeader({
+    name: 'x-security-token',
+    description: 'Token temporário retornado na autenticação inicial',
+    required: true,
+  })
+  @ApiBody({
+    type: CompleteLawyerRegisterDTO,
+    description: 'Dados complementares para finalizar o cadastro de advogado',
+    examples: {
+      default: {
+        summary: 'Cadastro de advogado',
+        value: {
+          cpf: '12345678901',
+          oabNumber: '123456',
+          oabState: 'SP',
+          specialization: 'Civil',
+          phone: '11999998888',
+          password: '@Za12345678',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cadastro do advogado concluído com sucesso',
+    schema: { example: { message: 'Dados atualizados com sucesso' } },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido/expirado ou usuário sem permissão',
+    schema: { example: { statusCode: 401, message: 'Usuário não permitido', error: 'Unauthorized' } },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário não encontrado',
+    schema: { example: { statusCode: 404, message: 'Usuário não encontrado', error: 'Not Found' } },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Dados já cadastrados',
+    schema: { example: { statusCode: 409, message: 'Dados já cadastrados', error: 'Conflict' } },
+  })
   async completeLayerInformation(
     @Body() body: CompleteLawyerRegisterDTO,
     @Headers('x-security-token') token: string
@@ -232,6 +314,40 @@ export class AuthController {
 
   @Patch('change-password')
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Altera a senha do usuário autenticado' })
+  @ApiBody({
+    type: ChangePasswordDTO,
+    examples: {
+      default: {
+        summary: 'Troca de senha',
+        value: {
+          currentPassword: '@Za12345678',
+          newPassword: '@Za87654321',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Senha alterada com sucesso',
+    schema: { example: { message: 'Senha atualizada com sucesso' } },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido ou senha atual incorreta',
+    schema: { example: { statusCode: 401, message: 'Senha incorreta', error: 'Unauthorized' } },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário autenticado não encontrado',
+    schema: { example: { statusCode: 404, message: 'Usuário não encontrado', error: 'Not Found' } },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Nova senha igual à senha anterior',
+    schema: { example: { statusCode: 409, message: 'Senha não pode ser igual a anterior', error: 'Conflict' } },
+  })
   async changePassword(@Body() body: ChangePasswordDTO, @Req() req: RequestUser) {
     return await this.authService.changePassword(body, req.user.sub)
   }
@@ -318,20 +434,29 @@ export class AuthController {
   }
   @Get('google')
   @UseGuards(GoogleAuthGuard)
-  @ApiParam({
+  @ApiOperation({ summary: 'Inicia autenticação OAuth com Google' })
+  @ApiQuery({
     name: 'state',
     required: true,
-    example: {
-      state: 'citizen || lawyer',
-    },
+    description: 'Perfil de cadastro desejado no fluxo OAuth',
+    example: 'citizen',
   })
+  @ApiResponse({ status: 302, description: 'Redirecionamento para consentimento do Google' })
   async googleLogin() { }
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @UseInterceptors(SecurityTokenInterceptor)
+  @ApiOperation({ summary: 'Callback da autenticação Google e retorno do perfil autenticado' })
+  @ApiQuery({
+    name: 'state',
+    required: false,
+    description: 'Perfil enviado no início do OAuth: citizen ou lawyer',
+    example: 'lawyer',
+  })
   @ApiResponse({
     description: 'Retorno de sucesso da autenticação com o Google',
+    status: 200,
     schema: {
       example: {
         validated: true,
@@ -351,6 +476,11 @@ export class AuthController {
         },
       },
     },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Email já está cadastrado em outro tipo de conta',
+    schema: { example: { statusCode: 409, message: 'Usuário já cadastrado', error: 'Conflict' } },
   })
   async googleUserCallback(@Req() req) {
     const role = req.query.state;

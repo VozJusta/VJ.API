@@ -95,17 +95,25 @@ export class DashboardCitizenController {
               type: 'integer',
               example: 1,
             },
-            perPage: {
+            pageSize: {
               type: 'integer',
               example: 2,
             },
-            total: {
+            totalItems: {
               type: 'integer',
               example: 10,
             },
             totalPages: {
               type: 'integer',
               example: 5,
+            },
+            hasNextPage: {
+              type: 'boolean',
+              example: true,
+            },
+            hasPreviousPage: {
+              type: 'boolean',
+              example: false,
             },
           },
         },
@@ -122,17 +130,19 @@ export class DashboardCitizenController {
             },
             {
               id: '3ad8f318-c730-4e1a-b4d7-545f1a6d55c2',
-              category_detected: 'Health',
-              status: 'Resolved',
+              category_detected: 'Labor_and_employment',
+              status: 'Accepted',
               created_at: '2026-04-06 14:22:31.102',
             },
           ],
         },
         pagination: {
           page: 1,
-          perPage: 2,
-          total: 10,
+          pageSize: 2,
+          totalItems: 10,
           totalPages: 5,
+          hasNextPage: true,
+          hasPreviousPage: false,
         },
       },
     },
