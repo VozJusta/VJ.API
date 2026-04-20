@@ -109,6 +109,8 @@ export class CitizenService {
       },
     });
 
+    'token invalido'
+
     return {
       validated: true,
       sub: newUser.id,
