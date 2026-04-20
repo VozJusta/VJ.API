@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ReportService } from "../services/report.service";
+import { ReportService } from "../../simulations/services/report.service";
 import { PdfService } from "../services/pdf.service";
 import { Request, Response } from "express";
 import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";

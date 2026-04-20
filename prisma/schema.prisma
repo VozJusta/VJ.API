@@ -186,22 +186,44 @@ model TwoFactorToken {
 }
 
 model Simulation {
-  id             String      @id @default(uuid())
-  user_id        String
-  user           Citizen     @relation(fields: [user_id], references: [id])
-  report_id      String?
-  report         Report?     @relation(fields: [reportId], references: [id])
-  personality    Personality
-  transcription  String
-  score_feedback String
-  reportId       String?
+  id                String             @id @default(uuid())
+  user_id           String
+  user              Citizen            @relation(fields: [user_id], references: [id])
+  report_id         String?
+  report            Report?            @relation(fields: [reportId], references: [id])
+  personality       Personality
+  transcription     String
+  score_feedback    String
+  reportId          String?
+  started_at        DateTime
+  ended_at          DateTime?
+  duration_secs     Int?
+  status            SimStatus
+  simulationReports SimulationReport[]
 }
 
 model SimulationReport {
-  id            String  @id @default(uuid())
-  transcription String
-  user_id       String  @unique
-  user          Citizen @relation(fields: [user_id], references: [id])
+  id              String      @id @default(uuid())
+  simulation_id   String      @unique
+  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
+  full_transcript Json
+  score           Int?
+  personality     Personality
+  strengths       String[]
+  weaknesses      String[]
+  metrics_json    Json?
+  duration_secs   Int?
+  user_id         String      @unique
+  user            Citizen     @relation(fields: [user_id], references: [id])
+}
+
+model SimulationTurn {
+  id            String   @id @default(uuid())
+  simulation_id String
+  role          TurnRole
+  content       String
+  audio_url     String?
+  created_at    DateTime
 }
 
 model Evidence {
@@ -305,6 +327,18 @@ enum Status {
 enum Types {
   Email
   SMS
+}
+
+enum TurnRole {
+  User
+  Ai
+}
+
+enum SimStatus {
+  Waiting
+  InProgress
+  Completed
+  TimedOut
 }
 
 enum Personality {
