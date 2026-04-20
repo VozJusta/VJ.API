@@ -76,9 +76,11 @@ export class CitizenService {
                 billing_type: body.billingType,
                 max_interviews: 3,
                 max_simulation: 0,
+                stripe_price_id: 'price_1N8Xo2KqYjYp3sQh7n9v5ZtL',
                 name: body.namePlan,
               },
             },
+            stripe_subscription_id: 'sub_1N8Xo2KqYjYp3sQh7n9v5ZtL',
             subscription_status: 'active',
             current_period_end: new Date(
               new Date().setMonth(new Date().getMonth() + 1),

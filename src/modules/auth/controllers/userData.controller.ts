@@ -21,7 +21,7 @@ export class userDataController {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   @Get('/me')
   @HttpCode(200)
@@ -52,7 +52,7 @@ export class userDataController {
             },
           },
         });
-      
+
         return user;
       } else {
         const user = await this.prisma.lawyer.findUnique({
@@ -60,9 +60,10 @@ export class userDataController {
           select: {
             id: true,
             full_name: true,
+            avatar_image: true,
             subscription: {
               where: {
-                user_id: sub,
+                lawyer_id: sub,
               },
               select: {
                 plan: {
@@ -74,6 +75,7 @@ export class userDataController {
             },
           },
         });
+        console.log(user);
         return user;
       }
     } catch (err) {

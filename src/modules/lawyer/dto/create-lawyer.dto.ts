@@ -47,9 +47,11 @@ export class CreateLawyerDTO {
     readonly password: string
 
     @IsEnum(BillingType, { message: 'Tipo de cobrança inválido' })
+    @IsNotEmpty({ message: 'O campo billingType é obrigatório' })
     @IsString({ message: 'Tipo de cobrança inválido' })
     readonly billingType: BillingType;
 
+    @MinLength(1, { message: 'O campo namePlan deve ser preenchido' })
     @IsString({ message: 'Nome do plano é obrigatório' })
     readonly namePlan: string;
 }
