@@ -13,6 +13,7 @@ interface tokenTypes {
   role: 'Citizen' | 'Lawyer';
   email: string;
   fullName: string;
+  sessionId: string;
   loggedWithGoogle: boolean;
   registerCompleted: boolean;
 }
@@ -26,36 +27,44 @@ export class RefreshTokenService {
   ) {}
 
   async refreshToken(refreshToken: string) {
-    console.log(refreshToken);
     try {
-      console.log('Verificando token...');
       const payload = this.jwtService.verify<tokenTypes>(refreshToken, {
         secret: this.jwtConfiguration.refreshToken.secret,
       });
-      console.log(payload);
-      const { role, sub } = payload;
+      const { role, sub, sessionId } = payload;
 
       let user;
-      console.log(role, sub);
 
       if (role === 'Citizen') {
-        user = await this.prisma.citizen.findUnique({ where: { id: sub } });
+        user = await this.prisma.citizen.findUnique({
+          where: { id: sub },
+          select: { id: true, email: true, full_name: true, session_id: true },
+        });
       } else {
-        user = await this.prisma.lawyer.findUnique({ where: { id: sub } });
+        user = await this.prisma.lawyer.findUnique({
+          where: { id: sub },
+          select: { id: true, email: true, full_name: true, session_id: true },
+        });
       }
 
       if (!user) {
         throw new NotFoundException('Usuário não encontrado');
       }
-      console.log(user);
+
+      if (user.session_id !== sessionId) {
+        throw new UnauthorizedException(
+          'Sessão expirada, faça login novamente',
+        );
+      }
 
       const newPayload = {
-        id: user.id,
+        sub: user.id,
         email: user.email,
         role: role,
-        fullName: user.fullName,
-        loggedWithGoogle: user.loggedWithGoogle,
-        registerCompleted: user.registerCompleted,
+        fullName: user.full_name,
+        sessionId: user.session_id,
+        loggedWithGoogle: payload.loggedWithGoogle,
+        registerCompleted: payload.registerCompleted,
       };
 
       return {
@@ -65,7 +74,6 @@ export class RefreshTokenService {
         }),
       };
     } catch (error) {
-      console.error('Erro ao verificar o token:', error);
       throw new UnauthorizedException(
         'Refresh token está inválido ou expirado',
       );

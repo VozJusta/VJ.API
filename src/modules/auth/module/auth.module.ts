@@ -34,6 +34,7 @@ import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
 import { userDataController } from '../controllers/userData.controller';
 import { TerminateAccountController } from '../controllers/terminateAccount.controller';
 import { TerminateAccountService } from '../service/terminateAccount.service';
+import { LogoutController } from '@m/auth/controllers/logout.controller';
 
 @Global()
 @Module({
@@ -92,6 +93,7 @@ import { TerminateAccountService } from '../service/terminateAccount.service';
     SendEmailController,
     userDataController,
     TerminateAccountController,
+    LogoutController,
   ],
 })
 export class AuthModule {}

@@ -1,7 +1,16 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "@m/prisma/service/prisma.service";
-import { ValidateCodeEmailDTO } from "@m/auth/dto/validateCode-email.dto";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { ValidateCodeEmailDTO } from '@m/auth/dto/validateCode-email.dto';
+
+interface SecurityTokenPayload {
+  sub: string;
+  email: string;
+  fullName: string;
+  role: 'Citizen' | 'Lawyer';
+  loggedWithGoogle: boolean;
+  sessionId: string;
+}
 
 @Injectable()
 export class ValidateEmailCodeService {
@@ -12,9 +21,10 @@ export class ValidateEmailCodeService {
 
   async validateEmailCode(body: ValidateCodeEmailDTO, token: string) {
     try {
-      const payload = await this.jwtService.verify(token);
+      const payload = await this.jwtService.verify<SecurityTokenPayload>(token);
 
-      const { sub, email, fullName, role, loggedWithGoogle } = payload;
+      const { sub, email, fullName, role, loggedWithGoogle, sessionId } =
+        payload;
 
       const code = await this.prisma.validationCode.findFirst({
         where: {
@@ -27,6 +37,23 @@ export class ValidateEmailCodeService {
 
       if (!code) {
         throw new UnauthorizedException('Código inválido');
+      }
+
+      const user =
+        role === 'Citizen'
+          ? await this.prisma.citizen.findUnique({
+              where: { id: sub },
+              select: { session_id: true },
+            })
+          : await this.prisma.lawyer.findUnique({
+              where: { id: sub },
+              select: { session_id: true },
+            });
+
+      if (!user || user.session_id !== sessionId) {
+        throw new UnauthorizedException(
+          'Sessão expirada, faça login novamente',
+        );
       }
 
       const createdAt = new Date(code.created_at);
@@ -49,6 +76,7 @@ export class ValidateEmailCodeService {
         fullName,
         role,
         loggedWithGoogle,
+        sessionId,
       };
 
       const accessToken = await this.jwtService.signAsync(newPayload, {

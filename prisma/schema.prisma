@@ -21,6 +21,7 @@ model Citizen {
   stripe_customer_id String?            @unique
   phone              String?            @unique
   email              String             @unique
+  session_id         String             @default(uuid())
   subscription       Subscription?
   report             Report[]
   simulation         Simulation[]
@@ -45,6 +46,7 @@ model Lawyer {
   oab_state          OabState?
   phone              String?          @unique
   email              String           @unique
+  session_id         String           @default(uuid())
   password           String?
   subscription       Subscription?
   report             Report[]
