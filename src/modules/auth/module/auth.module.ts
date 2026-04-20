@@ -32,6 +32,8 @@ import { CititzenInformationService } from '@m/auth/service/citizenInformation.s
 import { ForgotPasswordService } from '@m/auth/service/forgotPassword.service';
 import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
 import { userDataController } from '../controllers/userData.controller';
+import { TerminateAccountController } from '../controllers/terminateAccount.controller';
+import { TerminateAccountService } from '../service/terminateAccount.service';
 
 @Global()
 @Module({
@@ -69,6 +71,7 @@ import { userDataController } from '../controllers/userData.controller';
     RefreshTokenService,
     SecurityTokenInterceptor,
     AuthTokenGuard,
+    TerminateAccountService,
   ],
   exports: [
     HashingServiceProtocol,
@@ -88,6 +91,7 @@ import { userDataController } from '../controllers/userData.controller';
     SendForgotEmailController,
     SendEmailController,
     userDataController,
+    TerminateAccountController,
   ],
 })
 export class AuthModule {}
