@@ -9,6 +9,7 @@ import { SmsModule } from '@m/sms/module/sms.module';
 import { AiModule } from '@m/ai/module/ai.module';
 import { DashboardModule } from '@m/dashboard/module/dashboard.module';
 import { RouterModule } from '@nestjs/core';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -32,5 +33,6 @@ import { RouterModule } from '@nestjs/core';
       },
     ]),
   ],
+  controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

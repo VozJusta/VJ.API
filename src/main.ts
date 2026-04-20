@@ -21,7 +21,7 @@ async function bootstrap() {
     .build();
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://vozjusta.com.br'],
+    origin: ['http://localhost:3000', 'https://vozjusta.com.br', 'http://localhost:5678'],
     methods: ['GET', 'PATCH', 'DELETE', 'POST', 'PUT'],
     allowedHeaders: [
       'Content-Type',
