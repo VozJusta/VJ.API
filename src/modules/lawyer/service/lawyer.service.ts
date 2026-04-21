@@ -115,7 +115,6 @@ export class LawyerService {
         lawyer_status: true,
       },
     });
-    console.log('newLawyer', newLawyer);
 
     return {
       validated: true,

@@ -58,11 +58,10 @@ export class userDataController {
     },
   })
   async getUserData(@Headers('token') token: string) {
-    console.log('teste::: ', token);
+
     try {
-      console.log('Verificando token...');
+    
       const payload = this.jwtService.verify<tokenTypes>(token);
-      console.log(payload);
       const { sub, role, sessionId } = payload;
       if (role === 'Citizen') {
         const user = await this.prisma.citizen.findUnique({
@@ -113,7 +112,6 @@ export class userDataController {
             },
           },
         });
-        console.log(user);
 
         if (!user || user.session_id !== sessionId) {
           throw new BadRequestException('Token inválido');
