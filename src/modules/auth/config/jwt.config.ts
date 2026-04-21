@@ -2,10 +2,10 @@ import { registerAs } from "@nestjs/config";
 
 export default registerAs('jwt', () => ({
     accessToken: {
-        secret: process.env.JWT_ACCESS_SECRET,
+        secret: process.env.JWT_ACCESS_SECRET as string,
         audience: process.env.JWT_TOKEN_AUDIENCE,
         issuer: process.env.JWT_TOKEN_ISSUER,
-        ttl: process.env.JWT_ACCESS_TTL
+        ttl: process.env.JWT_ACCESS_TTL as `${number}${'s' | 'm' | 'h' | 'd'}`
     },
 
     refreshToken: {
