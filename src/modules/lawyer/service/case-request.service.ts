@@ -65,4 +65,37 @@ export class CaseRequestService {
     };
   }
 
+  async rejectCaseRequest(caseRequestId: string, lawyerId: string) {
+    const caseRequest = await this.prisma.caseRequest.findUnique({
+      where: { id: caseRequestId },
+      include: { case: true },
+    });
+
+    if (!caseRequest) {
+      throw new NotFoundException('Solicitação de caso não encontrada');
+    }
+
+    if (caseRequest.lawyer_id !== lawyerId) {
+      throw new UnauthorizedException(
+        'Você não tem permissão para recusar esta solicitação',
+      );
+    }
+
+    if (caseRequest.status !== 'Pending') {
+      throw new BadRequestException(
+        `Não é possível recusar uma solicitação com status ${caseRequest.status}`,
+      );
+    }
+
+    await this.prisma.caseRequest.update({
+      where: { id: caseRequestId },
+      data: { status: 'Refused' },
+    });
+
+    return {
+      message: 'Solicitação de caso recusada com sucesso',
+      caseRequestId,
+    };
+  }
+
 }
