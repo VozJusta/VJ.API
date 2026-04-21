@@ -7,7 +7,6 @@ import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
 @Controller()
 export class SendForgotEmailController {
   constructor(
-    private sendForgotPasswordEmailService: SendForgotPasswordEmailService,
     private readonly authService: SendForgotPasswordEmailService,
   ) {}
 @Post('send/forgot/email')
