@@ -12,7 +12,6 @@ import { Request } from 'express';
 import { PaginationReportsDTO } from '@modules/dashboard/dto/pagination-reports.dto';
 import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/listReportsByCitizen.service';
 
-
 interface AuthenticatedRequest extends Request {
   user: {
     sub: string;
@@ -20,10 +19,10 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-@ApiTags('dashboard')
-@Controller('dashboard')
+@ApiTags('Dashboard')
+@Controller()
 export class GetAllReportsCitizenController {
-  constructor(private readonly dashboardService: ListReportsByCitizenService) { }
+  constructor(private readonly dashboardService: ListReportsByCitizenService) {}
 
   @Get('/citizens/me/reports')
   @UseGuards(AuthTokenGuard)

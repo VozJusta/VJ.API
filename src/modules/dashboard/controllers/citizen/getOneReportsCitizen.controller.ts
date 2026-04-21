@@ -2,27 +2,27 @@ import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
 import { FindCitizenReportByIdService } from '@modules/dashboard/service/citizen/findCitizenReportById.service';
 import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
 import {
-    ApiOperation,
-    ApiHeader,
-    ApiParam,
-    ApiResponse,
-    ApiTags,
+  ApiOperation,
+  ApiHeader,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 
 interface AuthenticatedRequest extends Request {
-    user: {
-        sub: string;
-        role: string;
-    };
+  user: {
+    sub: string;
+    role: string;
+  };
 }
 
 @ApiTags('Dashboard')
 @Controller()
 export class GetOneReportsCitizenController {
-    constructor(
-        private readonly dashboardService: FindCitizenReportByIdService,
-    ) { }
-    @Get('/citizens/me/reports/:reportId')
+  constructor(
+    private readonly dashboardService: FindCitizenReportByIdService,
+  ) {}
+  @Get('/citizens/me/reports/:reportId')
   @UseGuards(AuthTokenGuard)
   @ApiOperation({
     summary: 'Retorna um relatório do cidadão autenticado por id',
