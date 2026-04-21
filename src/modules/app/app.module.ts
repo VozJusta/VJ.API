@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from '@m/email/module/email.module';
 import { SmsModule } from '@m/sms/module/sms.module';
 import { AiModule } from '@m/ai/module/ai.module';
-import { DashboardModule } from '../dashboard/dashboard.module';
+import { DashboardModule } from '@m/dashboard/module/dashboard.module';
 import { RouterModule } from '@nestjs/core';
 import { AppController } from './app.controller';
 
@@ -35,4 +35,4 @@ import { AppController } from './app.controller';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
