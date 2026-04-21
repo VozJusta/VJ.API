@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword, Matches, MaxLength, Min, MinLength } from "class-validator"
-import { OabState, Specialization } from "generated/prisma/enums"
+import { BillingType, OabState, Specialization } from "generated/prisma/enums"
 
 export class CreateLawyerDTO {
     @IsNotEmpty({ message: 'O campo fullName é obrigatório' })
@@ -18,7 +18,7 @@ export class CreateLawyerDTO {
     @MaxLength(6, { message: 'OabNumber precisa ter 6 dígitos' })
     readonly oabNumber: string
 
-    @IsNotEmpty({ message: 'O campo oab_state é obrigatório'})
+    @IsNotEmpty({ message: 'O campo oab_state é obrigatório' })
     @IsEnum(OabState)
     readonly oabState: OabState
 
@@ -26,9 +26,9 @@ export class CreateLawyerDTO {
     @IsNotEmpty()
     readonly specialization: Specialization
 
-    @IsNotEmpty({ message: 'O campo phone é obrigatório' }) 
+    @IsNotEmpty({ message: 'O campo phone é obrigatório' })
     @Matches(/^(?:(?:\+|00)?(55)\s?)?(?:\(?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/,
-        { message: 'Telefone deve estar no formato válido'})
+        { message: 'Telefone deve estar no formato válido' })
     @IsString()
     readonly phone: string
 
@@ -45,4 +45,13 @@ export class CreateLawyerDTO {
     }, { message: 'Senha com formato inválido' })
     @IsNotEmpty({ message: 'O campo password é obrigatório' })
     readonly password: string
+
+    @IsEnum(BillingType, { message: 'Tipo de cobrança inválido' })
+    @IsNotEmpty({ message: 'O campo billingType é obrigatório' })
+    @IsString({ message: 'Tipo de cobrança inválido' })
+    readonly billingType: BillingType;
+
+    @MinLength(1, { message: 'O campo namePlan deve ser preenchido' })
+    @IsString({ message: 'Nome do plano é obrigatório' })
+    readonly namePlan: string;
 }

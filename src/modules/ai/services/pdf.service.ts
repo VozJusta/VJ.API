@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PdfReportDTO } from "../dto/pdf-report.dto";
+import { PdfReportDTO } from "@m/ai/dto/pdf-report.dto";
 import PDFDocument from "pdfkit";
 import { Response } from "express";
-import { PrismaService } from "src/modules/prisma/service/prisma.service";
+import { PrismaService } from "@m/prisma/service/prisma.service";
 
 @Injectable()
 export class PdfService {
