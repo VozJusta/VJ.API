@@ -109,4 +109,57 @@ export class CaseRequestController {
     );
   }
 
+  @Get('case-requests')
+  @ApiOperation({ summary: 'Lista todas as solicitações de caso do advogado com filtro opcional' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de solicitações retornada com sucesso.',
+    schema: {
+      example: [
+        {
+          id: 'clx123caserequest',
+          case_id: 'clx123case',
+          lawyer_id: 'clx123lawyer',
+          citizen_id: 'clx123citizen',
+          status: 'Pending',
+          created_at: '2026-04-20T12:00:00Z',
+          updated_at: '2026-04-20T12:00:00Z',
+          case: {
+            id: 'clx123case',
+            title: 'Cobrança indevida',
+            status: 'Pending',
+            user: {
+              id: 'clx123citizen',
+              full_name: 'João Silva',
+              email: 'joao@example.com',
+            },
+            reports: [
+              {
+                id: 'clx123report',
+                category_detected: 'Civil',
+              },
+            ],
+          },
+          citizen: {
+            id: 'clx123citizen',
+            full_name: 'João Silva',
+            email: 'joao@example.com',
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado.',
+  })
+  async getCaseRequests(
+    @Req() req: AuthenticatedRequest,
+    @Query('status') status?: string,
+  ) {
+    return this.caseRequestService.getCaseRequestsBylawyer(
+      req.user.sub,
+      status,
+    );
+  }
 }
