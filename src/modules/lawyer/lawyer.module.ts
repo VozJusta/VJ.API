@@ -6,13 +6,21 @@ import { SecurityTokenInterceptor } from '../auth/interceptors/security-token.in
 import { AuthModule } from '../auth/auth.module';
 import { LawyerRequestsService } from './service/lawyer-requests.service';
 import { LawyerRequestController } from './controllers/lawyer-requests.controller';
+import { CaseRequestService } from './service/case-request.service';
+import { CaseRequestController } from './controllers/case-request.controller';
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule,
+  imports: [AuthModule, PrismaModule],
+  providers: [
+    LawyerService,
+    LawyerRequestsService,
+    CaseRequestService,
+    SecurityTokenInterceptor,
   ],
-  providers: [LawyerService, LawyerRequestsService,SecurityTokenInterceptor],
-  controllers: [LawyerController, LawyerRequestController]
+  controllers: [
+    LawyerController,
+    LawyerRequestController,
+    CaseRequestController,
+  ],
 })
-export class LawyerModule { }
+export class LawyerModule {}
