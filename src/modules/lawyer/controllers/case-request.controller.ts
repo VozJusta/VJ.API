@@ -73,4 +73,40 @@ export class CaseRequestController {
       req.user.sub,
     );
   }
+
+  @Put('requests/:id/reject')
+  @ApiOperation({ summary: 'Recusa uma solicitação de caso (Acesso restrito a advogados)' })
+  @ApiParam({ name: 'id', type: 'string', description: 'ID único da solicitação de caso' })
+  @ApiResponse({
+    status: 200,
+    description: 'Solicitação de caso recusada com sucesso.',
+    schema: {
+      example: {
+        message: 'Solicitação de caso recusada com sucesso',
+        caseRequestId: 'clx123caserequest',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Solicitação já foi respondida.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Solicitação de caso não encontrada.',
+  })
+  async rejectCaseRequest(
+    @Param('id') caseRequestId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.caseRequestService.rejectCaseRequest(
+      caseRequestId,
+      req.user.sub,
+    );
+  }
+
 }
