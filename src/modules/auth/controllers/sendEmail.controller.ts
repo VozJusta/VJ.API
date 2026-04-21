@@ -5,10 +5,7 @@ import { SendEmailService } from '@m/auth/service/sendEmail.service';
 @ApiTags('Auth')
 @Controller()
 export class SendEmailController {
-  constructor(
-    private sendEmailService: SendEmailService,
-    private readonly authService: SendEmailService,
-  ) {}
+  constructor(private readonly authService: SendEmailService) {}
 
   @Post('send/email')
   @ApiBody({
