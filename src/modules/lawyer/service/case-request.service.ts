@@ -98,4 +98,52 @@ export class CaseRequestService {
     };
   }
 
+
+  async getCaseRequestsBylawyer(lawyerId: string, status?: string) {
+    const whereClause: any = {
+      lawyer_id: lawyerId,
+    };
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const caseRequests = await this.prisma.caseRequest.findMany({
+      where: whereClause,
+      include: {
+        case: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            user: {
+              select: {
+                id: true,
+                full_name: true,
+                email: true,
+              },
+            },
+            reports: {
+              select: {
+                id: true,
+                category_detected: true,
+              },
+            },
+          },
+        },
+        citizen: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return caseRequests;
+  }
+
+
 }
