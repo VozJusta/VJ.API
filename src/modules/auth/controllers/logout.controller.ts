@@ -2,6 +2,7 @@ import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import {
   ApiBearerAuth,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -26,6 +27,16 @@ export class LogoutController {
   @HttpCode(200)
   @UseGuards(AuthTokenGuard)
   @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'Access token no formato Bearer <token>.',
+    schema: {
+      type: 'string',
+      example:
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0Iiwi...',
+    },
+  })
   @ApiOperation({
     summary: 'Finaliza a sessão do usuário autenticado',
     description:
