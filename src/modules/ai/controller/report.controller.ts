@@ -135,50 +135,6 @@ export class ReportController {
         return await this.reportService.getHistoryChat(id)
     }
 
-    @Put('accept/:id')
-    @ApiOperation({ summary: 'Aceita um caso pendente vinculando-o ao advogado (Acesso restrito)' })
-    @ApiParam({ name: 'id', type: 'string', description: 'ID único do caso' })
-    @ApiResponse({
-        status: 200,
-        description: 'Caso aceito com sucesso e vinculado ao advogado.',
-        schema: { example: { message: 'Relatório aceito com sucesso' } }
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Usuário não autorizado. Ocorre caso o token seja inválido ou o usuário seja um Cidadão (Citizen).',
-        schema: { example: { message: 'Usuário não autorizado', error: 'Unauthorized', statusCode: 401 } }
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Caso não encontrado no sistema.',
-        schema: { example: { message: 'Caso não encontrado', error: 'Not Found', statusCode: 404 } }
-    })
-    async acceptCase(@Param('id') id: string, @Req() req: RequestUser) {
-        return await this.reportService.acceptCase(id, req.user.sub, req.user.role)
-    }
-
-    @Put('reject/:id')
-    @ApiOperation({ summary: 'Recusa um caso pendente (Acesso restrito)' })
-    @ApiParam({ name: 'id', type: 'string', description: 'ID único do caso' })
-    @ApiResponse({
-        status: 200,
-        description: 'Caso recusado com sucesso.',
-        schema: { example: { message: 'Relatório recusado' } }
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Usuário não autorizado. Ocorre caso o token seja inválido ou o usuário seja um Cidadão (Citizen).',
-        schema: { example: { message: 'Usuário não autorizado', error: 'Unauthorized', statusCode: 401 } }
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Caso não encontrado no sistema.',
-        schema: { example: { message: 'Caso não encontrado', error: 'Not Found', statusCode: 404 } }
-    })
-    async rejectCase(@Param('id') id: string, @Req() req: RequestUser) {
-        return await this.reportService.rejectCase(id, req.user.role)
-    }
-
     @Get('/pdf/:id')
     @ApiOperation({ summary: 'Gera e faz o download de um relatório em formato PDF' })
     @ApiParam({ name: 'id', type: 'string', description: 'ID único do relatório gerado anteriormente' })
