@@ -7,16 +7,9 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import jwtConfig from '@m/auth/config/jwt.config';
+import { TokensPayload } from '../interfaces/interfaces';
 
-interface tokenTypes {
-  sub: string;
-  role: 'Citizen' | 'Lawyer';
-  email: string;
-  fullName: string;
-  sessionId: string;
-  loggedWithGoogle: boolean;
-  registerCompleted: boolean;
-}
+
 
 export class RefreshTokenService {
   constructor(
@@ -28,7 +21,7 @@ export class RefreshTokenService {
 
   async refreshToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify<tokenTypes>(refreshToken, {
+      const payload = this.jwtService.verify<TokensPayload>(refreshToken, {
         secret: this.jwtConfiguration.refreshToken.secret,
       });
       const { role, sub, sessionId } = payload;

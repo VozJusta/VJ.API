@@ -1,4 +1,5 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { RequestUser } from '@modules/auth/interfaces/interfaces';
 import { FindCitizenReportByIdService } from '@modules/dashboard/service/citizen/findCitizenReportById.service';
 import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
 import {
@@ -9,12 +10,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-interface AuthenticatedRequest extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+
 
 @ApiTags('Dashboard')
 @Controller()
@@ -180,7 +176,7 @@ export class GetOneReportsCitizenController {
     },
   })
   async getCitizenReport(
-    @Req() req: AuthenticatedRequest,
+    @Req() req: RequestUser,
     @Param('reportId') reportId: string,
   ) {
     const userId = req.user.sub;

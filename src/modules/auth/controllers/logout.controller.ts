@@ -9,20 +9,14 @@ import {
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { PrismaService } from '@m/prisma/service/prisma.service';
+import { RequestUser } from '../interfaces/interfaces';
 
-interface RequestUser {
-  user: {
-    sub: string;
-    role: 'Citizen' | 'Lawyer';
-    sessionId: string;
-  };
-}
+
 
 @ApiTags('Auth')
 @Controller()
 export class LogoutController {
   constructor(private readonly prisma: PrismaService) {}
-
   @Post('/logout')
   @HttpCode(200)
   @UseGuards(AuthTokenGuard)

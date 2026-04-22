@@ -1,14 +1,10 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { RequestUser } from '@modules/auth/interfaces/interfaces';
 import { HighRelevanceService } from '@modules/dashboard/service/lawyer/highRelevance.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-interface AuthenticatedRequest extends Request {
-    user: {
-        sub: string;
-        role: string;
-    };
-}
+
 
 @ApiTags('Dashboard')
 @Controller()
@@ -81,7 +77,7 @@ export class GetHighRelevanceController {
             },
         },
     })
-    async getHighRelevance(@Req() req: AuthenticatedRequest) {
+    async getHighRelevance(@Req() req: RequestUser) {
         const userId = req.user.sub;
         const role = req.user.role;
 

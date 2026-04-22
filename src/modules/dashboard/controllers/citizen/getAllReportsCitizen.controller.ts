@@ -8,16 +8,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
-import { Request } from 'express';
+
 import { PaginationReportsDTO } from '@modules/dashboard/dto/pagination-reports.dto';
 import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/listReportsByCitizen.service';
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+import { RequestUser } from '@modules/auth/interfaces/interfaces';
 
 @ApiTags('Dashboard')
 @Controller()
@@ -181,7 +175,7 @@ export class GetAllReportsCitizenController {
     },
   })
   async getReportsByCitizen(
-    @Req() req: AuthenticatedRequest,
+    @Req() req: RequestUser,
     @Query() pagination: PaginationReportsDTO,
   ) {
     const userId = req.user.sub;
