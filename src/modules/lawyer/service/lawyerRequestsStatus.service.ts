@@ -8,22 +8,21 @@ import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { RequestsStatusDTO } from '../dto/requests-status.dto';
 
 @Injectable()
-export class LawyerRequestsService {
+export class LawyerRequestsStatusService {
   constructor(private readonly prisma: PrismaService) {}
 
   async requestsByStatus(
     userId: string,
     role: string,
-    status: RequestsStatusDTO,
+    status?: RequestsStatusDTO,
   ) {
     const userRole = role.toLowerCase();
     const reportStatus = status?.status;
 
-    if (!reportStatus) {
-      throw new BadRequestException('Status é obrigatório');
-    }
-
-    if (!Object.values(Status).includes(reportStatus)) {
+    if (
+      reportStatus !== undefined &&
+      !Object.values(Status).includes(reportStatus)
+    ) {
       throw new BadRequestException('Status inválido');
     }
 
@@ -37,24 +36,37 @@ export class LawyerRequestsService {
         throw new NotFoundException('Advogado não encontrado');
       }
 
-      const reportsByStatus = await this.prisma.report.findMany({
-        where: { lawyer_id: userId, case: { status: reportStatus } },
+      const caseRequestsByStatus = await this.prisma.caseRequest.findMany({
+        where: {
+          lawyer_id: userId,
+          ...(reportStatus !== undefined ? { status: reportStatus } : {}),
+        },
         select: {
           id: true,
-          user: {
+          status: true,
+          created_at: true,
+          citizen: {
             select: { full_name: true },
           },
-          category_detected: true,
-          case: { select: { status: true } },
-          created_at: true,
+          case: {
+            select: {
+              reports: {
+                select: { category_detected: true },
+                orderBy: { created_at: 'desc' },
+                take: 1,
+              },
+            },
+          },
         },
+        orderBy: { created_at: 'desc' },
       });
 
-      return reportsByStatus.map(({ user, case: reportCase, ...report }) => ({
-        ...report,
-        clientName: user.full_name,
-        statusCase: reportCase.status,
-        created_at: report.created_at.toISOString().split('T')[0],
+      return caseRequestsByStatus.map((caseRequest) => ({
+        id: caseRequest.id,
+        clientName: caseRequest.citizen.full_name,
+        category_detected: caseRequest.case.reports[0]?.category_detected ?? null,
+        statusCase: caseRequest.status,
+        created_at: caseRequest.created_at.toISOString().split('T')[0],
       }));
     }
 
