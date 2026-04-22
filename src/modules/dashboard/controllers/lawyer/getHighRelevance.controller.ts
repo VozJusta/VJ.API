@@ -2,11 +2,18 @@ import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/auth/interfaces/interfaces';
 import { HighRelevanceService } from '@modules/dashboard/service/lawyer/highRelevance.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOperation,
+    ApiHeader,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 
 
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetHighRelevanceController {
     constructor(private readonly dashboardService: HighRelevanceService) { }
