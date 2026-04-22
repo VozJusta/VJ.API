@@ -9,9 +9,20 @@ export class GetUserDataService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private extractBearerToken(accessToken: string): string {
+    const normalizedToken = accessToken?.trim();
+    const match = normalizedToken?.match(/^Bearer\s+(.+)$/i);
+
+    if (!match || !match[1]?.trim()) {
+      throw new BadRequestException('Token inválido');
+    }
+
+    return match[1].trim();
+  }
+
   async getUserData(accessToken: string) {
     try {
-      const clearToken = accessToken.replace('Bearer ', '');
+      const clearToken = this.extractBearerToken(accessToken);
       const payload = this.jwtService.verify<tokenTypes>(clearToken);
       const { sub, role, sessionId } = payload;
       if (role === 'Citizen') {
