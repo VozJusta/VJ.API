@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { PrismaModule } from '@m/prisma/prisma.module';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 // import { GetAllReportCitizenController } from '../controllers/citizen/getAllReportsCitizen.controller';
 // import { GetOneReportsCitizenController } from '../controllers/citizen/getOneReportsCitizen.controller';
 // import { GetHighRelevanceController } from '../controllers/lawyer/getHighRelevance.controller';
@@ -15,10 +14,7 @@ import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 
 @Module({
   imports: [AuthModule, PrismaModule],
-  providers: [
-
-    AuthTokenGuard,
-  ],
+  providers: [],
   controllers: [],
 })
 export class DashboardModule {}

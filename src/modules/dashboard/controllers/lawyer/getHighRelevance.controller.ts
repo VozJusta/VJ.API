@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { HighRelevanceService } from '@modules/dashboard/service/lawyer/highRelevance.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';

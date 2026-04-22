@@ -4,11 +4,13 @@ import { Request } from "express";
 import { Observable } from "rxjs";
 import jwtConfig from "@m/auth/config/jwt.config";
 import { ConfigType } from "@nestjs/config";
+import { RedisService } from "@m/auth/service/redis.service";
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
     constructor(
         private readonly jwtService: JwtService,
+        private readonly redisService: RedisService,
         @Inject(jwtConfig.KEY)
         private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     ) { }
@@ -19,6 +21,10 @@ export class AuthTokenGuard implements CanActivate {
 
         if (!token) {
             throw new UnauthorizedException('Token não encontrado')
+        }
+
+        if (this.redisService.isBlacklisted(token)) {
+            throw new UnauthorizedException('Token revogado')
         }
 
         try {

@@ -34,6 +34,9 @@ import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
 import { userDataController } from '../controllers/userData.controller';
 import { TerminateAccountController } from '../controllers/terminateAccount.controller';
 import { TerminateAccountService } from '../service/terminateAccount.service';
+import { GetUserDataService } from '../service/getUserData.service';
+import { LogoutController } from '../controllers/logout.controller';
+import { RedisService } from '../service/redis.service';
 
 @Global()
 @Module({
@@ -69,9 +72,11 @@ import { TerminateAccountService } from '../service/terminateAccount.service';
     ForgotPasswordService,
     GoogleStrategy,
     RefreshTokenService,
+    RedisService,
     SecurityTokenInterceptor,
     AuthTokenGuard,
     TerminateAccountService,
+    GetUserDataService
   ],
   exports: [
     HashingServiceProtocol,
@@ -92,6 +97,7 @@ import { TerminateAccountService } from '../service/terminateAccount.service';
     SendEmailController,
     userDataController,
     TerminateAccountController,
+    LogoutController
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

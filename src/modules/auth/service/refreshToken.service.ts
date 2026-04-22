@@ -7,6 +7,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import jwtConfig from '@m/auth/config/jwt.config';
+import { RedisService } from '@m/auth/service/redis.service';
 
 interface tokenTypes {
   sub: string;
@@ -21,6 +22,7 @@ export class RefreshTokenService {
   constructor(
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
@@ -28,6 +30,10 @@ export class RefreshTokenService {
   async refreshToken(refreshToken: string) {
     console.log(refreshToken);
     try {
+      if (this.redisService.isBlacklisted(refreshToken)) {
+        throw new UnauthorizedException('Refresh token revogado');
+      }
+
       console.log('Verificando token...');
       const payload = this.jwtService.verify<tokenTypes>(refreshToken, {
         secret: this.jwtConfiguration.refreshToken.secret,

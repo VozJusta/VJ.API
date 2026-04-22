@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { FindCitizenReportByIdService } from '@modules/dashboard/service/citizen/findCitizenReportById.service';
 import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
 import {

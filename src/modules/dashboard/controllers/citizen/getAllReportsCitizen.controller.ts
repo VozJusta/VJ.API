@@ -7,7 +7,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { Request } from 'express';
 import { PaginationReportsDTO } from '@modules/dashboard/dto/pagination-reports.dto';
 import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/listReportsByCitizen.service';
