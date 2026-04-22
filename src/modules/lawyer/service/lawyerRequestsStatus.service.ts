@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Status } from 'generated/prisma/enums';
-import { PrismaService } from 'src/modules/prisma/service/prisma.service';
-import { RequestsStatusDTO } from '../dto/requests-status.dto';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
 
 @Injectable()
 export class LawyerRequestsStatusService {

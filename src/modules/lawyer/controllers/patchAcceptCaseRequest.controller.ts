@@ -13,9 +13,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { Request } from 'express';
-import { AcceptCaseRequest } from '../service/acceptCaseRequest.service';
+import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
 
 interface AuthenticatedRequest extends Request {
   user: {

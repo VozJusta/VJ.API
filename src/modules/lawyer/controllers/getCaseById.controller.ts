@@ -2,7 +2,7 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
-import { FindCaseById } from '../service/findCaseById.service';
+import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
 
 interface AuthenticatedRequest extends Request {
 	user: {
