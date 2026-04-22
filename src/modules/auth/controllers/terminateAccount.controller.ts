@@ -1,24 +1,31 @@
-import { Body, Controller, Delete, HttpCode, Param } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Headers } from '@nestjs/common';
 import {
+  ApiHeader,
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { TerminateAccountService } from '../service/terminateAccount.service';
+import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
 
 @ApiTags('Auth')
 @Controller()
 export class TerminateAccountController {
   constructor(private terminateAccountService: TerminateAccountService) {}
 
-  @ApiOperation({ summary: 'Exclui permanentemente a conta do usuário' })
-  @ApiParam({
-    name: 'id',
+  @ApiOperation({
+    summary: 'Exclui permanentemente a conta do usuário autenticado',
+    description:
+      'Recebe o token JWT no header Authorization e a senha atual no body para confirmar a exclusão da conta.',
+  })
+  @ApiHeader({
+    name: 'Authorization',
     required: true,
-    description: 'ID do usuário (citizen ou lawyer)',
-    type: String,
+    description: 'JWT de acesso do usuário autenticado.',
+    schema: {
+      type: 'string',
+      example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0Iiwi...',
+    },
   })
   @ApiBody({
     schema: {
@@ -45,14 +52,17 @@ export class TerminateAccountController {
   @ApiResponse({
     status: 409,
     description:
-      'Conflito na exclusão: ID inválido, senha ausente, senha incorreta ou usuário não encontrado',
+      'Conflito na exclusão: token inválido, senha ausente, senha incorreta ou usuário não encontrado',
   })
   @HttpCode(200)
-  @Delete('/terminate-account/:id')
+  @Delete('/terminate-account')
   async terminateAccount(
-    @Param('id') id: string,
+    @Headers('Authorization') accessToken: string,
     @Body('password') password: string,
   ) {
-    return await this.terminateAccountService.terminateAccount(id, password);
+    return await this.terminateAccountService.terminateAccount(
+      accessToken,
+      password,
+    );
   }
 }

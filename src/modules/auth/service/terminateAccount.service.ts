@@ -1,18 +1,24 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { HashingServiceProtocol } from '../hash/hashing.service';
+import { JwtService } from '@nestjs/jwt';
+import { tokenTypes } from '../interfaces/interfaces';
 
 @Injectable()
 export class TerminateAccountService {
   constructor(
     private prisma: PrismaService,
     private readonly hashingService: HashingServiceProtocol,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async terminateAccount(id: string, password: string) {
-    if (!id) {
-      throw new ConflictException('ID inválido');
+  async terminateAccount(accessToken: string, password: string) {
+    if (!accessToken) {
+      throw new ConflictException('Token inválido');
     }
+    const clearToken = accessToken.replace('Bearer ', '');
+    const verifyToken = this.jwtService.verify<tokenTypes>(clearToken);
+    const id = verifyToken.sub;
 
     if (!password) {
       throw new ConflictException('A senha é obrigatória para excluir a conta');
