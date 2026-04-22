@@ -3,8 +3,6 @@ import { RagService } from "@m/ai/services/rag.service";
 import { LlmService } from "@m/ai/services/llm.service";
 import { PrismaService } from "@m/prisma/service/prisma.service";
 import { Specialization } from "generated/prisma/enums";
-import { NotFoundError } from "rxjs";
-import { finished } from "stream";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
 import { ContinueConversationDto } from "../dto/continue-conversation.dto";
 import { toFile } from 'groq-sdk/uploads';
@@ -30,72 +28,7 @@ export class ReportService implements OnModuleInit {
         private prisma: PrismaService
     ) { }
 
-    // async createReport(text: string, userId: string) {
-    //     const classification = await this.llmService.generate({
-    //         input: `Classifique a área jurídica do texto: ${text}`,
-    //         context: []
-    //     });
-
-    //     const area = parseSpecialization(classification.output?.area)
-
-    //     const report = await this.prisma.report.create({
-    //         data: {
-    //             transcription: text,
-    //             normalized_text: text,
-    //             legal_analysis: '',
-    //             simplified_explanation: '',
-    //             category_detected: area,
-    //             user_id: userId,
-    //             status: 'Pending'
-    //         }
-    //     })
-
-    //     let context = await this.ragService.retrieve(text, area)
-
-    //     context = context.slice(0, 3)
-
-    //     if (context.length > 0) {
-    //         await this.prisma.ragContext.createMany({
-    //             data: context.map((c) => ({
-    //                 report_id: report.id,
-    //                 source: (c.source as string) || 'qdrant',
-    //                 content: String(c.content),
-    //                 score: Number(c.score)
-    //             }))
-    //         })
-    //     }
-
-    //     const response = await this.llmService.generate({
-    //         input: text,
-    //         context,
-    //     })
-
-    //     await this.prisma.aiResponse.create({
-    //         data: {
-    //             report_id: report.id,
-    //             model: 'llama-3.1-8b-instant',
-    //             provider: 'groq',
-    //             prompt: response.prompt,
-    //             response: JSON.stringify(response.output)
-    //         }
-    //     })
-
-    //     await this.prisma.report.update({
-    //         where: { id: report.id },
-    //         data: {
-    //             legal_analysis: response.output.legal_analysis,
-    //             simplified_explanation: response.output.simplified_explanation,
-    //             category_detected: parseSpecialization(response.output.area),
-    //             status: 'Pending'
-    //         }
-    //     })
-
-    //     return {
-    //         input: text,
-    //         ...response.output,
-    //     }
-    // }
-
+    
     async startConversation(firstMessage: StartConversationDTO, userId: string) {
         const newCase = await this.prisma.case.create({
             data: {
