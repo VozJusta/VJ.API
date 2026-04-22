@@ -16,7 +16,7 @@ import { RequestUser } from '../interfaces/interfaces';
 @ApiTags('Auth')
 @Controller()
 export class ChangePasswordController {
-  constructor(private readonly authService: ChangePasswordService) {}
+  constructor(private readonly authService: ChangePasswordService) { }
 
   @Patch('change-password')
   @UseGuards(AuthTokenGuard)
