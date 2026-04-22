@@ -13,47 +13,49 @@ export class TerminateAccountService {
   ) { }
 
   async terminateAccount(id: string, password: string) {
-    if (!id) {
-      throw new ConflictException('Token inválido');
-    }
+    try {
+      if (!id) {
+        throw new ConflictException('Token inválido');
+      }
 
-    if (!password) {
-      throw new ConflictException('A senha é obrigatória para excluir a conta');
-    }
+      if (!password) {
+        throw new ConflictException('A senha é obrigatória para excluir a conta');
+      }
 
-    const citizen = await this.prisma.citizen.findUnique({ where: { id } });
-    const lawyer = await this.prisma.lawyer.findUnique({ where: { id } });
+      const citizen = await this.prisma.citizen.findUnique({ where: { id } });
+      const lawyer = await this.prisma.lawyer.findUnique({ where: { id } });
 
-    if (!citizen && !lawyer) {
-      throw new ConflictException('Usuário não encontrado');
-    }
-    const decodePassword = await this.hashingService.compare(
-      password,
-      citizen?.password
-        ? citizen.password
-        : lawyer?.password
-          ? lawyer.password
-          : '',
-    );
+      if (!citizen && !lawyer) {
+        throw new ConflictException('Usuário não encontrado');
+      }
+      const decodePassword = await this.hashingService.compare(
+        password,
+        citizen?.password
+          ? citizen.password
+          : lawyer?.password
+            ? lawyer.password
+            : '',
+      );
 
-    if (!decodePassword) {
-      throw new ConflictException('Senha incorreta');
-    }
-    if (citizen) {
-      await this.prisma.citizen.delete({
-        where: { id },
-      });
-    }
-    if (lawyer) {
-      await this.prisma.lawyer.delete({
-        where: { id },
-      });
-    }
+      if (!decodePassword) {
+        throw new ConflictException('Senha incorreta');
+      }
+      if (citizen) {
+        await this.prisma.citizen.delete({
+          where: { id },
+        });
+      }
+      if (lawyer) {
+        await this.prisma.lawyer.delete({
+          where: { id },
+        });
+      }
 
-    return {
-      message: 'Conta excluída permanentemente',
-    };
-  } catch(error) {
-    throw new ConflictException(error.message);
+      return {
+        message: 'Conta excluída permanentemente',
+      };
+    } catch (error) {
+      throw new ConflictException(error.message);
+    }
   }
 }
