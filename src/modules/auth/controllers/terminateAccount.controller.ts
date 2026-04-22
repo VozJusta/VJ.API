@@ -13,7 +13,7 @@ import { RequestUser } from '../interfaces/interfaces';
 @Controller()
 export class TerminateAccountController {
   constructor(private terminateAccountService: TerminateAccountService) { }
-
+  
   @ApiOperation({
     summary: 'Exclui permanentemente a conta do usuário autenticado',
     description:

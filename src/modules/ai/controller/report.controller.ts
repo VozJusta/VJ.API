@@ -230,7 +230,7 @@ export class ReportController {
                 }
                 cb(null, true);
             },
-            limits: { fileSize: 25 * 1024 * 1024 }, 
+            limits: { fileSize: 25 * 1024 * 1024 },
         }),
     )
     async transcribeAudio(@UploadedFile() file: TranscribeAudioDTO) {
