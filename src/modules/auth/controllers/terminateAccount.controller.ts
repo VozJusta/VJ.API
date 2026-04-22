@@ -60,7 +60,6 @@ export class TerminateAccountController {
     @Headers('Authorization') accessToken: string,
     @Body('password') password: string,
   ) {
-    console.log('Access Token recebido:', accessToken);
     return await this.terminateAccountService.terminateAccount(
       accessToken,
       password,
