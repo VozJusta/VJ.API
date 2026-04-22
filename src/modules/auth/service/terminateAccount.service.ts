@@ -10,15 +10,12 @@ export class TerminateAccountService {
     private prisma: PrismaService,
     private readonly hashingService: HashingServiceProtocol,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async terminateAccount(accessToken: string, password: string) {
-    if (!accessToken) {
+  async terminateAccount(id: string, password: string) {
+    if (!id) {
       throw new ConflictException('Token inválido');
     }
-    const clearToken = accessToken.replace('Bearer ', '');
-    const verifyToken = this.jwtService.verify<tokenTypes>(clearToken);
-    const id = verifyToken.sub;
 
     if (!password) {
       throw new ConflictException('A senha é obrigatória para excluir a conta');
@@ -56,5 +53,7 @@ export class TerminateAccountService {
     return {
       message: 'Conta excluída permanentemente',
     };
+  } catch(error) {
+    throw new ConflictException(error.message);
   }
 }

@@ -1,5 +1,6 @@
 import {
   Inject,
+  Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,7 +11,7 @@ import jwtConfig from '@m/auth/config/jwt.config';
 import { TokensPayload } from '../interfaces/interfaces';
 
 
-
+@Injectable()
 export class RefreshTokenService {
   constructor(
     private prisma: PrismaService,
