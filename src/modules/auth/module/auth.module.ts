@@ -18,7 +18,6 @@ import { LawyerInformationService } from '@m/auth/service/lawyerInformation.serv
 import { AuthenticateService } from '@m/auth/service/authenticate.service';
 import { ValidateEmailCodeService } from '@m/auth/service/validateEmailCode.service';
 import { VerifyForgotCodeService } from '@m/auth/service/verifyForgotCode.service';
-
 import { AuthenticateController } from '@m/auth/controllers/authenticate.controller';
 import { CompleteController } from '@m/auth/controllers/complete.controller';
 import { RefreshToken } from '@m/auth/controllers/refreshToken.controller';
@@ -31,10 +30,11 @@ import { SendEmailController } from '@m/auth/controllers/sendEmail.controller';
 import { CititzenInformationService } from '@m/auth/service/citizenInformation.service';
 import { ForgotPasswordService } from '@m/auth/service/forgotPassword.service';
 import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
-import { userDataController } from '../controllers/userData.controller';
-import { TerminateAccountController } from '../controllers/terminateAccount.controller';
-import { TerminateAccountService } from '../service/terminateAccount.service';
+import { userDataController } from '@m/auth/controllers/userData.controller';
+import { TerminateAccountController } from '@m/auth/controllers/terminateAccount.controller';
+import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
 import { LogoutController } from '@m/auth/controllers/logout.controller';
+import { GetUserDataService } from '@m/auth/service/getUserData.service';
 
 @Global()
 @Module({
@@ -73,6 +73,7 @@ import { LogoutController } from '@m/auth/controllers/logout.controller';
     SecurityTokenInterceptor,
     AuthTokenGuard,
     TerminateAccountService,
+    GetUserDataService,
   ],
   exports: [
     HashingServiceProtocol,

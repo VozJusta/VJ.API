@@ -17,7 +17,6 @@ import { RequestUser } from '../interfaces/interfaces';
 @Controller()
 export class LogoutController {
   constructor(private readonly prisma: PrismaService) {}
-
   @Post('/logout')
   @HttpCode(200)
   @UseGuards(AuthTokenGuard)

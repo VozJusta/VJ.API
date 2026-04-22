@@ -1,4 +1,3 @@
-import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
   BadRequestException,
   Controller,
@@ -7,26 +6,21 @@ import {
   HttpCode,
   HttpException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { tokenTypes } from '../interfaces/interfaces';
-
-
+import { GetUserDataService } from '@m/auth/service/getUserData.service';
 
 @ApiTags('Auth')
 @Controller()
 export class userDataController {
-  constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private readonly getUserDataService: GetUserDataService) {}
 
   @Get('/me')
   @HttpCode(200)
   @ApiHeader({
-    name: 'token',
+    name: 'Authorization',
     required: true,
-    description: 'JWT de acesso enviado no header token.',
+    description: 'JWT de acesso do usuário autenticado.',
     schema: {
       type: 'string',
       example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0Iiwi...',
@@ -81,68 +75,7 @@ export class userDataController {
       },
     },
   })
-  async getUserData(@Headers('token') token: string) {
-    try {
-      const payload = this.jwtService.verify<tokenTypes>(token);
-      const { sub, role, sessionId } = payload;
-      if (role === 'Citizen') {
-        const user = await this.prisma.citizen.findUnique({
-          where: { id: sub },
-          select: {
-            id: true,
-            full_name: true,
-            session_id: true,
-            subscription: {
-              where: {
-                user_id: sub,
-              },
-              select: {
-                plan: {
-                  select: {
-                    type: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        if (!user || user.session_id !== sessionId) {
-          throw new BadRequestException('Token inválido');
-        }
-
-        return user;
-      } else {
-        const user = await this.prisma.lawyer.findUnique({
-          where: { id: sub },
-          select: {
-            id: true,
-            full_name: true,
-            avatar_image: true,
-            session_id: true,
-            subscription: {
-              where: {
-                lawyer_id: sub,
-              },
-              select: {
-                plan: {
-                  select: {
-                    type: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        if (!user || user.session_id !== sessionId) {
-          throw new BadRequestException('Token inválido');
-        }
-
-        return user;
-      }
-    } catch (err) {
-      throw new BadRequestException('Token inválido');
-    }
+  async getUserData(@Headers('Authorization') accessToken: string) {
+    return await this.getUserDataService.getUserData(accessToken);
   }
 }
