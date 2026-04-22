@@ -1,3 +1,5 @@
+import { Personality } from "generated/prisma/enums";
+
 export class StartSimulationDto {
   simulationId: string;
   reportId?: string;
