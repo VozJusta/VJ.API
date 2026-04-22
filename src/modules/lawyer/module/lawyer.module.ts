@@ -10,6 +10,8 @@ import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
 import { RejectCaseRequest } from '@m/lawyer/service/rejectCaseRequest.service';
 import { AcceptCaseRequestController } from '@m/lawyer/controllers/patchAcceptCaseRequest.controller';
 import { RejectCaseRequestController } from '@m/lawyer/controllers/patchRejectCaseRequest.controller';
+import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
+import { GetCaseByIdController } from '@m/lawyer/controllers/getCaseById.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule],
@@ -18,6 +20,7 @@ import { RejectCaseRequestController } from '@m/lawyer/controllers/patchRejectCa
     LawyerRequestsStatusService,
     AcceptCaseRequest,
     RejectCaseRequest,
+    FindCaseById,
     SecurityTokenInterceptor,
   ],
   controllers: [
@@ -25,6 +28,7 @@ import { RejectCaseRequestController } from '@m/lawyer/controllers/patchRejectCa
     LawyerRequestController,
     AcceptCaseRequestController,
     RejectCaseRequestController,
+    GetCaseByIdController,
   ],
 })
 export class LawyerModule {}
