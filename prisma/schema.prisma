@@ -21,15 +21,16 @@ model Citizen {
   stripe_customer_id String?            @unique
   phone              String?            @unique
   email              String             @unique
+  session_id         String             @default(uuid())
   subscription       Subscription?
   report             Report[]
-  two_factor_token   TwoFactorToken?
   simulation         Simulation[]
   simulation_report  SimulationReport[]
   password           String?
   created_at         DateTime           @default(now())
   validationCodes    ValidationCode[]
   cases              Case[]
+  caseRequests       CaseRequest[]
 }
 
 model Lawyer {
@@ -46,35 +47,39 @@ model Lawyer {
   oab_state          OabState?
   phone              String?          @unique
   email              String           @unique
+  session_id         String           @default(uuid())
   password           String?
   subscription       Subscription?
   report             Report[]
-  two_factor_token   TwoFactorToken?
   created_at         DateTime         @default(now())
   validationCodes    ValidationCode[]
   cases              Case[]
+  caseRequests       CaseRequest[]
 }
 
 model Plan {
-  id               String      @id @default(uuid())
+  id               String         @id @default(uuid())
   name             String
-  stripe_price_id  String      @unique
-  type             PlanType
+  stripe_price_id  String         @unique @default(uuid())
+  type             PlanType       @default(FREE)
   billing_type     BillingType
   max_interviews   Int
   max_simulation   Int
-  has_ia_petitions Boolean     @default(false)
-  has_analytics    Boolean     @default(false)
+  has_ia_petitions Boolean        @default(false)
+  has_analytics    Boolean        @default(false)
+  subscriptions    Subscription[]
 }
 
 model Subscription {
   id                     String             @id @default(uuid())
+  stripe_subscription_id String             @unique @default(uuid())
+  subscription_status    SubscriptionStatus
   user                   Citizen?           @relation(fields: [user_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
   user_id                String?            @unique
   lawyer_id              String?            @unique
-  stripe_subscription_id String
-  subscription_status    SubscriptionStatus
+  planId                 String
+  plan                   Plan               @relation(fields: [planId], references: [id])
   interviews_used        Int                @default(0)
   simulations_used       Int                @default(0)
   leads_used             Int                @default(0)
@@ -115,6 +120,27 @@ model Case {
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   conversations Conversation[]
+  caseRequests  CaseRequest[]
+}
+
+model CaseRequest {
+  id String @id @default(uuid())
+
+  case_id String
+  case    Case   @relation(fields: [case_id], references: [id])
+
+  citizen_id String
+  citizen    Citizen @relation(fields: [citizen_id], references: [id])
+
+  lawyer_id String
+  lawyer    Lawyer @relation(fields: [lawyer_id], references: [id])
+
+  status Status @default(Pending)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([case_id, lawyer_id])
 }
 
 model Conversation {
@@ -171,18 +197,6 @@ model ValidationCode {
   expired    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-}
-
-model TwoFactorToken {
-  id         String   @id @default(uuid())
-  code       String
-  type       Types
-  user_id    String   @unique
-  lawyer_id  String   @unique
-  user       Citizen  @relation(fields: [user_id], references: [id])
-  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
-  created_at DateTime @default(now())
-  expires_at DateTime
 }
 
 model Simulation {
@@ -296,8 +310,9 @@ enum LawyerStatus {
 }
 
 enum PlanType {
-  Citizen
-  Lawyer
+  MEDIUM
+  PREMIUM
+  FREE
 }
 
 enum MessageRole {
