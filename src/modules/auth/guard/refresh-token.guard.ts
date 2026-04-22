@@ -11,16 +11,9 @@ import { Observable } from 'rxjs';
 import jwtConfig from '@m/auth/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@m/prisma/service/prisma.service';
+import { TokensPayload } from '../interfaces/interfaces';
 
-interface RefreshTokenPayload {
-  sub: string;
-  role: 'Citizen' | 'Lawyer';
-  email: string;
-  fullName: string;
-  sessionId: string;
-  loggedWithGoogle?: boolean;
-  registerCompleted?: boolean;
-}
+
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
@@ -40,7 +33,7 @@ export class AuthTokenGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+      const payload = await this.jwtService.verifyAsync<TokensPayload>(
         token,
         this.jwtConfiguration.refreshToken,
       );

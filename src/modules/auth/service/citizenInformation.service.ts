@@ -8,12 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { CompleteCitizenRegisterDTO } from '@m/auth/dto/complete-citizen-register.dto';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
+import { TokensPayload } from '../interfaces/interfaces';
 
-interface SecurityTokenPayload {
-  sub: string;
-  role: 'Citizen' | 'Lawyer';
-  sessionId: string;
-}
+
 
 @Injectable()
 export class CititzenInformationService {
@@ -28,7 +25,7 @@ export class CititzenInformationService {
     token: string,
   ) {
     try {
-      const payload = await this.jwtService.verify<SecurityTokenPayload>(token);
+      const payload = await this.jwtService.verify<TokensPayload>(token);
 
       const { sub, role, sessionId } = payload;
 

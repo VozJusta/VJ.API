@@ -59,7 +59,7 @@ export class ForgotController {
     return await this.forgotPasswordService.forgotPassword(body);
   }
 
-  @Post('forgot/verify-code')
+  @Post('verify-code')
   @ApiBody({
     description: 'Rota para validar codigo de recuperacao de senha',
     required: true,

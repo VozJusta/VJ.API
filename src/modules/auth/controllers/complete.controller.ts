@@ -12,7 +12,7 @@ export class CompleteController {
     private readonly authService: CititzenInformationService,
     private readonly lawyerInformationService: LawyerInformationService,
   ) {}
-  @Put('complete/citizen')
+  @Put('citizen')
   @ApiOperation({
     summary: 'Completa o cadastro do cidadão após validação de email',
   })

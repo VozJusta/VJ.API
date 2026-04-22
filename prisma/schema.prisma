@@ -30,6 +30,7 @@ model Citizen {
   created_at         DateTime           @default(now())
   validationCodes    ValidationCode[]
   cases              Case[]
+  caseRequests       CaseRequest[]
 }
 
 model Lawyer {
@@ -53,6 +54,7 @@ model Lawyer {
   created_at         DateTime         @default(now())
   validationCodes    ValidationCode[]
   cases              Case[]
+  caseRequests       CaseRequest[]
 }
 
 model Plan {
@@ -118,6 +120,27 @@ model Case {
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   conversations Conversation[]
+  caseRequests  CaseRequest[]
+}
+
+model CaseRequest {
+  id String @id @default(uuid())
+
+  case_id String
+  case    Case   @relation(fields: [case_id], references: [id])
+
+  citizen_id String
+  citizen    Citizen @relation(fields: [citizen_id], references: [id])
+
+  lawyer_id String
+  lawyer    Lawyer @relation(fields: [lawyer_id], references: [id])
+
+  status Status @default(Pending)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([case_id, lawyer_id])
 }
 
 model Conversation {

@@ -9,13 +9,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { RequestUser } from '../interfaces/interfaces';
 
-interface RequestUser extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+
 
 @ApiTags('Auth')
 @Controller()

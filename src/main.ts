@@ -16,12 +16,19 @@ async function bootstrap() {
     .addTag('Report', 'Trade-related routes')
     .addTag('Ingestion', 'Routes related to data ingestion')
     .addTag('Dashboard', 'Password-secret creation route')
-    .addTag('Refresh','Refresh token endpoint: validates the current token and returns a new access token.')
+    .addTag(
+      'Refresh',
+      'Refresh token endpoint: validates the current token and returns a new access token.',
+    )
     .addBearerAuth()
     .build();
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://vozjusta.com.br', 'http://localhost:5678'],
+    origin: [
+      'http://localhost:3000',
+      'https://vozjusta.com.br',
+      'http://localhost:5678',
+    ],
     methods: ['GET', 'PATCH', 'DELETE', 'POST', 'PUT'],
     allowedHeaders: [
       'Content-Type',
