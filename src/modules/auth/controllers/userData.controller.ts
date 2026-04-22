@@ -1,22 +1,25 @@
 import {
-  BadRequestException,
   Controller,
   Get,
   Headers,
   HttpCode,
-  HttpException,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUserDataService } from '@m/auth/service/getUserData.service';
+import { RequestUser } from '../interfaces/interfaces';
+import { AuthTokenGuard } from '../guard/access-token.guard';
 
 @ApiTags('Auth')
 @Controller()
 export class userDataController {
-  constructor(private readonly getUserDataService: GetUserDataService) {}
+  constructor(private readonly getUserDataService: GetUserDataService) { }
 
   @Get('/me')
   @HttpCode(200)
+  @UseGuards(AuthTokenGuard)
   @ApiHeader({
     name: 'Authorization',
     required: true,
@@ -75,7 +78,11 @@ export class userDataController {
       },
     },
   })
-  async getUserData(@Headers('Authorization') accessToken: string) {
-    return await this.getUserDataService.getUserData(accessToken);
+  async getUserData(@Req() req: RequestUser) {
+
+    const userId = req.user.sub;
+    const role = req.user.role;
+
+    return await this.getUserDataService.getUserData(userId, role);
   }
 }

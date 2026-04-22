@@ -97,4 +97,4 @@ import { GetUserDataService } from '@m/auth/service/getUserData.service';
     LogoutController,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -1,6 +1,7 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class FindCitizenReportByIdService {
     constructor(private readonly prisma: PrismaService) { }
     async findCitizenReportById(userId: string, role: string, reportId: string) {

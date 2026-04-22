@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiHeader,
   ApiOperation,
   ApiParam,
@@ -14,6 +15,7 @@ import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/
 import { RequestUser } from '@modules/auth/interfaces/interfaces';
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetAllReportsCitizenController {
   constructor(private readonly dashboardService: ListReportsByCitizenService) {}

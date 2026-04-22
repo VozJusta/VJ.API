@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Put, Req, Res,
 import { ReportService } from "../services/report.service";
 import { PdfService } from "../services/pdf.service";
 import { Request, Response } from "express";
-import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";
+import { AuthTokenGuard } from "@m/auth/guard/access-token.guard";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
 import { ContinueConversationDto } from "../dto/continue-conversation.dto";
