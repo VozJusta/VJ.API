@@ -9,7 +9,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RequestUser } from '../interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
 

@@ -2,7 +2,7 @@ import { PrismaService } from '@modules/prisma/service/prisma.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { HashingServiceProtocol } from '../hash/hashing.service';
 import { JwtService } from '@nestjs/jwt';
-import { tokenTypes } from '../interfaces/interfaces';
+import { tokenTypes } from '@m/common/interfaces/interfaces';
 
 @Injectable()
 export class TerminateAccountService {

@@ -9,7 +9,7 @@ import {
 
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUserDataService } from '@m/auth/service/getUserData.service';
-import { RequestUser } from '../interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 import { AuthTokenGuard } from '../guard/access-token.guard';
 
 @ApiTags('Auth')
