@@ -1,7 +1,6 @@
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { LawyerRequestsStatusService } from '@m/lawyer/service/lawyerRequestsStatus.service';
-import { Request } from 'express';
 import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
 import {
   ApiBearerAuth,
@@ -12,13 +11,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Status } from 'generated/prisma/enums';
-
-interface AuthenticateRequest extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+import { RequestUser } from '@modules/common/interfaces/interfaces';
 
 @Controller('lawyer')
 @ApiTags('Lawyer')
@@ -79,7 +72,7 @@ export class LawyerRequestController {
     description: 'Advogado não encontrado.',
   })
   async getReportsByStatus(
-    @Req() req: AuthenticateRequest,
+    @Req() req: RequestUser,
     @Query() status?: RequestsStatusDTO,
   ) {
     const userId = req.user.sub;

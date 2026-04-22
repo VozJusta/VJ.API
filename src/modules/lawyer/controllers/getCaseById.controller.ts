@@ -9,15 +9,8 @@ import {
 	ApiResponse,
 	ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
-
-interface AuthenticatedRequest extends Request {
-	user: {
-		sub: string;
-		role: string;
-	};
-}
+import { RequestUser } from '@modules/common/interfaces/interfaces';
 
 @Controller('lawyer')
 @ApiTags('Lawyer')
@@ -76,7 +69,7 @@ export class GetCaseByIdController {
 		description: 'Advogado ou caso não encontrado.',
 	})
 	async getCaseById(
-		@Req() req: AuthenticatedRequest,
+		@Req() req: RequestUser,
 		@Param('caseId') caseId: string,
 	) {
 		const userId = req.user.sub;

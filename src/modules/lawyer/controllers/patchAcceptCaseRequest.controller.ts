@@ -14,15 +14,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
-import { Request } from 'express';
 import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
+import { RequestUser } from '@modules/common/interfaces/interfaces';
 
-interface AuthenticatedRequest extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
 
 @Controller('lawyer')
 @ApiTags('Lawyer')
@@ -72,7 +66,7 @@ export class AcceptCaseRequestController {
   })
   async acceptCaseRequest(
     @Param('id') caseRequestId: string,
-    @Req() req: AuthenticatedRequest,
+    @Req() req: RequestUser,
   ) {
     const userId = req.user.sub;
     const role = req.user.role;
