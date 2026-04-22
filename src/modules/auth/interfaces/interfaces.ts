@@ -15,12 +15,7 @@ export interface tokenTypes {
   sessionId: string;
 }
 
-export interface TokensPayload {
-  sub: string;
-  role: 'Citizen' | 'Lawyer';
-  email: string;
-  fullName: string;
-  sessionId: string;
+export interface TokensPayload extends tokenTypes {
   loggedWithGoogle?: boolean;
   registerCompleted?: boolean;
 }
