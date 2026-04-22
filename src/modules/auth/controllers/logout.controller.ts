@@ -1,71 +1,78 @@
-import { PrismaService } from "@modules/prisma/service/prisma.service";
-import { ConflictException, Controller, Headers, HttpCode, Post } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { RedisService } from "@m/auth/service/redis.service";
+import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { PrismaService } from '@m/prisma/service/prisma.service';
+import { RequestUser } from '../interfaces/interfaces';
 
 
+
+@ApiTags('Auth')
 @Controller()
 export class LogoutController {
-    constructor(
-        private prisma: PrismaService,
-        private jwtService: JwtService,
-        private redis: RedisService,
-    ) { }
-    @Post('/logout')
-    @HttpCode(201)
-    async logout(
-        @Headers('token') token: string,
-        @Headers('authorization') authorization: string,
-        @Headers('refreshToken') refreshTokenHeader: string,
-    ) {
-        try {
-            const accessToken = this.extractToken(token, authorization);
-            const refreshToken = this.extractToken(refreshTokenHeader);
+  constructor(private readonly prisma: PrismaService) {}
+  @Post('/logout')
+  @HttpCode(200)
+  @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'Access token no formato Bearer <token>.',
+    schema: {
+      type: 'string',
+      example:
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0Iiwi...',
+    },
+  })
+  @ApiOperation({
+    summary: 'Finaliza a sessão do usuário autenticado',
+    description:
+      'Esta rota revoga a sessão atual no banco. Depois do logout, o access token e o refresh token dessa sessão deixam de ser aceitos.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout realizado com sucesso.',
+    schema: {
+      example: {
+        message: 'Logout realizado com sucesso',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token ausente, inválido ou sessão expirada.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Token inválido ou sessão expirada',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  async logout(@Req() req: RequestUser) {
+    const sessionId = randomUUID();
 
-            if (accessToken) {
-                await this.revokeToken(accessToken);
-            }
-
-            if (refreshToken) {
-                await this.revokeToken(refreshToken);
-            }
-
-            return{
-                message: 'Logout realizado com sucesso'
-            }
-        } catch (error) {
-            throw new ConflictException('Token inválido');
-        }
+    if (req.user.role === 'Citizen') {
+      await this.prisma.citizen.update({
+        where: { id: req.user.sub },
+        data: { session_id: sessionId },
+      });
+    } else {
+      await this.prisma.lawyer.update({
+        where: { id: req.user.sub },
+        data: { session_id: sessionId },
+      });
     }
 
-    private extractToken(primary?: string, authorization?: string): string | undefined {
-        const source = primary ?? authorization;
-
-        if (!source || typeof source !== 'string') {
-            return undefined;
-        }
-
-        if (source.startsWith('Bearer ')) {
-            return source.split(' ')[1];
-        }
-
-        return source;
-    }
-
-    private async revokeToken(token: string): Promise<void> {
-        const decoded = this.jwtService.decode(token) as { exp?: number } | null;
-        const exp = decoded?.exp;
-
-        if (!exp) {
-            return;
-        }
-
-        const ttl = exp - Math.floor(Date.now() / 1000);
-
-        if (ttl > 0) {
-            await this.redis.set(token, 'revoked', {
-                EX: ttl,
-            });
-        }
-    }
+    return {
+      message: 'Logout realizado com sucesso',
+    };
+  }
 }

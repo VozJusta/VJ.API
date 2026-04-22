@@ -9,18 +9,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { RequestUser } from '../interfaces/interfaces';
 
-interface RequestUser extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+
 
 @ApiTags('Auth')
 @Controller()
 export class ChangePasswordController {
-  constructor(private readonly authService: ChangePasswordService) {}
+  constructor(private readonly authService: ChangePasswordService) { }
 
   @Patch('change-password')
   @UseGuards(AuthTokenGuard)

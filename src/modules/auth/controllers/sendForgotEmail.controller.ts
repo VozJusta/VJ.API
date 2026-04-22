@@ -7,7 +7,6 @@ import { SendCodeEmailDTO } from '@m/auth/dto/sendCode-email.dto';
 @Controller()
 export class SendForgotEmailController {
   constructor(
-    private sendForgotPasswordEmailService: SendForgotPasswordEmailService,
     private readonly authService: SendForgotPasswordEmailService,
   ) {}
 @Post('send/forgot/email')
@@ -22,22 +21,13 @@ export class SendForgotEmailController {
     },
   })
   @ApiResponse({
-    description: 'Resposta de sucesso para o envio do email de recuperacao',
+    description:
+      'Resposta para a solicitação de recuperação de senha. Para evitar enumeração de usuários, a API pode retornar sucesso mesmo quando o email não estiver cadastrado.',
     status: 200,
     schema: {
       example: {
-        message: 'Codigo de recuperacao enviado para o email ...',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Email não encontrado no sistema',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Email não cadastrado',
-        error: 'Not Found',
+        message:
+          'Se o email estiver cadastrado, o código de recuperação será enviado.',
       },
     },
   })

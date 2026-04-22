@@ -8,6 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { CompleteCitizenRegisterDTO } from '@m/auth/dto/complete-citizen-register.dto';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
+import { TokensPayload } from '../interfaces/interfaces';
+
+
 
 @Injectable()
 export class CititzenInformationService {
@@ -22,9 +25,9 @@ export class CititzenInformationService {
     token: string,
   ) {
     try {
-      const payload = await this.jwtService.verify(token);
+      const payload = await this.jwtService.verify<TokensPayload>(token);
 
-      const { sub, role } = payload;
+      const { sub, role, sessionId } = payload;
 
       if (role === 'Lawyer') {
         throw new UnauthorizedException('Usuário não permitido');
@@ -42,10 +45,17 @@ export class CititzenInformationService {
 
       const citizen = await this.prisma.citizen.findFirst({
         where: { id: sub },
+        select: { session_id: true },
       });
 
       if (!citizen) {
         throw new NotFoundException('Usuário não encontrado');
+      }
+
+      if (citizen.session_id !== sessionId) {
+        throw new UnauthorizedException(
+          'Sessão expirada, faça login novamente',
+        );
       }
 
       const hashedPassword = await this.hashingService.hash(body.password);

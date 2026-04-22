@@ -1,13 +1,9 @@
-import { AuthTokenGuard } from "@m/auth/guard/access-token.guard";
+import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { RequestUser } from "@modules/auth/interfaces/interfaces";
 import { OperationalStatusService } from "@modules/dashboard/service/lawyer/operetionalStatus.service";
 import { Get, UseGuards, Req, Controller } from "@nestjs/common";
 import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from "@nestjs/swagger";
-interface AuthenticatedRequest extends Request {
-  user: {
-    sub: string;
-    role: string;
-  };
-}
+
 
 @ApiTags('Dashboard')
 @Controller()
@@ -70,7 +66,7 @@ export class GetOperationStatusController {
       },
     },
   })
-  async getOperationalStatus(@Req() req: AuthenticatedRequest) {
+  async getOperationalStatus(@Req() req: RequestUser) {
     const userId = req.user.sub;
     const role = req.user.role;
 
