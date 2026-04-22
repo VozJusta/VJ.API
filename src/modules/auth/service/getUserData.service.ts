@@ -20,10 +20,25 @@ export class GetUserDataService {
     return match[1].trim();
   }
 
+  private getAccessTokenVerifyOptions() {
+    const jwtOptions = (this.jwtService as any).options ?? {};
+    const verifyOptions = jwtOptions.verifyOptions ?? {};
+    const signOptions = jwtOptions.signOptions ?? {};
+
+    return {
+      secret: jwtOptions.secret,
+      issuer: verifyOptions.issuer ?? signOptions.issuer,
+      audience: verifyOptions.audience ?? signOptions.audience,
+    };
+  }
+
   async getUserData(accessToken: string) {
     try {
-      const clearToken = this.extractBearerToken(accessToken);
-      const payload = this.jwtService.verify<tokenTypes>(clearToken);
+      const clearToken = accessToken.replace('Bearer ', '');
+      const payload = this.jwtService.verify<tokenTypes>(
+        clearToken,
+        this.getAccessTokenVerifyOptions(),
+      );
       const { sub, role, sessionId } = payload;
       if (role === 'Citizen') {
         const user = await this.prisma.citizen.findUnique({
