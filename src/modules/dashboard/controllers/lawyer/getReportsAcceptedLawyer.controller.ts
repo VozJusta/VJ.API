@@ -1,5 +1,5 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
-import { RequestUser } from '@modules/auth/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 import { AcceptedRequestAnalyticsService } from '@modules/dashboard/service/lawyer/acceptedRequestAnalytics.service';
 import { Get, UseGuards, Req, Controller } from '@nestjs/common';
 import {

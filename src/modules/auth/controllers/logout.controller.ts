@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { PrismaService } from '@m/prisma/service/prisma.service';
-import { RequestUser } from '../interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
 
