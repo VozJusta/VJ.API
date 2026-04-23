@@ -1,12 +1,14 @@
-import { Controller, Headers, Post } from '@nestjs/common';
+import { Controller, Headers, Post, Req, UseGuards } from '@nestjs/common';
 import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthTokenGuard } from '../guard/access-token.guard';
+import { RequestUser, TokensPayload } from '../interfaces/interfaces';
 
 @ApiTags('Refresh')
 @Controller()
 export class RefreshToken {
   constructor(private refreshTokenService: RefreshTokenService) {}
-
+  @UseGuards(AuthTokenGuard)
   @Post('refresh-token')
   @ApiOperation({
     summary: 'Gera novo access token a partir do refresh token',
@@ -44,7 +46,12 @@ export class RefreshToken {
       },
     },
   })
-  async refreshToken(@Headers('refreshToken') RefreshToken: string) {
-    return this.refreshTokenService.refreshToken(RefreshToken);
+  async refreshToken(@Req() req: RequestUser) {
+    return this.refreshTokenService.refreshToken(
+      req.user.role,
+      req.user.sub,
+      req.user.sessionId,
+      req.user.loggedWithGoogle,
+    );
   }
 }
