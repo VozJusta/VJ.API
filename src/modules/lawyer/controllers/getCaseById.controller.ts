@@ -10,7 +10,7 @@ import {
 	ApiTags,
 } from '@nestjs/swagger';
 import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
-import { RequestUser } from '@modules/common/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 @Controller('lawyer')
 @ApiTags('Lawyer')

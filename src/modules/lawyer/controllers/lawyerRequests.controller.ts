@@ -11,7 +11,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Status } from 'generated/prisma/enums';
-import { RequestUser } from '@modules/common/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 @Controller('lawyer')
 @ApiTags('Lawyer')

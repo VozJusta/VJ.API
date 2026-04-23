@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
-import { RequestUser } from '@modules/common/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
 @Controller('lawyer')
