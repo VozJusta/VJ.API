@@ -74,9 +74,9 @@ model Subscription {
   id                     String             @id @default(uuid())
   stripe_subscription_id String             @unique @default(uuid())
   subscription_status    SubscriptionStatus
-  user                   Citizen?           @relation(fields: [user_id], references: [id])
+  citizen                Citizen?           @relation(fields: [citizen_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
-  user_id                String?            @unique
+  citizen_id             String?            @unique
   lawyer_id              String?            @unique
   planId                 String
   plan                   Plan               @relation(fields: [planId], references: [id])
@@ -95,10 +95,10 @@ model Report {
   simplified_explanation String
   category_detected      Specialization
   confidence_score       Float?
-  user_id                String
+  citizen_id             String
   lawyer_id              String?
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  user                   Citizen        @relation(fields: [user_id], references: [id])
+  citizen                Citizen        @relation(fields: [citizen_id], references: [id])
   evidence               Evidence[]
   ai_versions            AiResponse[]
   created_at             DateTime       @default(now())
@@ -110,9 +110,9 @@ model Report {
 
 model Case {
   id            String         @id @default(uuid())
-  user_id       String
+  citizen_id    String
   lawyer_id     String?
-  user          Citizen        @relation(fields: [user_id], references: [id])
+  citizen       Citizen        @relation(fields: [citizen_id], references: [id])
   lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
   title         String
   status        Status         @default(Pending)
@@ -187,9 +187,9 @@ model RagContext {
 model ValidationCode {
   id         String   @id @default(uuid())
   type       Types
-  user_id    String?
+  citizen_id String?
   lawyer_id  String?
-  user       Citizen? @relation(fields: [user_id], references: [id])
+  citizen    Citizen? @relation(fields: [citizen_id], references: [id])
   lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
   code       String
   validated  Boolean  @default(false)
@@ -201,21 +201,20 @@ model ValidationCode {
 
 model Simulation {
   id             String      @id @default(uuid())
-  user_id        String
-  user           Citizen     @relation(fields: [user_id], references: [id])
+  citizen_id     String
+  citizen        Citizen     @relation(fields: [citizen_id], references: [id])
   report_id      String?
-  report         Report?     @relation(fields: [reportId], references: [id])
+  report         Report?     @relation(fields: [report_id], references: [id])
   personality    Personality
   transcription  String
   score_feedback String
-  reportId       String?
 }
 
 model SimulationReport {
   id            String  @id @default(uuid())
   transcription String
-  user_id       String  @unique
-  user          Citizen @relation(fields: [user_id], references: [id])
+  citizen_id    String  @unique
+  citizen       Citizen @relation(fields: [citizen_id], references: [id])
 }
 
 model Evidence {
