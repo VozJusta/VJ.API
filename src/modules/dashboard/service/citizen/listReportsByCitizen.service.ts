@@ -41,7 +41,7 @@ export class ListReportsByCitizenService {
 
       const [reports, totalReports] = await this.prisma.$transaction([
         this.prisma.report.findMany({
-          where: { user_id: userId },
+          where: { citizen_id: userId },
           select: {
             id: true,
             category_detected: true,
@@ -57,7 +57,7 @@ export class ListReportsByCitizenService {
           take: pageSize,
         }),
         this.prisma.report.count({
-          where: { user_id: userId },
+          where: { citizen_id: userId },
         }),
       ]);
 
