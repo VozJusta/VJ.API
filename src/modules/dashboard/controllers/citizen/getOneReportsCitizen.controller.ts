@@ -1,8 +1,9 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
-import { RequestUser } from '@modules/auth/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 import { FindCitizenReportByIdService } from '@modules/dashboard/service/citizen/findCitizenReportById.service';
 import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiHeader,
   ApiParam,
@@ -13,6 +14,7 @@ import {
 
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetOneReportsCitizenController {
   constructor(

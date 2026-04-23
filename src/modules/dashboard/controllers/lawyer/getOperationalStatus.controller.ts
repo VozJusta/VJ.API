@@ -1,11 +1,12 @@
 import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
-import { RequestUser } from "@modules/auth/interfaces/interfaces";
+import { RequestUser } from "@m/common/interfaces/interfaces";
 import { OperationalStatusService } from "@modules/dashboard/service/lawyer/operetionalStatus.service";
 import { Get, UseGuards, Req, Controller } from "@nestjs/common";
-import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiHeader, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetOperationStatusController {
   constructor(private readonly dashboardService: OperationalStatusService) { }

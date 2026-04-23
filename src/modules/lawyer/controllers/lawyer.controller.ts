@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
 import { LawyerService } from '@m/lawyer/service/lawyer.service';
 import { CreateLawyerDTO } from '@m/lawyer/dto/create-lawyer.dto';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 @ApiTags('Lawyer')
 @Controller('lawyer')
@@ -10,6 +10,11 @@ export class LawyerController {
 
   @Post()
   @UseInterceptors(SecurityTokenInterceptor)
+  @ApiOperation({
+    summary: 'Cria uma conta de advogado',
+    description:
+      'Realiza cadastro de advogado e retorna os dados autenticados com x-security-token no header.',
+  })
   @ApiBody({
     description: 'Criação de advogado',
     required: true,
@@ -57,6 +62,14 @@ export class LawyerController {
         },
       },
     },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Dados inválidos para criação de advogado.',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflito de dados únicos como e-mail, CPF, telefone ou OAB.',
   })
   async createLawyer(@Body() body: CreateLawyerDTO) {
     return await this.lawyerService.create(body);

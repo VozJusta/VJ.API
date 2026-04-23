@@ -1,6 +1,7 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class FindCitizenReportByIdService {
     constructor(private readonly prisma: PrismaService) { }
     async findCitizenReportById(userId: string, role: string, reportId: string) {
@@ -19,7 +20,7 @@ export class FindCitizenReportByIdService {
             const report = await this.prisma.report.findFirst({
                 where: {
                     id: reportId,
-                    user_id: userId,
+                    citizen_id: userId,
                 },
                 select: {
                     id: true,

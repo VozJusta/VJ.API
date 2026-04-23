@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Put, Req, Res,
 import { ReportService } from "../services/report.service";
 import { PdfService } from "../services/pdf.service";
 import { Request, Response } from "express";
-import { AuthTokenGuard } from "src/modules/auth/guard/access-token.guard";
+import { AuthTokenGuard } from "@m/auth/guard/access-token.guard";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
 import { ContinueConversationDto } from "../dto/continue-conversation.dto";
@@ -133,50 +133,6 @@ export class ReportController {
     @ApiResponse({ status: 404, description: 'Conversa não encontrada.' })
     async getHistory(@Param('id') id: string) {
         return await this.reportService.getHistoryChat(id)
-    }
-
-    @Put('accept/:id')
-    @ApiOperation({ summary: 'Aceita um caso pendente vinculando-o ao advogado (Acesso restrito)' })
-    @ApiParam({ name: 'id', type: 'string', description: 'ID único do caso' })
-    @ApiResponse({
-        status: 200,
-        description: 'Caso aceito com sucesso e vinculado ao advogado.',
-        schema: { example: { message: 'Relatório aceito com sucesso' } }
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Usuário não autorizado. Ocorre caso o token seja inválido ou o usuário seja um Cidadão (Citizen).',
-        schema: { example: { message: 'Usuário não autorizado', error: 'Unauthorized', statusCode: 401 } }
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Caso não encontrado no sistema.',
-        schema: { example: { message: 'Caso não encontrado', error: 'Not Found', statusCode: 404 } }
-    })
-    async acceptCase(@Param('id') id: string, @Req() req: RequestUser) {
-        return await this.reportService.acceptCase(id, req.user.sub, req.user.role)
-    }
-
-    @Put('reject/:id')
-    @ApiOperation({ summary: 'Recusa um caso pendente (Acesso restrito)' })
-    @ApiParam({ name: 'id', type: 'string', description: 'ID único do caso' })
-    @ApiResponse({
-        status: 200,
-        description: 'Caso recusado com sucesso.',
-        schema: { example: { message: 'Relatório recusado' } }
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Usuário não autorizado. Ocorre caso o token seja inválido ou o usuário seja um Cidadão (Citizen).',
-        schema: { example: { message: 'Usuário não autorizado', error: 'Unauthorized', statusCode: 401 } }
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Caso não encontrado no sistema.',
-        schema: { example: { message: 'Caso não encontrado', error: 'Not Found', statusCode: 404 } }
-    })
-    async rejectCase(@Param('id') id: string, @Req() req: RequestUser) {
-        return await this.reportService.rejectCase(id, req.user.role)
     }
 
     @Get('/pdf/:id')

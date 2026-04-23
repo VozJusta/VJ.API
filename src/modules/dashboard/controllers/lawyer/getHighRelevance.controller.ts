@@ -1,12 +1,19 @@
 import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
-import { RequestUser } from '@modules/auth/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 import { HighRelevanceService } from '@modules/dashboard/service/lawyer/highRelevance.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOperation,
+    ApiHeader,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 
 
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetHighRelevanceController {
     constructor(private readonly dashboardService: HighRelevanceService) { }
@@ -30,12 +37,14 @@ export class GetHighRelevanceController {
                 {
                     id: 'cly4v7sdm0000q8x2ptv0h9k1',
                     title: 'Atraso no pagamento de horas extras',
+                    status: 'Accepted',
                     confidence_score: 0.97,
                     category_detected: 'Direito do Consumidor',
                 },
                 {
                     id: 'cly4v8a6k0001q8x2zr2j3j8l',
                     title: 'Demissão sem justa causa',
+                    status: 'Pending',
                     confidence_score: 0.91,
                     category_detected: 'Direito Trabalhista',
                 },

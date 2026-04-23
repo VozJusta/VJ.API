@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiHeader,
   ApiOperation,
   ApiParam,
@@ -8,12 +9,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
-
 import { PaginationReportsDTO } from '@modules/dashboard/dto/pagination-reports.dto';
 import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/listReportsByCitizen.service';
-import { RequestUser } from '@modules/auth/interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 @ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller()
 export class GetAllReportsCitizenController {
   constructor(private readonly dashboardService: ListReportsByCitizenService) {}
