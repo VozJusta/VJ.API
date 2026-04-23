@@ -1,7 +1,7 @@
 import {
   Controller,
   Param,
-  Put,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,12 +29,12 @@ import { RequestUser } from '@m/common/interfaces/interfaces';
 export class AcceptCaseRequestController {
   constructor(private readonly acceptCaseRequestService: AcceptCaseRequest) {}
 
-  @Put('requests/:id/accept')
+  @Patch('requests/:id/accept')
   @UseGuards(AuthTokenGuard)
   @ApiOperation({
     summary: 'Aceita uma solicitação de caso do advogado autenticado',
     description:
-      'Atualiza a solicitação para Accepted e vincula o advogado ao caso e ao relatório correspondente.',
+      'Atualiza parcialmente a solicitação para Accepted e vincula o advogado ao caso e ao relatório correspondente.',
   })
   @ApiParam({
     name: 'id',

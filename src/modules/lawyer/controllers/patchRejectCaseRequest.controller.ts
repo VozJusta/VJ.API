@@ -1,7 +1,7 @@
 import {
   Controller,
   Param,
-  Put,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,11 +29,11 @@ import { RequestUser } from '@m/common/interfaces/interfaces';
 export class RejectCaseRequestController {
   constructor(private readonly rejectCaseRequestService: RejectCaseRequest) {}
 
-  @Put('requests/:id/reject')
+  @Patch('requests/:id/reject')
   @UseGuards(AuthTokenGuard)
   @ApiOperation({
     summary: 'Recusa uma solicitação de caso do advogado autenticado',
-    description: 'Atualiza o status da solicitação para Refused.',
+    description: 'Atualiza parcialmente o status da solicitação para Refused.',
   })
   @ApiParam({
     name: 'id',
