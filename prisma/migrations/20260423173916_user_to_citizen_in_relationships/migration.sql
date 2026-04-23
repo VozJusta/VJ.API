@@ -44,29 +44,23 @@ DROP INDEX "SimulationReport_user_id_key";
 DROP INDEX "Subscription_user_id_key";
 
 -- AlterTable
-ALTER TABLE "Case" DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT NOT NULL;
+ALTER TABLE "Case" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "Report" DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT NOT NULL;
+ALTER TABLE "Report" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "Simulation" DROP COLUMN "reportId",
-DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT NOT NULL;
+ALTER TABLE "Simulation" RENAME COLUMN "reportId" TO "report_id";
+ALTER TABLE "Simulation" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "SimulationReport" DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT NOT NULL;
+ALTER TABLE "SimulationReport" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "Subscription" DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT;
+ALTER TABLE "Subscription" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "ValidationCode" DROP COLUMN "user_id",
-ADD COLUMN     "citizen_id" TEXT;
+ALTER TABLE "ValidationCode" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SimulationReport_citizen_id_key" ON "SimulationReport"("citizen_id");
