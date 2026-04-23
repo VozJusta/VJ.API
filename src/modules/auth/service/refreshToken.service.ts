@@ -7,8 +7,8 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
-import jwtConfig from '@m/auth/config/jwt.config'
-import { TokensPayload } from '@m/common/interfaces/interfaces';
+import jwtConfig from '@m/auth/config/jwt.config';
+import { TokensPayload } from '../interfaces/interfaces';
 
 
 @Injectable()
@@ -16,16 +16,25 @@ export class RefreshTokenService {
   constructor(
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(
+    role: string,
+    sub: string,
+    sessionId: string,
+    loggedWithGoogle?: boolean,
+  ) {
     try {
-      const payload = this.jwtService.verify<TokensPayload>(refreshToken, {
-        secret: this.jwtConfiguration.refreshToken.secret,
-      });
-      const { role, sub, sessionId } = payload;
+      if (
+        !role ||
+        !sub ||
+        !sessionId ||
+        typeof loggedWithGoogle === 'undefined'
+      ) {
+        throw new UnauthorizedException(
+          'Refresh token está inválido ou expirado',
+        );
+      }
 
       let user;
 
@@ -53,19 +62,21 @@ export class RefreshTokenService {
 
       const newPayload = {
         sub: user.id,
+        role,
         email: user.email,
-        role: role,
         fullName: user.full_name,
-        sessionId: user.session_id,
-        loggedWithGoogle: payload.loggedWithGoogle,
-        registerCompleted: payload.registerCompleted,
+        loggedWithGoogle,
+        sessionId,
       };
+      const accessToken = await this.jwtService.signAsync(newPayload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_TTL as any,
+        audience: process.env.JWT_TOKEN_AUDIENCE,
+        issuer: process.env.JWT_TOKEN_ISSUER,
+      });
 
       return {
-        access_token: this.jwtService.sign(newPayload, {
-          expiresIn: this.jwtConfiguration.accessToken.ttl,
-          secret: this.jwtConfiguration.accessToken.secret,
-        }),
+        access_token: accessToken,
       };
     } catch (error) {
       throw new UnauthorizedException(

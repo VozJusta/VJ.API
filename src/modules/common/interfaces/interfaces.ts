@@ -4,6 +4,11 @@ export interface RequestUser extends Request {
   user: {
     sub: string;
     role: string;
+    sessionId: string;
+    email?: string;
+    fullName?: string;
+    loggedWithGoogle?: boolean;
+    registerCompleted?: boolean;
   };
 }
 
