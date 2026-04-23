@@ -50,7 +50,34 @@ ALTER TABLE "Case" RENAME COLUMN "user_id" TO "citizen_id";
 ALTER TABLE "Report" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
-ALTER TABLE "Simulation" RENAME COLUMN "reportId" TO "report_id";
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'Simulation'
+      AND column_name = 'reportId'
+  ) THEN
+    IF EXISTS (
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'Simulation'
+        AND column_name = 'report_id'
+    ) THEN
+      UPDATE "Simulation"
+      SET "report_id" = "reportId"
+      WHERE "report_id" IS NULL
+        AND "reportId" IS NOT NULL;
+
+      ALTER TABLE "Simulation" DROP COLUMN "reportId";
+    ELSE
+      ALTER TABLE "Simulation" RENAME COLUMN "reportId" TO "report_id";
+    END IF;
+  END IF;
+END $$;
+
 ALTER TABLE "Simulation" RENAME COLUMN "user_id" TO "citizen_id";
 
 -- AlterTable
