@@ -2,27 +2,18 @@ import { Personality } from "generated/prisma/enums";
 
 export class StartSimulationDto {
   simulationId: string;
-  reportId?: string;
 }
- 
-export class AudioChunkDto {
-  simulationId: string;
-  chunk: Buffer;
-}
- 
+
 export class StopSimulationDto {
   simulationId: string;
 }
  
-export class SimulationTurnDto {
+export class SimulationChatDto {
   simulationId: string;
-  role: 'User' | 'Ai';
-  content: string;
-  audioUrl?: string;
+  text: string;
 }
  
-export class CreateSimulationDto {
-  userId: string;
-  reportId?: string;
-  personality: Personality;
+export class SynthesizeDto {
+  text: string;
 }
+ 

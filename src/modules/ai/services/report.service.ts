@@ -5,7 +5,7 @@ import { PrismaService } from "@m/prisma/service/prisma.service";
 import { Specialization } from "generated/prisma/enums";
 import { NotFoundError } from "rxjs";
 import { finished } from "stream";
-import { StartConversationDTO } from "../ai/dto/start-conversation.dto";
+import { StartConversationDTO } from "../dto/start-conversation.dto";
 import { ContinueConversationDto } from "../dto/continue-conversation.dto";
 import { toFile } from 'groq-sdk/uploads';
 import { Groq } from "groq-sdk";
