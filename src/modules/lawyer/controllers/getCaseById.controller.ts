@@ -26,9 +26,9 @@ export class GetCaseByIdController {
 	@Get('/cases/:caseId')
 	@UseGuards(AuthTokenGuard)
 	@ApiOperation({
-		summary: 'Retorna o dossiê completo de um caso para o advogado autenticado',
+		summary: 'Retorna os dados resumidos do relatório do caso para o advogado autenticado',
 		description:
-			'Busca o caso por id com dados completos de usuário, advogado, solicitações, conversas e relatórios.',
+			'Busca o caso por id e retorna o relatório mais recente com evidências e dados do cidadão.',
 	})
 	@ApiParam({
 		name: 'caseId',
@@ -38,21 +38,30 @@ export class GetCaseByIdController {
 	})
 	@ApiResponse({
 		status: 200,
-		description: 'Dossiê do caso retornado com sucesso.',
+		description: 'Dados do relatório do caso retornados com sucesso.',
 		schema: {
 			example: {
-				id: 'clx123case',
-				title: 'Cobrança indevida',
-				status: 'Pending',
-				created_at: '2026-04-22',
+				role: 'Lawyer',
 				user: {
-					id: 'clx123citizen',
-					full_name: 'João da Silva',
-					phone: '11999999999',
+					report: {
+						id: 'clx123report',
+						title: 'Cobrança indevida',
+						transcription: 'Texto transcrito do atendimento',
+						simplified_explanation: 'Resumo simples para o cidadão',
+						legal_analysis: 'Análise jurídica detalhada do caso',
+						category_detected: 'Labor_and_employment',
+						status: 'Pending',
+						evidence: [
+							'https://storage.example.com/evidences/holerite-abril.pdf',
+							'https://storage.example.com/evidences/conversa-whatsapp.png',
+						],
+						citizen: {
+							full_name: 'Maria Oliveira',
+							phone: '+55 11 98888-7777',
+							email: 'maria.oliveira@adv.com',
+						},
+					},
 				},
-				reports: [],
-				caseRequests: [],
-				conversations: [],
 			},
 		},
 	})
