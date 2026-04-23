@@ -3,10 +3,12 @@ import { CitizenService } from '@modules/citizen/service/citizen.service';
 import { CitizenController } from '@modules/citizen/controllers/citizen.controller';
 import { PrismaModule } from '@m/prisma/prisma.module';
 import { AuthModule } from '@m/auth/module/auth.module'; 
+import { GetLawyersForCitizen } from '@m/citizen/controllers/getLawyersForCitizen.controller';
+import { ListLawyersForCitizens } from '@m/citizen/service/listLawyersForCitizens.service';
 
 @Module({
   imports: [AuthModule, PrismaModule],
-  providers: [CitizenService],
-  controllers: [CitizenController],
+  providers: [CitizenService, ListLawyersForCitizens],
+  controllers: [CitizenController, GetLawyersForCitizen],
 })
 export class CitizenModule {}
