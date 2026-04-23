@@ -1,7 +1,7 @@
 import { Controller, Headers, Post, Req, UseGuards } from '@nestjs/common';
 import { RefreshTokenService } from '@m/auth/service/refreshToken.service';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthTokenGuard } from '../guard/access-token.guard';
+import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { RequestUser, TokensPayload } from '@m/common/interfaces/interfaces';
 
 @ApiTags('Refresh')

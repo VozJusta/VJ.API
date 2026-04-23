@@ -8,7 +8,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import jwtConfig from '@m/auth/config/jwt.config';
-import { TokensPayload } from '../interfaces/interfaces';
+import { TokensPayload } from '@m/common/interfaces/interfaces';
 
 
 @Injectable()
