@@ -5,43 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-type JsonLike = Record<string, unknown>;
-
-function formatCaseDossierDates(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item) => formatCaseDossierDates(item));
-  }
-
-  if (value && typeof value === 'object') {
-    const entries = Object.entries(value as JsonLike);
-    const formatted: JsonLike = {};
-
-    for (const [key, entryValue] of entries) {
-      if (key === 'updated_at') {
-        continue;
-      }
-
-      if (key === 'created_at' && entryValue) {
-        const parsedDate =
-          entryValue instanceof Date
-            ? entryValue
-            : new Date(entryValue as string);
-
-        formatted[key] = Number.isNaN(parsedDate.getTime())
-          ? entryValue
-          : parsedDate.toISOString().split('T')[0];
-        continue;
-      }
-
-      formatted[key] = formatCaseDossierDates(entryValue);
-    }
-
-    return formatted;
-  }
-
-  return value;
-}
-
 @Injectable()
 export class FindCaseById {
   constructor(private readonly prisma: PrismaService) {}
@@ -67,95 +30,28 @@ export class FindCaseById {
             { caseRequests: { some: { lawyer_id: userId } } },
           ],
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              full_name: true,
-              phone: true,
-            },
-          },
-          lawyer: {
-            select: {
-              id: true,
-              full_name: true,
-              phone: true,
-              bio: true,
-              specialization: true,
-              oab_number: true,
-              oab_state: true,
-            },
-          },
-          conversations: {
-            orderBy: { created_at: 'asc' },
-            select: {
-              id: true,
-              is_closed: true,
-              created_at: true,
-              messages: {
-                orderBy: { created_at: 'asc' },
-                select: {
-                  id: true,
-                  role: true,
-                  content: true,
-                  created_at: true,
-                },
-              },
-            },
-          },
+        select: {
+          title: true,
+          status: true,
           reports: {
             orderBy: { created_at: 'desc' },
+            take: 1,
             select: {
               id: true,
               transcription: true,
-              normalized_text: true,
-              legal_analysis: true,
               simplified_explanation: true,
+              legal_analysis: true,
               category_detected: true,
-              confidence_score: true,
-              created_at: true,
-              user: {
-                select: {
-                  id: true,
-                  full_name: true,
-                },
-              },
-              lawyer: {
-                select: {
-                  id: true,
-                  full_name: true,
-                  phone: true,
-                },
-              },
               evidence: {
                 select: {
-                  id: true,
                   file_url: true,
-                  ocr_content: true,
-                  embedding: true,
                 },
               },
-              ai_versions: {
-                orderBy: { created_at: 'desc' },
+              user: {
                 select: {
-                  id: true,
-                  model: true,
-                  provider: true,
-                  prompt: true,
-                  response: true,
-                  tokens_used: true,
-                  latency_ms: true,
-                  created_at: true,
-                },
-              },
-              ragContexts: {
-                orderBy: { created_at: 'desc' },
-                select: {
-                  id: true,
-                  source: true,
-                  content: true,
-                  score: true,
-                  created_at: true,
+                  full_name: true,
+                  phone: true,
+                  email: true,
                 },
               },
             },
@@ -167,7 +63,32 @@ export class FindCaseById {
         throw new NotFoundException('Caso não encontrado');
       }
 
-      return formatCaseDossierDates(allInfoCase);
+      const [latestReport] = allInfoCase.reports;
+
+      if (!latestReport) {
+        throw new NotFoundException('Relatório não encontrado para o caso');
+      }
+
+      return {
+        role: 'Lawyer',
+        user: {
+          report: {
+            id: latestReport.id,
+            title: allInfoCase.title,
+            transcription: latestReport.transcription,
+            simplified_explanation: latestReport.simplified_explanation,
+            legal_analysis: latestReport.legal_analysis,
+            category_detected: latestReport.category_detected,
+            status: allInfoCase.status,
+            evidence: latestReport.evidence.map((item) => item.file_url),
+            citizen: {
+              full_name: latestReport.user.full_name,
+              phone: latestReport.user.phone,
+              email: latestReport.user.email,
+            },
+          },
+        },
+      };
     }
 
     throw new BadRequestException('Role inválida');
