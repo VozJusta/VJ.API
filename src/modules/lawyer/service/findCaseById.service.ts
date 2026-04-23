@@ -47,7 +47,7 @@ export class FindCaseById {
                   file_url: true,
                 },
               },
-              user: {
+              citizen: {
                 select: {
                   full_name: true,
                   phone: true,
@@ -82,9 +82,9 @@ export class FindCaseById {
             status: allInfoCase.status,
             evidence: latestReport.evidence.map((item) => item.file_url),
             citizen: {
-              full_name: latestReport.user.full_name,
-              phone: latestReport.user.phone,
-              email: latestReport.user.email,
+              full_name: latestReport.citizen.full_name,
+              phone: latestReport.citizen.phone,
+              email: latestReport.citizen.email,
             },
           },
         },

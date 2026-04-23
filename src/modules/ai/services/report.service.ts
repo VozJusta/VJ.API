@@ -33,7 +33,7 @@ export class ReportService implements OnModuleInit {
         const newCase = await this.prisma.case.create({
             data: {
                 title: firstMessage.message.slice(0, 60),
-                user_id: userId,
+                citizen_id: userId,
                 status: 'Pending'
             }
         })
@@ -200,7 +200,7 @@ export class ReportService implements OnModuleInit {
                 legal_analysis: '',
                 simplified_explanation: '',
                 category_detected: area,
-                user_id: userId,
+                citizen_id: userId,
                 caseId: caseId,
             }
         });

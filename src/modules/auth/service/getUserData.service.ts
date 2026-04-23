@@ -22,7 +22,7 @@ export class GetUserDataService {
             session_id: true,
             subscription: {
               where: {
-                user_id: sub,
+                citizen_id: sub,
               },
               select: {
                 plan: {
