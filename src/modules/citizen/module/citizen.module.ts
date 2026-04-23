@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CitizenService } from '@m/user/service/citizen.service';
-import { CitizenController } from '@m/user/controllers/citizen.controller';
+import { CitizenService } from '@modules/citizen/service/citizen.service';
+import { CitizenController } from '@modules/citizen/controllers/citizen.controller';
 import { PrismaModule } from '@m/prisma/prisma.module';
 import { AuthModule } from '@m/auth/module/auth.module'; 
 
