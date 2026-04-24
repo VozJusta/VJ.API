@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CitizenModule } from '@m/user/module/citizen.module';
+import { CitizenModule } from '@modules/citizen/module/citizen.module';
 import { LawyerModule } from '@m/lawyer/module/lawyer.module';
 import { ValidationModule } from '@m/validation/module/validation.module';
 import { AuthModule } from '@m/auth/module/auth.module';

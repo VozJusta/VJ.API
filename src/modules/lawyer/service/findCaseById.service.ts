@@ -9,6 +9,19 @@ import {
 export class FindCaseById {
   constructor(private readonly prisma: PrismaService) {}
 
+  private formatDateTime(date: Date) {
+    const pad = (value: number) => value.toString().padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
   async findCase(userId: string, role: string, caseId: string) {
     const userRole = role.toLowerCase();
 
@@ -33,6 +46,14 @@ export class FindCaseById {
         select: {
           title: true,
           status: true,
+          caseRequests: {
+            where: { lawyer_id: userId },
+            orderBy: { created_at: 'desc' },
+            take: 1,
+            select: {
+              created_at: true,
+            },
+          },
           reports: {
             orderBy: { created_at: 'desc' },
             take: 1,
@@ -64,6 +85,10 @@ export class FindCaseById {
       }
 
       const [latestReport] = allInfoCase.reports;
+      const [latestCaseRequest] = allInfoCase.caseRequests;
+      const formattedRequestCreatedAt = latestCaseRequest
+        ? this.formatDateTime(latestCaseRequest.created_at)
+        : null;
 
       if (!latestReport) {
         throw new NotFoundException('Relatório não encontrado para o caso');
@@ -80,6 +105,7 @@ export class FindCaseById {
             legal_analysis: latestReport.legal_analysis,
             category_detected: latestReport.category_detected,
             status: allInfoCase.status,
+            created_at: formattedRequestCreatedAt,
             evidence: latestReport.evidence.map((item) => item.file_url),
             citizen: {
               full_name: latestReport.citizen.full_name,

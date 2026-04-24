@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
-import { CitizenService } from '@m/user/service/citizen.service';
-import { CreateUserDTO } from '@m/user/dto/create-user.dto';
+import { CitizenService } from '@modules/citizen/service/citizen.service';
+import { CreateCitizenDTO } from '@modules/citizen/dto/create-citizen.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 
@@ -57,7 +57,19 @@ export class CitizenController {
       },
     },
   })
-  async createCitizen(@Body() body: CreateUserDTO) {
+  @ApiResponse({
+    status: 401,
+    description: 'Usuário já cadastrado como advogado.',
+  })
+  @ApiResponse({
+    status: 406,
+    description: 'CPF inválido.',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Cidadão já cadastrado.',
+  })
+  async createCitizen(@Body() body: CreateCitizenDTO) {
     return await this.citizenService.create(body);
   }
 }
