@@ -19,7 +19,7 @@ export class FindLawyerForCitizen {
       }
 
       const allInfoLawyer = await this.prisma.lawyer.findFirst({
-        where: { id: lawyerId },
+        where: { id: lawyerId, lawyer_status: 'Verified' },
         select: {
           id: true,
           full_name: true,
