@@ -33,13 +33,7 @@ export class ListLawyersForCitizens {
         },
       });
 
-      return findAllLawers.map((lawyer) => ({
-        id: lawyer.id,
-        fullName: lawyer.full_name,
-        specialization: lawyer.specialization ?? '',
-        avatar_url: lawyer.avatar_image ?? '',
-        rating: lawyer.rating ? Number(lawyer.rating) : 0,
-      }));
+      return findAllLawers;
     }
 
     throw new BadRequestException('Role inválida');
