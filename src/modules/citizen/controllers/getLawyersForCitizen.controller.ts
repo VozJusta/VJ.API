@@ -7,6 +7,7 @@ import {
     ApiBearerAuth,
     ApiHeader,
     ApiOperation,
+    ApiQuery,
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
@@ -27,7 +28,20 @@ export class GetLawyersForCitizen {
     @ApiOperation({
         summary: 'Lista todos os advogados verificados',
         description:
-            'Retorna todos os advogados com status Verified para o cidadão autenticado.',
+            'Retorna os advogados com status Verified para o cidadão autenticado, com paginação.',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        description: 'Número da página da listagem paginada.',
+        schema: { type: 'integer', minimum: 1, default: 1 },
+    })
+    @ApiQuery({
+        name: 'pageSize',
+        required: false,
+        description:
+            'Quantidade de advogados por página. O valor está sujeito ao limite máximo definido pelo backend.',
+        schema: { type: 'integer', minimum: 1, default: 5 },
     })
     @ApiResponse({
         status: 200,
