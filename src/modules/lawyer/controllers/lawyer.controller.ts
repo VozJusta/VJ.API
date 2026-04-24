@@ -63,9 +63,17 @@ export class LawyerController {
       },
     },
   })
-  @ApiResponse({
+@ApiResponse({
     status: 400,
     description: 'Dados inválidos para criação de advogado.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Usuário já cadastrado como cidadão.',
+  })
+  @ApiResponse({
+    status: 406,
+    description: 'CPF inválido.',
   })
   @ApiResponse({
     status: 409,

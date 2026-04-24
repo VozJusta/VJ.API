@@ -57,6 +57,18 @@ export class CitizenController {
       },
     },
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Usuário já cadastrado como advogado.',
+  })
+  @ApiResponse({
+    status: 406,
+    description: 'CPF inválido.',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Cidadão já cadastrado.',
+  })
   async createCitizen(@Body() body: CreateCitizenDTO) {
     return await this.citizenService.create(body);
   }
