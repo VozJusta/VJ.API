@@ -69,7 +69,7 @@ export class LawyerRequestsStatusService {
         category_detected:
           caseRequest.case.reports[0]?.category_detected ?? null,
         statusCase: caseRequest.status,
-        reportId: caseRequest.case.reports[0]?.id,
+        reportId: caseRequest.case.reports[0]?.id ?? null,
         created_at: caseRequest.created_at.toISOString().split('T')[0],
       }));
     }
