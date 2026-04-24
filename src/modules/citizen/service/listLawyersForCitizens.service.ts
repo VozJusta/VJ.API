@@ -33,7 +33,13 @@ export class ListLawyersForCitizens {
         },
       });
 
-      return findAllLawers;
+      return findAllLawers.map((lawyer) => ({
+        ...lawyer,
+        rating:
+          lawyer.rating === null || lawyer.rating === undefined
+            ? lawyer.rating
+            : lawyer.rating.toNumber(),
+      }));
     }
 
     throw new BadRequestException('Role inválida');
