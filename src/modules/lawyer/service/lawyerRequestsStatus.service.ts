@@ -50,8 +50,9 @@ export class LawyerRequestsStatusService {
           },
           case: {
             select: {
+              title: true,
               reports: {
-                select: { category_detected: true },
+                select: { category_detected: true, id: true },
                 orderBy: { created_at: 'desc' },
                 take: 1,
               },
@@ -63,9 +64,12 @@ export class LawyerRequestsStatusService {
 
       return caseRequestsByStatus.map((caseRequest) => ({
         id: caseRequest.id,
+        title: caseRequest.case.title,
         clientName: caseRequest.citizen.full_name,
-        category_detected: caseRequest.case.reports[0]?.category_detected ?? null,
+        category_detected:
+          caseRequest.case.reports[0]?.category_detected ?? null,
         statusCase: caseRequest.status,
+        reportId: caseRequest.case.reports[0]?.id ?? null,
         created_at: caseRequest.created_at.toISOString().split('T')[0],
       }));
     }

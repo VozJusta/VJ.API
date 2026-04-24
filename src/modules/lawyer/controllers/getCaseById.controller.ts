@@ -51,6 +51,7 @@ export class GetCaseByIdController {
             legal_analysis: 'Análise jurídica detalhada do caso',
             category_detected: 'Labor_and_employment',
             status: 'Pending',
+            created_at: '2026-04-23 14:35:10',
             evidence: [
               'https://storage.example.com/evidences/holerite-abril.pdf',
               'https://storage.example.com/evidences/conversa-whatsapp.png',
