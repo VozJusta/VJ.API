@@ -2,22 +2,8 @@ import { ListLawyersForCitizens } from '@m/citizen/service/listLawyersForCitizen
 import { RequestUser } from '@m/common/interfaces/interfaces';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import {
-    ApiBearerAuth,
-    ApiHeader,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from '@nestjs/swagger';
 
 @Controller('lawyers')
-@ApiTags('Citizen')
-@ApiBearerAuth()
-@ApiHeader({
-    name: 'Authorization',
-    description: 'Token JWT recebido no login no formato "Bearer <token>"',
-    required: true,
-})
 export class GetLawyersForCitizen {
     constructor(private readonly listLawyers: ListLawyersForCitizens) {}
 
