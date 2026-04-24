@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
-import { CreateUserDTO } from '@m/user/dto/create-user.dto';
+import { CreateCitizenDTO } from '@modules/citizen/dto/create-citizen.dto';
 import { hash } from 'bcryptjs';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
 import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
@@ -21,7 +21,7 @@ export class CitizenService {
     private readonly validateCnpj: CnpjNumberValidation,
   ) {}
 
-  async create(body: CreateUserDTO) {
+  async create(body: CreateCitizenDTO) {
     const lawyer = await this.prisma.lawyer.findFirst({
       where: { email: body.email },
     });

@@ -44,9 +44,11 @@ export class LawyerRequestController {
       example: [
         {
           id: 'clx123caserequest',
+          title: 'Problema trabalhista com empresa',
           clientName: 'João da Silva',
           category_detected: 'Civil',
           statusCase: 'Pending',
+          reportId: 'clx123report',
           created_at: '2026-04-22',
         },
       ],

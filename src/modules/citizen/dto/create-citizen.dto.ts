@@ -11,7 +11,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BillingType } from 'generated/prisma/enums';
 
-export class CreateUserDTO {
+export class CreateCitizenDTO {
   @ApiProperty({
     example: 'Pedro Sales',
     description: 'Nome completo do cidadao',

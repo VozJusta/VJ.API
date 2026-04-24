@@ -58,7 +58,7 @@ export class AcceptCaseRequestController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Token ausente, inválido ou expirado.',
+    description: 'Token ausente, inválido, expirado ou sem permissão para aceitar a solicitação.',
   })
   @ApiResponse({
     status: 404,
