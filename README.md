@@ -176,7 +176,7 @@ Use o mesmo host da API e conecte no namespace:
 ```ts
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/simulation', {
+const socket = io('http://link-api/simulation', {
 	transports: ['websocket'],
 });
 ```
