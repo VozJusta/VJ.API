@@ -18,7 +18,7 @@ export class SimulationChatService {
     });
 
     if (simulation.status !== 'InProgress') {
-      throw new BadRequestException('Simulação não está em andamento');
+      throw new BadRequestException('Simulação não está em andamento ou já foi encerrada');
     }
 
     const ragContexts = await this.rag.retrieve(dto.text);
