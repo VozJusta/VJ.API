@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { Personality } from 'generated/prisma/enums';
 
 export interface RequestUser extends Request {
   user: {

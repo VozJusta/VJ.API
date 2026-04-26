@@ -10,10 +10,27 @@ import { AiModule } from '@m/ai/module/ai.module';
 import { DashboardModule } from '@m/dashboard/module/dashboard.module';
 import { RouterModule } from '@nestjs/core';
 import { AppController } from './app.controller';
+import { SimulationModule } from '@modules/simulations/simulation.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: () => ({
+        redis: {
+          host: 'natural-lobster-107305.upstash.io',
+          port: 6379,
+          password: process.env.UPSTASH_PASSWORD,
+          tls: {
+            rejectUnauthorized: false,
+          },
+          maxRetriesPerRequest: null, 
+          enableReadyCheck: false,    
+        },
+      }),
+    }),
     CitizenModule,
     LawyerModule,
     ValidationModule,
@@ -22,6 +39,7 @@ import { AppController } from './app.controller';
     SmsModule,
     AiModule,
     DashboardModule,
+    SimulationModule,
     RouterModule.register([
       {
         path: '/auth',
@@ -31,8 +49,12 @@ import { AppController } from './app.controller';
         path: '/dashboard',
         module: DashboardModule,
       },
+      {
+        path: '/simulation',
+        module: SimulationModule,
+      },
     ]),
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

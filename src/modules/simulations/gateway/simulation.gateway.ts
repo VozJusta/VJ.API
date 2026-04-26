@@ -64,7 +64,7 @@ export class SimulationGateway implements OnGatewayDisconnect {
 
     @OnEvent('simulation.report.ready')
     handleReportReady(body: ReportReadyDTO) {
-        const socketId = this.userMap.get(body.userId);
+        const socketId = this.userMap.get(body.citizenId);
         if (!socketId) return;
 
         this.server.to(socketId).emit('simulation:report', {
@@ -72,7 +72,7 @@ export class SimulationGateway implements OnGatewayDisconnect {
             reportId: body.reportId,
         });
 
-        this.userMap.delete(body.userId);
+        this.userMap.delete(body.citizenId);
     }
 
     private async finishSimulation(

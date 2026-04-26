@@ -9,6 +9,8 @@ import { AuthModule } from "@modules/auth/module/auth.module";
 import { AiModule } from "@modules/ai/module/ai.module";
 import { SimulationGateway } from "./gateway/simulation.gateway";
 import { ReportProcessor } from "./processors/report.processor";
+import { SimulationChatService } from "./services/chat.service";
+import { SimulationController } from "./controllers/simulation.controller";
 
 @Global()
 @Module({
@@ -24,7 +26,9 @@ import { ReportProcessor } from "./processors/report.processor";
         SimulationService,
         SimulationGateway,
         ReportProcessor,
+        ReportService,
+        SimulationChatService,
     ],
-    controllers: [],
+    controllers: [SimulationController],
 })
 export class SimulationModule { }
