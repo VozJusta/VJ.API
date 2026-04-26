@@ -24,3 +24,7 @@ export interface TokensPayload extends tokenTypes {
   loggedWithGoogle?: boolean;
   registerCompleted?: boolean;
 }
+
+export interface GenerateReportJob {
+  simulationId: string;
+}
