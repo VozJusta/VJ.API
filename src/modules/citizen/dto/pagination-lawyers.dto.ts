@@ -12,5 +12,5 @@ export class PaginationLawyersDTO {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  pageSize?: number = 5;
+  pageSize?: number = 2;
 }
