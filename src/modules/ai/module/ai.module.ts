@@ -11,6 +11,7 @@ import { IngestionController } from '@m/ai/controller/ingestion.controller';
 import { PdfService } from '@m/ai/services/pdf.service';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { TtsService } from '../services/tts.service';
 
 @Global()
 @Module({
@@ -22,6 +23,7 @@ import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
     LlmService,
     IngestionService,
     PdfService,
+    TtsService,
   ],
   controllers: [ReportController, IngestionController],
   exports: [
@@ -30,6 +32,7 @@ import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
     ReportService,
     LlmService,
     IngestionService,
+    TtsService,
   ],
 })
 export class AiModule {}

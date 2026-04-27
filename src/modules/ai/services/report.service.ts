@@ -28,7 +28,7 @@ export class ReportService implements OnModuleInit {
         private prisma: PrismaService
     ) { }
 
-    
+
     async startConversation(firstMessage: StartConversationDTO, userId: string) {
         const newCase = await this.prisma.case.create({
             data: {
@@ -171,6 +171,41 @@ export class ReportService implements OnModuleInit {
             throw new InternalServerErrorException('Erro ao transcrever o áudio: ' + error);
         }
     }
+
+    async generate(simulationId: string) {
+        const simulation = await this.prisma.simulation.findUniqueOrThrow({
+            where: { id: simulationId },
+            include: { turns: { orderBy: { created_at: 'asc' } } },
+        });
+
+        const transcript = simulation.turns
+            .map(t => `${t.role === 'User' ? 'Usuário' : 'IA'}: ${t.content}`)
+            .join('\n');
+
+        const evaluation = await this.llmService.evaluateSimulation({
+            transcript,
+            personality: simulation.personality,
+        });
+
+        return this.prisma.simulationReport.create({
+            data: {
+                simulation_id: simulationId,
+                user_id: simulation.citizen_id,
+                full_transcript: simulation.turns.map(t => ({
+                    role: t.role,
+                    content: t.content,
+                    created_at: t.created_at,
+                })),
+                score: evaluation.score,
+                strengths: evaluation.strengths,
+                weaknesses: evaluation.weaknesses,
+                metrics_json: evaluation.metrics,
+                duration_secs: simulation.duration_secs,
+                personality: simulation.personality,
+            },
+        });
+    }
+
 
     async generateReportFromConversation(
         conversationId: string,

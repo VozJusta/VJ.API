@@ -20,7 +20,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@deepgram/sdk": "^5.0.0",
     "@isaacs/brace-expansion": "^5.0.1",
     "@langchain/anthropic": "^1.3.17",
     "@langchain/core": "^1.1.24",
@@ -54,6 +53,7 @@
     "handlebars": "^4.7.8",
     "ioredis": "^5.10.1",
     "langchain": "^1.2.24",
+    "msedge-tts": "^2.0.5",
     "multer": "^2.1.1",
     "openai": "^6.34.0",
     "passport": "^0.7.0",

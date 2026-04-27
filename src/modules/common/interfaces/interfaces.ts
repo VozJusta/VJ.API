@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { Personality } from 'generated/prisma/enums';
 
 export interface RequestUser extends Request {
   user: {
@@ -23,4 +24,8 @@ export interface tokenTypes {
 export interface TokensPayload extends tokenTypes {
   loggedWithGoogle?: boolean;
   registerCompleted?: boolean;
+}
+
+export interface GenerateReportJob {
+  simulationId: string;
 }
