@@ -79,6 +79,6 @@ export class AuthenticateGoogleLawyerService {
       registerCompleted: String(registerCompleted),
     });
 
-    return `seuapp://auth?${params.toString()}`;
+    return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
   }
 }

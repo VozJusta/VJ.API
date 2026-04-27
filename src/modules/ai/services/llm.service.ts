@@ -103,7 +103,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
@@ -151,7 +151,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
@@ -204,7 +204,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'system', content: systemPrompt },
                         { role: 'user', content: userPrompt },
@@ -254,7 +254,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' },

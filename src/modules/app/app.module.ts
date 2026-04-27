@@ -20,12 +20,12 @@ import { BullModule } from '@nestjs/bull';
       imports: [ConfigModule],
       useFactory: () => ({
         redis: {
-          host: 'natural-lobster-107305.upstash.io',
+          host: process.env.UPSTASH_URL,
           port: 6379,
           password: process.env.UPSTASH_PASSWORD,
           tls: {
             rejectUnauthorized: false,
-          },
+          },  
           maxRetriesPerRequest: null, 
           enableReadyCheck: false,    
         },
