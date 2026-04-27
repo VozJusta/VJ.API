@@ -12,16 +12,6 @@ export class SimulationService {
         @InjectQueue('simulation-reports') private readonly reportQueue: Queue,
     ) { }
 
-    async create(body: CreateSimulationDTO, sub: string) {
-        return await this.prisma.simulation.create({
-            data: {
-                citizen_id: sub,
-                personality: body.personality,
-                report_id: body.reportId,
-            }
-        })
-    }
-
     async start(body: StartSimulationDto) {
         return this.prisma.simulation.update({
             where: { id: body.simulationId },

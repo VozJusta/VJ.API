@@ -13,6 +13,8 @@ import { SimulationChatService } from "./services/chat.service";
 import { SimulationController } from "./controllers/simulation.controller";
 import { GeneratePdfService } from "./services/generate-pdf.service";
 import { GeneratePdfController } from "./controllers/generate-pdf.controller";
+import { CreateSimulationService } from "./services/create-simulation.service";
+import { CreateSimulationController } from "./controllers/create-simulation.controller";
 
 @Global()
 @Module({
@@ -22,7 +24,6 @@ import { GeneratePdfController } from "./controllers/generate-pdf.controller";
         PrismaModule, 
         BullModule.registerQueue({ name: 'simulation-reports' }), 
         EventEmitterModule.forRoot(),
-
     ],
     providers: [
         SimulationService,
@@ -31,10 +32,12 @@ import { GeneratePdfController } from "./controllers/generate-pdf.controller";
         ReportService,
         GeneratePdfService,
         SimulationChatService,
+        CreateSimulationService,
     ],
     controllers: [
         SimulationController,
-        GeneratePdfController
+        GeneratePdfController,
+        CreateSimulationController
     ],
 })
 export class SimulationModule { }
