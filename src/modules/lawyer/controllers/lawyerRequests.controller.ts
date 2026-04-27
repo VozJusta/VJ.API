@@ -69,6 +69,7 @@ export class LawyerRequestController {
               clientName: { type: 'string', example: 'João da Silva' },
               category_detected: { type: 'string', example: 'Civil' },
               statusCase: { type: 'string', example: 'Pending' },
+              caseId: { type: 'string', example: 'clx123case' },
               reportId: { type: 'string', example: 'clx123report' },
               created_at: { type: 'string', example: '2026-04-22' },
             },
