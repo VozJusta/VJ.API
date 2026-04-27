@@ -7,10 +7,22 @@ import { GetLawyersForCitizen } from '@m/citizen/controllers/getLawyersForCitize
 import { ListLawyersForCitizens } from '@m/citizen/service/listLawyersForCitizens.service';
 import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
 import { GetOneLawyerForCitizen } from '../controllers/getOneLawyerForCitizen.controller';
+import { CreateCaseRequest } from '../service/createCaseRequest.service';
+import { PostCaseRequestController } from '../controllers/postCaseRequest.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule],
-  providers: [CitizenService, ListLawyersForCitizens, FindLawyerForCitizen],
-  controllers: [CitizenController, GetLawyersForCitizen, GetOneLawyerForCitizen],
+  providers: [
+    CitizenService,
+    ListLawyersForCitizens,
+    FindLawyerForCitizen,
+    CreateCaseRequest,
+  ],
+  controllers: [
+    CitizenController,
+    GetLawyersForCitizen,
+    GetOneLawyerForCitizen,
+    PostCaseRequestController,
+  ],
 })
 export class CitizenModule {}
