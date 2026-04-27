@@ -37,11 +37,6 @@ export class SimulationController {
                     type: 'string',
                     description: 'Perfil de personalidade da audiência',
                 },
-                reportId: {
-                    type: 'string',
-                    description: 'Identificador opcional do report associado',
-                    nullable: true,
-                },
             },
             required: ['personality'],
         },
