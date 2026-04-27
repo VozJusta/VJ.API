@@ -59,15 +59,48 @@ export class PostCaseRequestController {
 	})
 	@ApiResponse({
 		status: 400,
-		description: 'Role inválida ou requisição duplicada.',
+		description: 'Role inválida.',
+		schema: {
+			example: {
+				statusCode: 400,
+				message: 'Role inválida',
+				error: 'Bad Request',
+			},
+		},
 	})
 	@ApiResponse({
 		status: 401,
 		description: 'Token ausente, inválido ou expirado.',
+		schema: {
+			example: {
+				statusCode: 401,
+				message: 'Token está ausente, inválido ou expirado',
+				error: 'Unauthorized',
+			},
+		},
 	})
 	@ApiResponse({
 		status: 404,
 		description: 'Cidadão, advogado ou caso não encontrado.',
+		schema: {
+			example: {
+				statusCode: 404,
+				message: 'Caso não encontrado',
+				error: 'Not Found',
+			},
+		},
+	})
+	@ApiResponse({
+		status: 409,
+		description: 'Já existe uma solicitação para este advogado neste caso.',
+		schema: {
+			example: {
+				statusCode: 409,
+				message:
+					'Já existe uma solicitação para este advogado neste caso',
+				error: 'Conflict',
+			},
+		},
 	})
 	async createCaseRequestHandler(
 		@Param('caseId') caseId: string,
