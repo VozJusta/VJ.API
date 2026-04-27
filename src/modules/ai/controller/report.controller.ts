@@ -32,37 +32,6 @@ export class ReportController {
         private pdfService: PdfService,
     ) { }
 
-    @Post('conversation/start')
-    @ApiOperation({ summary: 'Inicia a conversa para coleta de dados do caso jurídico' })
-    @ApiBody({
-        description: 'Primeira mensagem do usuário descrevendo o caso',
-        type: StartConversationDTO,
-        examples: {
-            default: {
-                summary: 'Mensagem inicial',
-                value: {
-                    message: 'O cliente sofreu uma cobrança indevida no cartão de crédito e não conseguiu estorno no banco.'
-                }
-            }
-        }
-    })
-    @ApiResponse({
-        status: 201,
-        description: 'Conversa iniciada com sucesso.',
-        schema: {
-            example: {
-                conversationId: 'clx123conversation',
-                caseId: 'clx123case',
-                question: 'Entendi. Você possui comprovantes da cobrança e registros de contato com o banco?',
-                finished: false
-            }
-        }
-    })
-    @ApiResponse({ status: 401, description: 'Não autorizado (Token ausente ou inválido).' })
-    async create(@Body() firstMessage: StartConversationDTO, @Req() req: RequestUser) {
-        return await this.reportService.startConversation(firstMessage, req.user.sub)
-    }
-
     @Post('conversation/continue')
     @ApiOperation({ summary: 'Continua a conversa e pode finalizar com geração do relatório' })
     @ApiBody({

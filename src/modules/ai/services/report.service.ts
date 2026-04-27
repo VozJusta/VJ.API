@@ -9,9 +9,6 @@ import { toFile } from 'groq-sdk/uploads';
 import { Groq } from "groq-sdk";
 import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
 
-
-const MAX_TURNS = 6;
-
 @Injectable()
 export class ReportService implements OnModuleInit {
     private groq!: Groq
@@ -26,56 +23,7 @@ export class ReportService implements OnModuleInit {
         private ragService: RagService,
         private llmService: LlmService,
         private prisma: PrismaService
-    ) { }
-
-
-    async startConversation(firstMessage: StartConversationDTO, userId: string) {
-        const newCase = await this.prisma.case.create({
-            data: {
-                title: firstMessage.message.slice(0, 60),
-                citizen_id: userId,
-                status: 'Pending'
-            }
-        })
-
-        const conversation = await this.prisma.conversation.create({
-            data: {
-                case_id: newCase.id,
-                messages: {
-                    create: {
-                        role: 'User',
-                        content: firstMessage.message,
-                    }
-                }
-            },
-            include: {
-                messages: true
-            }
-        })
-
-        const { shouldGenerate, questionOrAck } = await this.llmService.chat([
-            { role: 'User', content: firstMessage.message }
-        ])
-
-        await this.prisma.message.create({
-            data: {
-                conversation_id: conversation.id,
-                role: 'Assistant',
-                content: questionOrAck
-            }
-        })
-
-        if (shouldGenerate) {
-            await this.generateReportFromConversation(conversation.id, newCase.id, userId)
-        }
-
-        return {
-            conversationId: conversation.id,
-            caseId: newCase.id,
-            question: questionOrAck,
-            finished: false,
-        }
-    }
+    ) {}
 
     async continueConversation(continueConversation: ContinueConversationDto, userId: string) {
         const conversation = await this.prisma.conversation.findUnique({

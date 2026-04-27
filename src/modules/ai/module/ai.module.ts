@@ -12,6 +12,10 @@ import { PdfService } from '@m/ai/services/pdf.service';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
 import { TtsService } from '../services/tts.service';
+import { StartConversationController } from '../controller/start-conversation.controller';
+import { StartConversationService } from '../services/start-conversation.service';
+import { ContinueConversationService } from '../services/continue-conversation.service';
+import { ContinueConversationController } from '../controller/continue-conversation.controller';
 
 @Global()
 @Module({
@@ -24,8 +28,10 @@ import { TtsService } from '../services/tts.service';
     IngestionService,
     PdfService,
     TtsService,
+    StartConversationService,
+    ContinueConversationService,
   ],
-  controllers: [ReportController, IngestionController],
+  controllers: [ReportController, IngestionController, StartConversationController, ContinueConversationController],
   exports: [
     EmbeddingsService,
     RagService,

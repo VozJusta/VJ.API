@@ -53,6 +53,10 @@ import { BullModule } from '@nestjs/bull';
         path: '/simulation',
         module: SimulationModule,
       },
+      {
+        path: '/report',
+        module: AiModule,
+      },
     ]),
   ],
   controllers: [AppController],
