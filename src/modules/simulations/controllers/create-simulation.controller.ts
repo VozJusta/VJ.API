@@ -38,6 +38,21 @@ export class CreateSimulationController {
             },
         },
     })
+    @ApiResponse({
+        status: 400,
+        description: 'Erro de validação: Campo personality é obrigatório',
+        schema: {
+            example: {
+                message: ['personality must be a string'],
+                error: 'Bad Request',
+                statusCode: 400,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Não autenticado',
+    })
     async create(@Body() body: CreateSimulationDTO, @Req() req: RequestUser) {
         return await this.createSimulationService.create(body, req.user.sub)
     }

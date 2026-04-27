@@ -44,6 +44,31 @@ export class SimulationController {
         status: 200,
         schema: { example: { text: 'Poderia detalhar melhor os fatos ocorridos?' } },
     })
+    @ApiResponse({
+        status: 400,
+        description: 'Erro de validação: Simulação não está em andamento ou já foi encerrada',
+        schema: {
+            example: {
+                message: 'Simulação não está em andamento ou já foi encerrada',
+                error: 'Bad Request',
+                statusCode: 400,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Simulação não encontrada',
+        schema: {
+            example: {
+                message: 'An instance of Simulation was not found',
+                statusCode: 404,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Não autenticado',
+    })
     async chat(@Body() dto: SimulationChatDto) {
         const text = await this.simulationChat.chat(dto);
         return { text };
@@ -62,6 +87,31 @@ export class SimulationController {
         },
     })
     @ApiResponse({ status: 200, description: 'Áudio MP3 gerado com sucesso.' })
+    @ApiResponse({
+        status: 400,
+        description: 'Erro de validação: Texto inválido ou vazio',
+        schema: {
+            example: {
+                message: 'Texto é obrigatório',
+                error: 'Bad Request',
+                statusCode: 400,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 500,
+        description: 'Erro ao sintetizar áudio (TTS Service)',
+        schema: {
+            example: {
+                message: 'Erro ao sintetizar áudio',
+                statusCode: 500,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Não autenticado',
+    })
     async synthesize(@Body() dto: SynthesizeDto, @Res() res: Response) {
         const audioBuffer = await this.tts.synthesize(dto.text);
 
