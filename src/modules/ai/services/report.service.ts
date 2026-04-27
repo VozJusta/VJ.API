@@ -9,168 +9,48 @@ import { toFile } from 'groq-sdk/uploads';
 import { Groq } from "groq-sdk";
 import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
 
-
-const MAX_TURNS = 6;
-
 @Injectable()
-export class ReportService implements OnModuleInit {
-    private groq!: Groq
-
-    onModuleInit() {
-        this.groq = new Groq({
-            apiKey: process.env.GROQ_API_KEY
-        })
-    }
-
+export class ReportService {
     constructor(
         private ragService: RagService,
         private llmService: LlmService,
         private prisma: PrismaService
-    ) { }
+    ) {}
 
-    
-    async startConversation(firstMessage: StartConversationDTO, userId: string) {
-        const newCase = await this.prisma.case.create({
-            data: {
-                title: firstMessage.message.slice(0, 60),
-                citizen_id: userId,
-                status: 'Pending'
-            }
-        })
-
-        const conversation = await this.prisma.conversation.create({
-            data: {
-                case_id: newCase.id,
-                messages: {
-                    create: {
-                        role: 'User',
-                        content: firstMessage.message,
-                    }
-                }
-            },
-            include: {
-                messages: true
-            }
-        })
-
-        const { shouldGenerate, questionOrAck } = await this.llmService.chat([
-            { role: 'User', content: firstMessage.message }
-        ])
-
-        await this.prisma.message.create({
-            data: {
-                conversation_id: conversation.id,
-                role: 'Assistant',
-                content: questionOrAck
-            }
-        })
-
-        if (shouldGenerate) {
-            await this.generateReportFromConversation(conversation.id, newCase.id, userId)
-        }
-
-        return {
-            conversationId: conversation.id,
-            caseId: newCase.id,
-            question: questionOrAck,
-            finished: false,
-        }
-    }
-
-    async continueConversation(continueConversation: ContinueConversationDto, userId: string) {
-        const conversation = await this.prisma.conversation.findUnique({
-            where: { id: continueConversation.conversationId },
-            include: { messages: { orderBy: { created_at: 'desc' } } }
+    async generate(simulationId: string) {
+        const simulation = await this.prisma.simulation.findUniqueOrThrow({
+            where: { id: simulationId },
+            include: { turns: { orderBy: { created_at: 'asc' } } },
         });
 
-        if (!conversation) throw new NotFoundException('Conversa não encontrada');
-        if (conversation.is_closed) throw new BadRequestException('Conversa já encerrada');
+        const transcript = simulation.turns
+            .map(t => `${t.role === 'User' ? 'Usuário' : 'IA'}: ${t.content}`)
+            .join('\n');
 
-        await this.prisma.message.create({
-            data: {
-                conversation_id: continueConversation.conversationId,
-                role: 'User',
-                content: continueConversation.message,
-            }
+        const evaluation = await this.llmService.evaluateSimulation({
+            transcript,
+            personality: simulation.personality,
         });
 
-        const allMessages = [
-            ...conversation.messages,
-            { role: 'User' as const, content: continueConversation.message }
-        ];
-
-        const userTurns = allMessages.filter(m => m.role === 'User').length;
-        const forcedGenerate = userTurns >= MAX_TURNS;
-
-        if (forcedGenerate) {
-            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
-        }
-
-        const { shouldGenerate, questionOrAck } = await this.llmService.chat(
-            allMessages.map(m => ({ role: m.role as 'User' | 'Assistant', content: m.content }))
-        );
-
-        await this.prisma.message.create({
+        return this.prisma.simulationReport.create({
             data: {
-                conversation_id: continueConversation.conversationId,
-                role: 'Assistant',
-                content: questionOrAck,
-            }
+                simulation_id: simulationId,
+                user_id: simulation.citizen_id,
+                full_transcript: simulation.turns.map(t => ({
+                    role: t.role,
+                    content: t.content,
+                    created_at: t.created_at,
+                })),
+                score: evaluation.score,
+                strengths: evaluation.strengths,
+                weaknesses: evaluation.weaknesses,
+                metrics_json: evaluation.metrics,
+                duration_secs: simulation.duration_secs,
+                personality: simulation.personality,
+            },
         });
-
-        if (shouldGenerate) {
-            return this.generateReportFromConversation(continueConversation.conversationId, conversation.case_id, userId);
-        }
-
-        return {
-            conversationId: conversation.id,
-            caseId: conversation.case_id,
-            question: questionOrAck,
-            finished: false,
-        };
     }
 
-    async getHistoryChat(id: string) {
-        const conversation = await this.prisma.conversation.findUnique({
-            where: {
-                id: id,
-            },
-            include: {
-                messages: true
-            },
-        })
-
-        if (!conversation) {
-            throw new NotFoundException('Conversa não encontrada')
-        }
-
-        return {
-            messages: conversation.messages
-        }
-    }
-
-    async transcribeAudio(file: TranscribeAudioDTO) {
-        try {
-            if (!file) {
-                throw new BadRequestException('Nenhum arquivo enviado');
-            }
-
-            const audioFile = await toFile(file.buffer, file.originalname, {
-                type: file.mimetype,
-            });
-
-            const response = await this.groq.audio.transcriptions.create({
-                file: audioFile,
-                model: 'whisper-large-v3',
-                language: 'pt',
-                response_format: 'text',
-            });
-
-            return response as unknown as string;
-        } catch (error) {
-            throw new InternalServerErrorException('Erro ao transcrever o áudio: ' + error);
-        }
-    }
 
     async generateReportFromConversation(
         conversationId: string,

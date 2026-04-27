@@ -200,21 +200,46 @@ model ValidationCode {
 }
 
 model Simulation {
-  id             String      @id @default(uuid())
-  citizen_id     String
-  citizen        Citizen     @relation(fields: [citizen_id], references: [id])
-  report_id      String?
-  report         Report?     @relation(fields: [report_id], references: [id])
-  personality    Personality
-  transcription  String
-  score_feedback String
+  id                String            @id @default(uuid())
+  citizen_id        String
+  citizen           Citizen           @relation(fields: [citizen_id], references: [id])
+  report_id         String?
+  report            Report?           @relation(fields: [report_id], references: [id])
+  personality       Personality
+  transcription     String?
+  score_feedback    String?
+  status            SimStatus?        @default(Waiting)
+  started_at        DateTime          @default(now())
+  ended_at          DateTime?
+  duration_secs     Int?
+  turns             SimulationTurn[]
+  simulation_report SimulationReport?
+}
+
+model SimulationTurn {
+  id            String     @id @default(uuid())
+  simulation_id String
+  simulation    Simulation @relation(fields: [simulation_id], references: [id])
+  role          TurnRole
+  content       String
+  audio_url     String?
+  created_at    DateTime   @default(now())
 }
 
 model SimulationReport {
-  id            String  @id @default(uuid())
-  transcription String
-  citizen_id    String  @unique
-  citizen       Citizen @relation(fields: [citizen_id], references: [id])
+  id              String      @id @default(uuid())
+  simulation_id   String      @unique
+  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
+  user_id         String
+  user            Citizen     @relation(fields: [user_id], references: [id])
+  full_transcript Json
+  score           Int?
+  strengths       String[]
+  weaknesses      String[]
+  metrics_json    Json?
+  duration_secs   Int?
+  personality     Personality
+  created_at      DateTime    @default(now())
 }
 
 model Evidence {
@@ -319,6 +344,18 @@ enum Status {
 enum Types {
   Email
   SMS
+}
+
+enum TurnRole {
+  User
+  Ai
+}
+
+enum SimStatus {
+  Waiting
+  InProgress
+  Completed
+  TimedOut
 }
 
 enum Personality {

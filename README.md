@@ -162,6 +162,55 @@ pnpm test:e2e      # Testes end-to-end
 
 ---
 
+# 🔌 WebSocket da Simulação
+
+O front end inicia o fluxo em duas etapas:
+
+1. Cria a simulação via HTTP em `POST /simulation` e guarda o `simulationId` retornado.
+2. Abre a conexão Socket.IO com o namespace `/simulation` e dispara o evento `simulation:start` com esse `simulationId`.
+
+## Conexão
+
+Use o mesmo host da API e conecte no namespace:
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('http://link-api/simulation', {
+	transports: ['websocket'],
+});
+```
+
+## Eventos do cliente
+
+- `simulation:start` com payload `{ simulationId: string }`
+- `simulation:stop` com payload `{ simulationId: string }`
+
+## Eventos do servidor
+
+- `simulation:started` com `{ simulationId }`
+- `simulation:warning` com `{ message, remainingSecs }`
+- `simulation:end` com `{ simulationId, status }`
+- `simulation:report` com `{ simulationId, reportId }`
+
+## Exemplo
+
+```ts
+socket.on('connect', () => {
+	socket.emit('simulation:start', { simulationId });
+});
+
+socket.on('simulation:warning', (data) => {
+	console.log('Aviso da audiência:', data);
+});
+
+socket.on('simulation:report', (data) => {
+	console.log('Report pronto:', data);
+});
+```
+
+---
+
 # 🛡️ Segurança e Compliance
 
 - **Criptografia** – Senhas hasheadas com **Argon2**  
