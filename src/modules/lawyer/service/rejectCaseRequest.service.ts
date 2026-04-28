@@ -5,10 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
+import { NotificationsService } from '../../notifications/service/notifications.service';
+import { NotificationType } from 'generated/prisma/client';
 
 @Injectable()
 export class RejectCaseRequest {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async rejectCaseRequest(userId: string, role: string, caseRequestId: string) {
     const userRole = role.toLowerCase();
@@ -47,6 +52,18 @@ export class RejectCaseRequest {
       await this.prisma.caseRequest.update({
         where: { id: caseRequestId },
         data: { status: 'Refused' },
+      });
+
+      await this.notificationsService.createNotification({
+        target: { role: 'Citizen', userId: caseRequest.citizen_id },
+        title: 'Solicitação de caso recusada',
+        body: `Sua solicitação para o caso "${caseRequest.case.title}" foi recusada.`,
+        type: NotificationType.CaseUpdate,
+        metadata: {
+          caseId: caseRequest.case_id,
+          caseRequestId,
+          lawyerId: userId,
+        },
       });
 
       return {

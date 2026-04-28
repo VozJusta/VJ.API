@@ -5,10 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
+import { NotificationsService } from '../../notifications/service/notifications.service';
+import { NotificationType } from 'generated/prisma/client';
 
 @Injectable()
 export class AcceptCaseRequest {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async acceptCaseRequest(userId: string, role: string, caseRequestId: string) {
     const userRole = role.toLowerCase();
@@ -23,7 +28,7 @@ export class AcceptCaseRequest {
         throw new NotFoundException('Advogado não encontrado');
       }
 
-      const { updatedCase } = await this.prisma.$transaction(async (prisma) => {
+      const { updatedCase, caseRequest } = await this.prisma.$transaction(async (prisma) => {
         const caseRequest = await prisma.caseRequest.findUnique({
           where: { id: caseRequestId },
           include: { case: true },
@@ -80,7 +85,19 @@ export class AcceptCaseRequest {
           throw new NotFoundException('Relatório do caso não encontrado');
         }
 
-        return { updatedCase };
+        return { updatedCase, caseRequest };
+      });
+
+      await this.notificationsService.createNotification({
+        target: { role: 'Citizen', userId: updatedCase.citizen_id },
+        title: 'Solicitação de caso aceita',
+        body: `Sua solicitação para o caso "${caseRequest.case.title}" foi aceita.`,
+        type: NotificationType.CaseUpdate,
+        metadata: {
+          caseId: updatedCase.id,
+          caseRequestId,
+          lawyerId: userId,
+        },
       });
 
       return {
