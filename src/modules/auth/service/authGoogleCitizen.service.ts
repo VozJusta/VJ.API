@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -27,6 +27,14 @@ export class AuthenticateGoogleCitizenService {
     const isNew = !citizen
 
     if (!citizen) {
+      const lawyer = await this.prisma.lawyer.findFirst({
+        where: { email: email }
+      })
+
+      if(lawyer) {
+        throw new ConflictException('Usuário já cadastrado')
+      }
+
       citizen = await this.prisma.citizen.create({
         data: {
           email: email,
