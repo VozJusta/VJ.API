@@ -31,6 +31,7 @@ model Citizen {
   validationCodes    ValidationCode[]
   cases              Case[]
   caseRequests       CaseRequest[]
+  notifications      Notification[]
 }
 
 model Lawyer {
@@ -55,6 +56,7 @@ model Lawyer {
   validationCodes    ValidationCode[]
   cases              Case[]
   caseRequests       CaseRequest[]
+  notifications      Notification[]
 }
 
 model Plan {
@@ -251,6 +253,24 @@ model Evidence {
   embedding   Json?
 }
 
+model Notification {
+  id         String           @id @default(uuid())
+  title      String
+  body       String
+  type       NotificationType
+  is_read    Boolean          @default(false)
+  metadata   Json?
+  citizen_id String?
+  lawyer_id  String?
+  citizen    Citizen?         @relation(fields: [citizen_id], references: [id])
+  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id])
+  created_at DateTime         @default(now())
+  read_at    DateTime?
+
+  @@index([citizen_id, created_at])
+  @@index([lawyer_id, created_at])
+}
+
 enum Specialization {
   Administrative
   Customs
@@ -395,4 +415,12 @@ enum OabState {
   SP
   SE
   TO
+}
+
+enum NotificationType {
+  System
+  CaseUpdate
+  ReportReady
+  Billing
+  Chat
 }
