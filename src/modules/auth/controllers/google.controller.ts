@@ -27,7 +27,7 @@ export class GoogleController {
     private readonly authenticateGoogleLawyerService: AuthenticateGoogleLawyerService,
   ) {}
 
-  @Get('google')
+  @Get()
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Inicia autenticação OAuth com Google' })
   @ApiQuery({
@@ -42,7 +42,7 @@ export class GoogleController {
   })
   async googleLogin() {}
 
-  @Get('google/callback')
+  @Get('callback')
   @UseGuards(GoogleAuthGuard)
   @UseInterceptors(SecurityTokenInterceptor)
   @ApiOperation({
@@ -106,7 +106,6 @@ export class GoogleController {
       typedOrigin,
     );
   } else {
-    // citizen é o fallback (citizen | undefined | qualquer outro valor)
     result = await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
       req.user.email,
       `${req.user.firstName} ${req.user.lastName}`,
