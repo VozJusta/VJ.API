@@ -13,7 +13,7 @@ export class AuthenticateGoogleLawyerService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async authenticateGoogleLawyer(
     email: string,
@@ -29,7 +29,7 @@ export class AuthenticateGoogleLawyerService {
         where: { email: email }
       })
 
-      if(citizen) {
+      if (citizen) {
         throw new ConflictException('Usuário já cadastrado')
       }
 
@@ -44,6 +44,7 @@ export class AuthenticateGoogleLawyerService {
     }
 
     const payload = {
+      validated: true,
       sub: lawyer.id,
       role: 'Lawyer',
       email: lawyer.email,
