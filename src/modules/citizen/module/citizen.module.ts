@@ -9,9 +9,10 @@ import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
 import { GetOneLawyerForCitizen } from '../controllers/getOneLawyerForCitizen.controller';
 import { CreateCaseRequest } from '../service/createCaseRequest.service';
 import { PostCaseRequestController } from '../controllers/postCaseRequest.controller';
+import { NotificationsModule } from '@m/notifications/module/notifications.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule],
+  imports: [AuthModule, PrismaModule, NotificationsModule],
   providers: [
     CitizenService,
     ListLawyersForCitizens,

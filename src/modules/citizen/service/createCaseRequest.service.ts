@@ -5,10 +5,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NotificationsService } from '../../notifications/service/notifications.service';
+import { NotificationType } from 'generated/prisma/client';
 
 @Injectable()
 export class CreateCaseRequest {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async createCaseRequest(
     userId: string,
@@ -45,7 +50,7 @@ export class CreateCaseRequest {
         id: caseId,
         citizen_id: userId,
       },
-      select: { id: true },
+      select: { id: true, title: true },
     });
 
     if (!legalCase) {
@@ -81,6 +86,18 @@ export class CreateCaseRequest {
         status: true,
         created_at: true,
         updated_at: true,
+      },
+    });
+
+    await this.notificationsService.createNotification({
+      target: { role: 'Lawyer', userId: lawyerId },
+      title: 'Nova solicitação de caso',
+      body: `Você recebeu uma nova solicitação para o caso "${legalCase.title}".`,
+      type: NotificationType.CaseUpdate,
+      metadata: {
+        caseId,
+        caseRequestId: createdCaseRequest.id,
+        citizenId: userId,
       },
     });
 
