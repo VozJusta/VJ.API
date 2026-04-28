@@ -12,6 +12,7 @@ import { RouterModule } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { SimulationModule } from '@modules/simulations/simulation.module';
 import { BullModule } from '@nestjs/bull';
+import { PaymentModule } from '@modules/payments/modules/payments.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { BullModule } from '@nestjs/bull';
     AiModule,
     DashboardModule,
     SimulationModule,
+    PaymentModule,
     RouterModule.register([
       {
         path: '/auth',
