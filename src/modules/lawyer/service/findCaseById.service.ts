@@ -45,12 +45,12 @@ export class FindCaseById {
         },
         select: {
           title: true,
-          status: true,
           caseRequests: {
             where: { lawyer_id: userId },
             orderBy: { created_at: 'desc' },
             take: 1,
             select: {
+              status: true,
               created_at: true,
             },
           },
@@ -104,7 +104,7 @@ export class FindCaseById {
             simplified_explanation: latestReport.simplified_explanation,
             legal_analysis: latestReport.legal_analysis,
             category_detected: latestReport.category_detected,
-            status: allInfoCase.status,
+            status: allInfoCase.caseRequests[0]?.status ?? null,
             created_at: formattedRequestCreatedAt,
             evidence: latestReport.evidence.map((item) => item.file_url),
             citizen: {
