@@ -58,7 +58,7 @@ export class RejectCaseRequest {
         target: { role: 'Citizen', userId: caseRequest.citizen_id },
         title: 'Solicitação de caso recusada',
         body: `Sua solicitação para o caso "${caseRequest.case.title}" foi recusada.`,
-        type: NotificationType.CaseUpdate,
+        type: NotificationType.REQUEST_REFUSED,
         metadata: {
           caseId: caseRequest.case_id,
           caseRequestId,

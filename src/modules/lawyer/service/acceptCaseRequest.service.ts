@@ -92,7 +92,7 @@ export class AcceptCaseRequest {
         target: { role: 'Citizen', userId: updatedCase.citizen_id },
         title: 'Solicitação de caso aceita',
         body: `Sua solicitação para o caso "${caseRequest.case.title}" foi aceita.`,
-        type: NotificationType.CaseUpdate,
+        type: NotificationType.REQUEST_ACCEPTED,
         metadata: {
           caseId: updatedCase.id,
           caseRequestId,

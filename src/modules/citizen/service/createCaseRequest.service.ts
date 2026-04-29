@@ -93,7 +93,7 @@ export class CreateCaseRequest {
       target: { role: 'Lawyer', userId: lawyerId },
       title: 'Nova solicitação de caso',
       body: `Você recebeu uma nova solicitação para o caso "${legalCase.title}".`,
-      type: NotificationType.CaseUpdate,
+      type: NotificationType.REQUEST_SENT,
       metadata: {
         caseId,
         caseRequestId: createdCaseRequest.id,
