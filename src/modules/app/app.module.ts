@@ -26,9 +26,9 @@ import { PaymentModule } from '@modules/payments/modules/payments.module';
           password: process.env.UPSTASH_PASSWORD,
           tls: {
             rejectUnauthorized: false,
-          },  
-          maxRetriesPerRequest: null, 
-          enableReadyCheck: false,    
+          },
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
         },
       }),
     }),
@@ -37,6 +37,7 @@ import { PaymentModule } from '@modules/payments/modules/payments.module';
     ValidationModule,
     AuthModule,
     EmailModule,
+    PaymentModule,
     SmsModule,
     AiModule,
     DashboardModule,
@@ -46,6 +47,10 @@ import { PaymentModule } from '@modules/payments/modules/payments.module';
       {
         path: '/auth',
         module: AuthModule,
+      },
+      {
+        path: '/payments',
+        module: PaymentModule,
       },
       {
         path: '/dashboard',
@@ -63,4 +68,4 @@ import { PaymentModule } from '@modules/payments/modules/payments.module';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
