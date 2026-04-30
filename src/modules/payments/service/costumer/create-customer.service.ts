@@ -5,6 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { create } from 'domain';
 import { Stripe } from 'stripe';
 
 @Injectable()
@@ -40,6 +41,11 @@ export class CreateCustomerService {
       name: name,
       email: email,
     });
-    return customer;
+    return {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      createdAt: customer.created,
+    };
   }
 }
