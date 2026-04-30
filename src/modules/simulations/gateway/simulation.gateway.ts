@@ -42,6 +42,7 @@ export class SimulationGateway implements OnGatewayDisconnect {
 
         this.timers.set(client.id, timer);
         this.warningTimers.set(client.id, warningTimer);
+        this.userMap.set(body.citizenId, client.id)
 
         client.emit('simulation:started', { simulationId: body.simulationId });
     }
