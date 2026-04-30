@@ -69,11 +69,17 @@ export class NotificationsGateway
 
 	@SubscribeMessage('notifications:subscribe')
 	async handleSubscribe(@ConnectedSocket() client: Socket) {
-		const user = this.getAuthenticatedUser(client);
+		let user = this.getAuthenticatedUser(client);
 
 		if (!user) {
-			client.disconnect(true);
-			return { ok: false, message: 'Socket não autenticado' };
+			try {
+				const payload = await this.authenticateClient(client);
+				client.data.user = payload;
+				user = payload;
+			} catch (error) {
+				client.disconnect(true);
+				return { ok: false, message: 'Socket não autenticado' };
+			}
 		}
 
 		return {
