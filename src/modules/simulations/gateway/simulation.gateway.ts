@@ -6,7 +6,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ReportReadyDTO } from '../dto/report-ready.dto';
 
 const DURATION_MS = 4 * 60 * 1000;
-const WARNING_MS = (30 * 60 - 120) * 1000;
+const WARNING_MS = 2 * 60 * 1000;
 
 @WebSocketGateway({ namespace: '/simulation', cors: { origin: '*' } })
 export class SimulationGateway implements OnGatewayDisconnect {
