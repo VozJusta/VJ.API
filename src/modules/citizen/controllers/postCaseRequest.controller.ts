@@ -7,7 +7,7 @@ import {
 	ApiResponse,
 	ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 import { CreateCaseRequest } from '@m/citizen/service/createCaseRequest.service';
 
@@ -23,7 +23,7 @@ export class PostCaseRequestController {
 	constructor(private readonly createCaseRequest: CreateCaseRequest) {}
 
 	@Post(':caseId/requests/:lawyerId')
-	@UseGuards(AuthTokenGuard)
+	@UseGuards(AuthTokenGuardAccess)
 	@ApiOperation({
 		summary: 'Envia uma solicitação de caso para um advogado',
 		description:

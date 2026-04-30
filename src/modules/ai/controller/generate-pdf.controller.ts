@@ -2,7 +2,7 @@ import { Controller, Get, Param, Res, UseGuards } from "@nestjs/common";
 import { PdfService } from "../services/pdf.service";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @Controller('pdf')
 @ApiTags('Report')
@@ -12,7 +12,7 @@ import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
     description: 'Token de acesso no formato: Bearer <token>',
     required: true
 })
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class GeneratePdfController {
     constructor(private readonly pdfService: PdfService) { }
 

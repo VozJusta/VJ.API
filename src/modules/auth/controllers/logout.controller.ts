@@ -7,7 +7,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
@@ -19,7 +19,7 @@ export class LogoutController {
   constructor(private readonly prisma: PrismaService) {}
   @Post('/logout')
   @HttpCode(200)
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiBearerAuth()
   @ApiHeader({
     name: 'Authorization',

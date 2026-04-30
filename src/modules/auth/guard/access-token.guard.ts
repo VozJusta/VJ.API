@@ -15,7 +15,7 @@ import { TokensPayload } from '@m/common/interfaces/interfaces';
 
 
 @Injectable()
-export class AuthTokenGuard implements CanActivate {
+export class AuthTokenGuardAccess implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,

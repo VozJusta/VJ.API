@@ -2,10 +2,10 @@ import { Controller, Get, Param, Res, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GeneratePdfService } from "../services/generate-pdf.service";
 import { Response } from "express";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @ApiTags("Simulation")
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 @Controller()
 export class GeneratePdfController {
     constructor(private readonly generateService: GeneratePdfService) {}

@@ -8,14 +8,14 @@ import {
 } from '@nestjs/swagger';
 import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
-import { AuthTokenGuard } from '../guard/access-token.guard';
+import { AuthTokenGuardAccess } from '../guard/access-token.guard';
 
 @ApiTags('Auth')
 @Controller()
 export class TerminateAccountController {
   constructor(private terminateAccountService: TerminateAccountService) { }
 
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Exclui permanentemente a conta do usuário autenticado',
     description:
