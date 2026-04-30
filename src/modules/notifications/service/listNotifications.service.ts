@@ -1,5 +1,9 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PaginationNotificationsDTO } from '@m/notifications/dto/pagination-notifications.dto';
 
 @Injectable()
@@ -27,6 +31,14 @@ export class ReadAllNotifications {
     } as const;
 
     if (userRole === 'citizen') {
+      const citizenExists = await this.prisma.citizen.findUnique({
+        where: { id: userId },
+      });
+
+      if (!citizenExists) {
+        throw new NotFoundException('Cidadão não encontrado');
+      }
+
       const where = { citizen_id: userId };
 
       const [items, total] = await Promise.all([
@@ -44,6 +56,14 @@ export class ReadAllNotifications {
     }
 
     if (userRole === 'lawyer') {
+      const lawyerExists = await this.prisma.lawyer.findUnique({
+        where: { id: userId },
+      });
+
+      if (!lawyerExists) {
+        throw new NotFoundException('Advogado não encontrado');
+      }
+
       const where = { lawyer_id: userId };
 
       const [items, total] = await Promise.all([
