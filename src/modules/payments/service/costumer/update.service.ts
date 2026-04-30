@@ -1,11 +1,12 @@
 import { PrismaService } from "@modules/prisma/service/prisma.service";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Stripe } from "stripe";
 
 @Injectable()
 export class UpdateCustomersService{
     constructor(
-        private readonly stripeService: Stripe,
+        @Inject('STRIPE_CLIENT')
+        private readonly stripeCliente: Stripe,
         private readonly prismaService: PrismaService
     ) { }
     async updateCustomer(id: string, name: string, email: string) {
@@ -23,12 +24,12 @@ export class UpdateCustomersService{
             throw new UnauthorizedException("Cliente não encontrado");
         }
 
-        const customer = await this.stripeService.customers.retrieve(id);
+        const customer = await this.stripeCliente.customers.retrieve(id);
 
         if (!customer) {
             throw new UnauthorizedException("Cliente não encontrado no Stripe");
         }
-        const updatedCustomer = await this.stripeService.customers.update(id, {
+        const updatedCustomer = await this.stripeCliente.customers.update(id, {
             name,
             email
         });
