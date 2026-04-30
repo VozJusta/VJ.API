@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { TtsService } from '@m/ai/services/tts.service';
 import { SimulationChatService } from '../services/chat.service';
 import { SimulationChatDto, SynthesizeDto } from '../dto/simulation.dto';
@@ -18,7 +18,7 @@ import { SimulationService } from '../services/simulation.service';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 
 @ApiTags('Simulation')
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 @Controller()
 export class SimulationController {
     constructor(

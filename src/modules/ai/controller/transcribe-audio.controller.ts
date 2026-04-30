@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiRespon
 import { FileInterceptor } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
 import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @Controller('transcribe')
 @ApiTags('Report')
@@ -14,7 +14,7 @@ import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
     description: 'Token de acesso no formato: Bearer <token>',
     required: true
 })
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class TranscribeAudioController {
     constructor(private readonly transcribeAudioService: TranscribeAudioService) { }
 

@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from '@m/auth/strategies/google.strategy';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { AuthenticateGoogleCitizenService } from '@m/auth/service/authGoogleCitizen.service';
 import { AuthenticateGoogleLawyerService } from '@m/auth/service/authGoogleLawyer.service';
 import { ChangePasswordService } from '@m/auth/service/changePassword.service';
@@ -71,14 +71,14 @@ import { GetUserDataService } from '@m/auth/service/getUserData.service';
     GoogleStrategy,
     RefreshTokenService,
     SecurityTokenInterceptor,
-    AuthTokenGuard,
+    AuthTokenGuardAccess,
     TerminateAccountService,
     GetUserDataService,
   ],
   exports: [
     HashingServiceProtocol,
     JwtModule,
-    AuthTokenGuard,
+    AuthTokenGuardAccess,
     ConfigModule,
     SecurityTokenInterceptor,
   ],

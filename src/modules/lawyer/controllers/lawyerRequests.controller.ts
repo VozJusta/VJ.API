@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { LawyerRequestsStatusService } from '@m/lawyer/service/lawyerRequestsStatus.service';
 import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
 import { PaginationLawyersDTO } from '@m/citizen/dto/pagination-lawyers.dto';
@@ -26,7 +26,7 @@ export class LawyerRequestController {
   constructor(private readonly lawyerRequestStatus: LawyerRequestsStatusService) {}
 
   @Get('/requests')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Lista solicitações do advogado autenticado com filtro opcional',
     description:

@@ -9,7 +9,7 @@ import { IngestionService } from '@m/ai/services/ingestion.service';
 import { IngestionController } from '@m/ai/controller/ingestion.controller';
 import { PdfService } from '@m/ai/services/pdf.service';
 import { AuthModule } from '@m/auth/module/auth.module';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { TtsService } from '../services/tts.service';
 import { StartConversationController } from '../controller/start-conversation.controller';
 import { StartConversationService } from '../services/start-conversation.service';

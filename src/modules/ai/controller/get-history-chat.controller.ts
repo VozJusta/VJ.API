@@ -1,7 +1,7 @@
 import { Controller, Get, Param, UseGuards } from "@nestjs/common";
 import { GetHistoryChatService } from "../services/get-history-chat.service";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @Controller('chat')
 @ApiTags('Report')
@@ -11,7 +11,7 @@ import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
     description: 'Token de acesso no formato: Bearer <token>',
     required: true
 })
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class GetHistoryChatController {
     constructor(private readonly getHistory: GetHistoryChatService) { }
 

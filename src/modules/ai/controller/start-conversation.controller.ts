@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StartConversationDTO } from "../dto/start-conversation.dto";
@@ -13,7 +13,7 @@ import { StartConversationService } from "../services/start-conversation.service
     description: 'Token de acesso no formato: Bearer <token>',
     required: true
 })
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class StartConversationController {
 
     constructor(private readonly startConversation: StartConversationService) {}

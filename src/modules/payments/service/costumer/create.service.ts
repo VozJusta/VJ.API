@@ -1,5 +1,11 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { create } from 'domain';
 import { Stripe } from 'stripe';
 
 @Injectable()
@@ -10,7 +16,7 @@ export class CreateCustomerService {
     private stripeClient: Stripe,
   ) {}
 
-  async CreateCustomer(email: string) {
+  async CreateCustomer(name: string, email: string) {
     if (!email) {
       throw new UnauthorizedException('Email obrigatório');
     }
@@ -29,12 +35,17 @@ export class CreateCustomerService {
       limit: 1,
     });
     if (existingCustomer.data.length > 0) {
-      throw new UnauthorizedException('Cliente já existe');
+      throw new BadRequestException('Cliente já existe');
     }
-
     const customer = await this.stripeClient.customers.create({
+      name: name,
       email: email,
     });
-    return customer;
+    return {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      createdAt: customer.created,
+    };
   }
 }

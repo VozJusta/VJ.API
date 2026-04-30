@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import {
   ApiBearerAuth,
@@ -23,7 +23,7 @@ export class GetOneLawyerForCitizen {
   constructor(private readonly findLawyer: FindLawyerForCitizen) {}
 
   @Get('/:lawyerId')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Retorna os dados de um advogado por id',
     description:
