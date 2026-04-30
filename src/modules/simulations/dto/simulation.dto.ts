@@ -3,6 +3,9 @@ import { IsNotEmpty } from "class-validator";
 export class StartSimulationDto {
   @IsNotEmpty({ message: 'O campo simulationId é obrigatório' })
   simulationId: string;
+
+  @IsNotEmpty({ message: 'O campo citizenId é obrigatório' })
+  citizenId: string
 }
 
 export class StopSimulationDto {

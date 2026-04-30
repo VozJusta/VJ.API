@@ -183,7 +183,7 @@ const socket = io('http://link-api/simulation', {
 
 ## Eventos do cliente
 
-- `simulation:start` com payload `{ simulationId: string }`
+- `simulation:start` com payload `{ simulationId: string, citizenId: string }`
 - `simulation:stop` com payload `{ simulationId: string }`
 
 ## Eventos do servidor
