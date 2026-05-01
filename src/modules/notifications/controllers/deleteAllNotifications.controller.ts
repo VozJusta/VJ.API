@@ -64,7 +64,8 @@ export class DeleteAllNotificationsController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Nenhuma notificação encontrada para remover.',
+    description:
+      'Cidadão ou advogado não encontrado, ou o usuário não possui notificações para remover.',
     schema: {
       example: {
         statusCode: 404,

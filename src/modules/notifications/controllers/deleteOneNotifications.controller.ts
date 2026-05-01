@@ -80,7 +80,8 @@ export class DeleteNotificationsByIdController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Notificação não encontrada para o usuário autenticado.',
+    description:
+      'Cidadão ou advogado não encontrado, ou a notificação não pertence ao usuário autenticado.',
     schema: {
       example: {
         statusCode: 404,

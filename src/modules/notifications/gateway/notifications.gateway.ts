@@ -23,7 +23,13 @@ type MarkReadPayload = {
 
 type SocketUser = Pick<TokensPayload, 'role' | 'sub'>;
 
-@WebSocketGateway({ namespace: '/notifications', cors: { origin: '*' } })
+const allowedOrigins = [
+	'http://localhost:3000',
+	'https://vozjusta.com.br',
+	'http://localhost:5678',
+];
+
+@WebSocketGateway({ namespace: '/notifications', cors: { origin: allowedOrigins } })
 @Injectable()
 export class NotificationsGateway
 	implements OnGatewayConnection, OnGatewayDisconnect

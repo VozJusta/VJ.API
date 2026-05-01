@@ -68,6 +68,17 @@ export class PatchReadOneNotificationsController {
     },
   })
   @ApiResponse({
+    status: 403,
+    description: 'Role não autorizada para acessar notificações.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Role não autorizada para acessar notificações',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
     status: 404,
     description: 'Notificação não encontrada para o usuário autenticado.',
     schema: {

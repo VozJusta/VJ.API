@@ -33,6 +33,7 @@ export class ListAllNotificationsService {
     if (userRole === 'citizen') {
       const citizenExists = await this.prisma.citizen.findUnique({
         where: { id: userId },
+        select: { id: true },
       });
 
       if (!citizenExists) {
@@ -62,6 +63,7 @@ export class ListAllNotificationsService {
     if (userRole === 'lawyer') {
       const lawyerExists = await this.prisma.lawyer.findUnique({
         where: { id: userId },
+        select: { id: true },
       });
 
       if (!lawyerExists) {

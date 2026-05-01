@@ -15,12 +15,25 @@ export class DeleteAllNotificationsService {
   ) {}
 
   async deleteAll(userId: string, role: string) {
-    if (!userId) {
-      throw new BadRequestException('userId é obrigatório');
-    }
-
     if (role !== 'Citizen' && role !== 'Lawyer') {
       throw new ForbiddenException('Role não autorizada para excluir notificações');
+    }
+
+    const userExists =
+      role === 'Citizen'
+        ? await this.prisma.citizen.findUnique({
+            where: { id: userId },
+            select: { id: true },
+          })
+        : await this.prisma.lawyer.findUnique({
+            where: { id: userId },
+            select: { id: true },
+          });
+
+    if (!userExists) {
+      throw new NotFoundException(
+        role === 'Citizen' ? 'Cidadão não encontrado' : 'Advogado não encontrado',
+      );
     }
 
     const ownerField = role === 'Citizen' ? 'citizen_id' : 'lawyer_id';

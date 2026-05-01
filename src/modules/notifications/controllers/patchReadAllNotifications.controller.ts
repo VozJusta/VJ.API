@@ -60,6 +60,17 @@ export class PatchReadAllNotificationsController {
       },
     },
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Role não autorizada para acessar notificações.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Role não autorizada para acessar notificações',
+        error: 'Forbidden',
+      },
+    },
+  })
   async patchReadAllNotifications(@Req() req: RequestUser) {
     const userId = req.user.sub;
     const role = req.user.role;
