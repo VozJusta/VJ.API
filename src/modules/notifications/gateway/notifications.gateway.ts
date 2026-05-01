@@ -67,6 +67,15 @@ export class NotificationsGateway
 			.emit('notifications:updated', payload);
 	}
 
+	public emitNotificationsDeleted(
+		user: SocketUser,
+		payload: { deleted: number; notificationIds?: string[] },
+	) {
+		this.server
+			.to(this.getUserRoom(user))
+			.emit('notifications:deleted', payload);
+	}
+
 	@SubscribeMessage('notifications:subscribe')
 	async handleSubscribe(@ConnectedSocket() client: Socket) {
 		let user = this.getAuthenticatedUser(client);
