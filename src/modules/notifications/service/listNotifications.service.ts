@@ -52,6 +52,10 @@ export class ListAllNotificationsService {
         this.prisma.notification.count({ where }),
       ]);
 
+      if (total === 0) {
+        throw new NotFoundException('Nenhuma notificação encontrada');
+      }
+
       return { items, total, page, pageSize };
     }
 
@@ -76,6 +80,10 @@ export class ListAllNotificationsService {
         }),
         this.prisma.notification.count({ where }),
       ]);
+
+      if (total === 0) {
+        throw new NotFoundException('Nenhuma notificação encontrada');
+      }
 
       return { items, total, page, pageSize };
     }
