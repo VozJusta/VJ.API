@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 import { RequestUser } from "@m/common/interfaces/interfaces";
 import { OperationalStatusService } from "@modules/dashboard/service/lawyer/operetionalStatus.service";
 import { Get, UseGuards, Req, Controller } from "@nestjs/common";
@@ -12,7 +12,7 @@ export class GetOperationStatusController {
   constructor(private readonly dashboardService: OperationalStatusService) { }
 
   @Get('/lawyer/operational-status')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Retorna status operacional das solicitações do advogado',
     description:

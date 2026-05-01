@@ -13,7 +13,7 @@ import {
   ApiBearerAuth,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
@@ -30,7 +30,7 @@ export class AcceptCaseRequestController {
   constructor(private readonly acceptCaseRequestService: AcceptCaseRequest) {}
 
   @Patch('requests/:id/accept')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Aceita uma solicitação de caso do advogado autenticado',
     description:

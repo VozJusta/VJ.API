@@ -16,6 +16,7 @@ async function bootstrap() {
     .addTag('Report', 'Trade-related routes')
     .addTag('Ingestion', 'Routes related to data ingestion')
     .addTag('Dashboard', 'Password-secret creation route')
+    .addTag('Notifications', 'Rotas para listar, ler e remover notificações')
     .addTag(
       'Refresh',
       'Refresh token endpoint: validates the current token and returns a new access token.',
