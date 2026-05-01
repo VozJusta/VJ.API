@@ -1,7 +1,7 @@
 import { ListLawyersForCitizens } from '@m/citizen/service/listLawyersForCitizens.service';
 import { PaginationLawyersDTO } from '@m/citizen/dto/pagination-lawyers.dto';
 import { RequestUser } from '@m/common/interfaces/interfaces';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -24,7 +24,7 @@ export class GetLawyersForCitizen {
     constructor(private readonly listLawyers: ListLawyersForCitizens) {}
 
     @Get()
-    @UseGuards(AuthTokenGuard)
+    @UseGuards(AuthTokenGuardAccess)
     @ApiOperation({
         summary: 'Lista todos os advogados verificados',
         description:

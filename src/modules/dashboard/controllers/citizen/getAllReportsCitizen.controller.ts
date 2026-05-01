@@ -8,7 +8,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from 'src/modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from 'src/modules/auth/guard/access-token.guard';
 import { PaginationReportsDTO } from '@modules/dashboard/dto/pagination-reports.dto';
 import { ListReportsByCitizenService } from '@modules/dashboard/service/citizen/listReportsByCitizen.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
@@ -20,7 +20,7 @@ export class GetAllReportsCitizenController {
   constructor(private readonly dashboardService: ListReportsByCitizenService) {}
 
   @Get('/citizens/me/reports')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Retorna o dashboard do usuário autenticado',
     description: 'Busca os dados do perfil presente no token JWT.',

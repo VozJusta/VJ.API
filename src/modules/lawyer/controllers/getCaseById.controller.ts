@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -23,7 +23,7 @@ export class GetCaseByIdController {
   constructor(private readonly findCaseById: FindCaseById) {}
 
   @Get('/cases/:caseId')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary:
       'Retorna os dados resumidos do relatório do caso para o advogado autenticado',

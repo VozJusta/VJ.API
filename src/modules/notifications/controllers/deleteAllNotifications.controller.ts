@@ -1,7 +1,7 @@
 import { Controller, Delete, Param, Req, UseGuards } from '@nestjs/common';
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
-import { DeleteAllNotificationsService } from '../service/deleteAllNotifications.service';
+import { DeleteAllNotificationsService } from '@m/notifications/service/deleteAllNotifications.service';
 
 @Controller('notifications')
 export class DeleteAllNotificationsController {
@@ -10,7 +10,7 @@ export class DeleteAllNotificationsController {
   ) {}
 
   @Delete('')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   async deleteAllNotifications(@Req() req: RequestUser) {
     const userId = req.user.sub;
     const role = req.user.role;

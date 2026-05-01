@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 import { AcceptedRequestAnalyticsService } from '@modules/dashboard/service/lawyer/acceptedRequestAnalytics.service';
 import { Get, UseGuards, Req, Controller } from '@nestjs/common';
@@ -18,7 +18,7 @@ export class GetReportsAcceptedLawyerController {
     private readonly dashboardService: AcceptedRequestAnalyticsService,
   ) {}
   @Get('/lawyer/analytics')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Retorna analytics de solicitações aceitas do advogado',
     description:
