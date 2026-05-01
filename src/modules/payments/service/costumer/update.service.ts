@@ -20,7 +20,7 @@ export class UpdateCustomersService{
             where: { email }
         })
 
-        if (!citizen || !lawyer) {
+        if (!citizen && !lawyer) {
             throw new UnauthorizedException("Cliente não encontrado");
         }
 

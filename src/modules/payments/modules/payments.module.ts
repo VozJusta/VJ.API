@@ -6,11 +6,12 @@ import { CreateCustomerController } from '@m/payments/controllers/customer/creat
 import { CreateProductService } from '@m/payments/service/products/create-product.service';
 import { CreateProductController } from '@m/payments/controllers/products/create.controller';
 import { UpdateCustomersService } from '@m/payments/service/costumer/update.service';
+import { UpdateCustomersController } from '../controllers/customer/update.controller';
 
 @Global()
 @Module({
   imports: [PrismaModule],
-  controllers: [CreateCustomerController, CreateProductController],
+  controllers: [CreateCustomerController, CreateProductController,UpdateCustomersController],
   providers: [CreateCustomerService, StripeProvider, CreateProductService, UpdateCustomersService],
   exports: [],
 })
