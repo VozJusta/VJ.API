@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { NotificationsGateway } from '../gateway/notifications.gateway';
 
@@ -11,6 +11,17 @@ export class ReadAllNotificationsService {
 
   async markAllAsRead(userId: string, role: string) {
     const ownerField = role === 'Citizen' ? 'citizen_id' : 'lawyer_id';
+
+    const unreadCount = await this.prisma.notification.count({
+      where: {
+        [ownerField]: userId,
+        is_read: false,
+      },
+    });
+
+    if (unreadCount === 0) {
+      throw new BadRequestException('Todas as notificações já estão lidas');
+    }
 
     const result = await this.prisma.notification.updateMany({
       where: {
