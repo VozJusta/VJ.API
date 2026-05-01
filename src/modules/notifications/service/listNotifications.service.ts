@@ -7,10 +7,10 @@ import {
 import { PaginationNotificationsDTO } from '@m/notifications/dto/pagination-notifications.dto';
 
 @Injectable()
-export class ReadAllNotifications {
+export class ListAllNotificationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async readAll(
+  async listAll(
     userId: string,
     role: string,
     pagination: PaginationNotificationsDTO,
