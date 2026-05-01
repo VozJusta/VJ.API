@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { NotificationsGateway } from '../gateway/notifications.gateway';
 
@@ -10,8 +15,16 @@ export class DeleteNotificationsByIdService {
   ) {}
 
   async deleteOne(userId: string, role: string, notificationId: string) {
-    if (!notificationId) {
+    if (!userId) {
+      throw new BadRequestException('userId é obrigatório');
+    }
+
+    if (!notificationId?.trim()) {
       throw new BadRequestException('notificationId é obrigatório');
+    }
+
+    if (role !== 'Citizen' && role !== 'Lawyer') {
+      throw new ForbiddenException('Role não autorizada para excluir notificações');
     }
 
     const ownerField = role === 'Citizen' ? 'citizen_id' : 'lawyer_id';
