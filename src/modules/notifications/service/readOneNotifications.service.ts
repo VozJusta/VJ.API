@@ -22,6 +22,7 @@ export class ReadOneNotificationsService {
       },
       select: {
         id: true,
+        is_read: true,
         citizen_id: true,
         lawyer_id: true,
       },
@@ -29,6 +30,10 @@ export class ReadOneNotificationsService {
 
     if (!notification || notification[ownerField] !== userId) {
       throw new NotFoundException('Notificação não encontrada');
+    }
+
+    if (notification.is_read) {
+      throw new BadRequestException('Notificação já está lida');
     }
 
     await this.prisma.notification.update({
