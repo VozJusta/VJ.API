@@ -9,17 +9,16 @@ import { IngestionService } from '@m/ai/services/ingestion.service';
 import { IngestionController } from '@m/ai/controller/ingestion.controller';
 import { PdfService } from '@m/ai/services/pdf.service';
 import { AuthModule } from '@m/auth/module/auth.module';
-import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
-import { TtsService } from '../services/tts.service';
-import { StartConversationController } from '../controller/start-conversation.controller';
-import { StartConversationService } from '../services/start-conversation.service';
-import { ContinueConversationService } from '../services/continue-conversation.service';
-import { ContinueConversationController } from '../controller/continue-conversation.controller';
-import { GetHistoryChatService } from '../services/get-history-chat.service';
-import { GetHistoryChatController } from '../controller/get-history-chat.controller';
-import { GeneratePdfController } from '../controller/generate-pdf.controller';
-import { TranscribeAudioController } from '../controller/transcribe-audio.controller';
-import { TranscribeAudioService } from '../services/transcribe-audio.service';
+import { TtsService } from '@m/ai/services/tts.service';
+import { StartConversationController } from '@m/ai/controller/start-conversation.controller';
+import { StartConversationService } from '@m/ai/services/start-conversation.service';
+import { ContinueConversationService } from '@m/ai/services/continue-conversation.service';
+import { ContinueConversationController } from '@m/ai/controller/continue-conversation.controller';
+import { GetHistoryChatService } from '@m/ai/services/get-history-chat.service';
+import { GetHistoryChatController } from '@m/ai/controller/get-history-chat.controller';
+import { GeneratePdfController } from '@m/ai/controller/generate-pdf.controller';
+import { TranscribeAudioController } from '@m/ai/controller/transcribe-audio.controller';
+import { TranscribeAudioService } from '@m/ai/services/transcribe-audio.service';
 
 @Global()
 @Module({

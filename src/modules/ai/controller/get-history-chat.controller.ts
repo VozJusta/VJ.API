@@ -1,5 +1,5 @@
 import { Controller, Get, Param, UseGuards } from "@nestjs/common";
-import { GetHistoryChatService } from "../services/get-history-chat.service";
+import { GetHistoryChatService } from "@m/ai/services/get-history-chat.service";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 

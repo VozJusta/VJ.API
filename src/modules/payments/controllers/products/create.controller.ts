@@ -1,14 +1,24 @@
-import { CreateProductService } from '@modules/payments/service/products/create-product.service';
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
+import { RequestUser } from '@modules/common/interfaces/interfaces';
+import { CreateProductService } from '@modules/payments/service/products/create.service';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-@Controller('products')
+@Controller('plans')
 export class CreateProductController {
   constructor(private readonly createProductService: CreateProductService) {}
 
   @Post()
   @HttpCode(201)
-  async createProduct(@Body('email') email: string) {
-    return await this.createProductService.createProduct(email)
+  @UseGuards(AuthTokenGuardAccess)
+  async createProduct(@Req() req: RequestUser) {
+    return await this.createProductService.createProduct(req.user.email || '');
   }
 }

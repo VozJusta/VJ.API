@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Res, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { GeneratePdfService } from "../services/generate-pdf.service";
+import { GeneratePdfService } from "@m/simulations/services/generate-pdf.service";
 import { Response } from "express";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 

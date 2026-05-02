@@ -8,7 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
-import { AuthTokenGuardAccess } from '../guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 
 @ApiTags('Auth')
 @Controller()

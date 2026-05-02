@@ -1,9 +1,9 @@
 import { BadRequestException, Controller, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { TranscribeAudioService } from "../services/transcribe-audio.service";
+import { TranscribeAudioService } from "@m/ai/services/transcribe-audio.service";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
-import { TranscribeAudioDTO } from "../dto/transcribe-audio.dto";
+import { TranscribeAudioDTO } from "@m/ai/dto/transcribe-audio.dto";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @Controller('transcribe')

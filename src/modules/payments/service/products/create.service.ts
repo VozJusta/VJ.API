@@ -40,7 +40,7 @@ export class CreateProductService {
             name: 'SOS Jurídico',
             
         })
-
+        console.log('Produto criado:', product);
         return product
     }
 }

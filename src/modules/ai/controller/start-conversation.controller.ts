@@ -1,9 +1,9 @@
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { StartConversationDTO } from "../dto/start-conversation.dto";
+import { StartConversationDTO } from "@m/ai/dto/start-conversation.dto";
 import { RequestUser } from "@modules/common/interfaces/interfaces";
-import { StartConversationService } from "../services/start-conversation.service";
+import { StartConversationService } from "@m/ai/services/start-conversation.service";
 
 @Controller('conversation')
 @ApiTags('Report')

@@ -1,8 +1,8 @@
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ContinueConversationDto } from "../dto/continue-conversation.dto";
+import { ContinueConversationDto } from "@m/ai/dto/continue-conversation.dto";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
-import { ContinueConversationService } from "../services/continue-conversation.service";
+import { ContinueConversationService } from "@m/ai/services/continue-conversation.service";
 import { RequestUser } from "@modules/common/interfaces/interfaces";
 
 @Controller('conversation')

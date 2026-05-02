@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Res, UseGuards } from "@nestjs/common";
-import { PdfService } from "../services/pdf.service";
+import { PdfService } from "@m/ai/services/pdf.service";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
