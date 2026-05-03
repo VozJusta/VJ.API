@@ -12,7 +12,7 @@ export class ListAllPlansController {
   @ApiOperation({
     summary: 'Lista todos os planos disponíveis',
     description:
-      'Retorna uma lista paginada de todos os planos com preços associados no Stripe, incluindo nome, descrição, intervalo de cobrança, valor formatado e metadados.',
+      'Retorna uma lista de todos os planos com preços associados no Stripe, incluindo nome, descrição, intervalo de cobrança, valor formatado e metadados.',
   })
   @ApiResponse({
     status: 200,

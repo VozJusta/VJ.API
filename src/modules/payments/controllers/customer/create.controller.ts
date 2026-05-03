@@ -6,7 +6,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CreateCustomerService } from '../../service/costumer/create.service';
+import { CreateCustomerService } from '../../service/costomer/create.service';
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import {

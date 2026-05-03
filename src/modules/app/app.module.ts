@@ -38,7 +38,6 @@ import { NotificationsModule } from '@modules/notifications/module/notifications
     ValidationModule,
     AuthModule,
     EmailModule,
-    PaymentModule,
     SmsModule,
     AiModule,
     DashboardModule,

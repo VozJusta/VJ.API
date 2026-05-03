@@ -1,8 +1,10 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { create } from 'domain';
@@ -27,7 +29,7 @@ export class CreateCustomerService {
         limit: 1,
       });
       if (existingCustomer.data.length > 0) {
-        throw new BadRequestException('Cliente já existe');
+        throw new UnauthorizedException('Cliente já existe');
       }
 
       const citizen = await this.prisma.citizen.findUnique({
@@ -38,7 +40,7 @@ export class CreateCustomerService {
       });
 
       if (!citizen && !lawyer) {
-        throw new UnauthorizedException('Usuário não encontrado');
+        throw new NotFoundException('Usuário não encontrado');
       }
 
       const customer = await this.stripeClient.customers.create({
@@ -68,7 +70,7 @@ export class CreateCustomerService {
         createdAt: customer.created,
       };
     } catch (error) {
-      throw new BadRequestException('Erro ao criar cliente: ' + error.message);
+      throw new UnauthorizedException('Erro ao criar cliente: ' + error.message);
     }
   }
 }
