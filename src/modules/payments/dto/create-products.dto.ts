@@ -1,4 +1,11 @@
-import { IsDecimal, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsDecimal,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { BillingType, PlanType } from 'generated/prisma/client';
 
 export class CreateProductDTO {
   @IsString()
@@ -17,7 +24,11 @@ export class CreateProductDTO {
   )
   readonly amount: number;
 
-  @IsString()
-  @IsNotEmpty({ message: 'O campo currency é obrigatório' })
-  readonly interval: 'month' | 'year';
+  @IsEnum(BillingType, { message: 'Tipo de cobrança inválido' })
+  @IsString({ message: 'Tipo de cobrança inválido' })
+  readonly interval: BillingType;
+
+  @IsEnum(PlanType, { message: 'Tipo de plano inválido' })
+  @IsString({ message: 'Tipo de plano inválido' })
+  readonly planType: PlanType;
 }
