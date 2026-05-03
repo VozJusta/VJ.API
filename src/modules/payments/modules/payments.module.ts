@@ -7,6 +7,8 @@ import { UpdateCustomersService } from '@m/payments/service/costumer/update.serv
 import { UpdateCustomersController } from '../controllers/customer/update.controller';
 import { ListAllPlansController } from '../controllers/products/list-all-plans.controller';
 import { ListAllPlansService } from '../service/product/list-all-plans.service';
+import { ListOnePlanController } from '../controllers/products/lis-one-plan.controller';
+import { ListOnePlanService } from '../service/product/list-one-plan.service';
 
 @Global()
 @Module({
@@ -15,10 +17,12 @@ import { ListAllPlansService } from '../service/product/list-all-plans.service';
     CreateCustomerController,
     UpdateCustomersController,
     ListAllPlansController,
+    ListOnePlanController,
   ],
   providers: [
     CreateCustomerService,
     ListAllPlansService,
+    ListOnePlanService,
     StripeProvider,
     UpdateCustomersService,
   ],

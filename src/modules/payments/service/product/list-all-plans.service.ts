@@ -19,6 +19,7 @@ export class ListAllPlansService {
           : null;
 
       return {
+        priceId: defaultPrice?.id || null,
         id: product.id,
         name: product.name,
         description: product.description,
