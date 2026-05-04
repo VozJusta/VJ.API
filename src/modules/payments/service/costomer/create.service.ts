@@ -1,13 +1,10 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
-  BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { create } from 'domain';
 import { Stripe } from 'stripe';
 
 @Injectable()
