@@ -18,7 +18,7 @@ model Citizen {
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
-  stripe_customer_id String?            @unique
+  stripe_customer_id String?            @unique 
   phone              String?            @unique
   email              String             @unique
   session_id         String             @default(uuid())

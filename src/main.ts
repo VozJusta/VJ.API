@@ -18,6 +18,10 @@ async function bootstrap() {
     .addTag('Dashboard', 'Password-secret creation route')
     .addTag('Notifications', 'Rotas para listar, ler e remover notificações')
     .addTag(
+      'Payments',
+      'Rotas para criação de clientes e listar os planos disponíveis',
+    )
+    .addTag(
       'Refresh',
       'Refresh token endpoint: validates the current token and returns a new access token.',
     )
