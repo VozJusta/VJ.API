@@ -15,7 +15,7 @@ export class CreateCustomerService {
     private stripeClient: Stripe,
   ) {}
 
-  async CreateCustomer(name: string, email: string) {
+  async createCustomer(name: string, email: string) {
     try {
       if (!email) {
         throw new UnauthorizedException('Email obrigatório');
