@@ -49,7 +49,7 @@ export class GetAllNotificationsController {
     description: 'Notificações retornadas com sucesso.',
     schema: {
       example: {
-        items: [
+        data: [
           {
             id: '5d6f2e2a-dc0a-4f5b-b797-ec9fe6f2b9b8',
             title: 'Atualização do caso',
@@ -59,9 +59,14 @@ export class GetAllNotificationsController {
             created_at: '2026-05-01T12:00:00.000Z',
           },
         ],
-        total: 1,
-        page: 1,
-        pageSize: 10,
+        pagination: {
+          page: 1,
+          pageSize: 2,
+          totalItems: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
       },
     },
   })
