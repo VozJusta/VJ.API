@@ -1,5 +1,6 @@
 import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -75,6 +76,73 @@ export class ShowProfile {
       if (!lawyer) {
         throw new NotFoundException('Advogado não encontrado');
       }
+
+      const showInfoLawyer = await this.prisma.lawyer.findFirst({
+        where: { id: userId },
+        select: {
+          id: true,
+          full_name: true,
+          bio: true,
+          cnpj: true,
+          cpf: true,
+          avatar_image: true,
+          specialization: true,
+          lawyer_status: true,
+          oab_number: true,
+          oab_state: true,
+          phone: true,
+          email: true,
+        },
+      });
+
+      const cpfExists = showInfoLawyer?.cpf?.trim();
+      const cnpjExists = showInfoLawyer?.cnpj?.trim();
+
+      if (cpfExists) {
+        return {
+          id: showInfoLawyer?.id,
+          full_name: showInfoLawyer?.full_name,
+          bio: showInfoLawyer?.bio,
+          cpf: showInfoLawyer?.cpf,
+          avatar_image: showInfoLawyer?.avatar_image,
+          specialization: showInfoLawyer?.specialization,
+          lawyer_status: showInfoLawyer?.lawyer_status,
+          oab_number: showInfoLawyer?.oab_number,
+          oab_state: showInfoLawyer?.oab_state,
+          phone: showInfoLawyer?.phone,
+          email: showInfoLawyer?.email,
+        };
+      } else if (cnpjExists) {
+        return {
+          id: showInfoLawyer?.id,
+          full_name: showInfoLawyer?.full_name,
+          bio: showInfoLawyer?.bio,
+          cnpj: showInfoLawyer?.cnpj,
+          avatar_image: showInfoLawyer?.avatar_image,
+          specialization: showInfoLawyer?.specialization,
+          lawyer_status: showInfoLawyer?.lawyer_status,
+          oab_number: showInfoLawyer?.oab_number,
+          oab_state: showInfoLawyer?.oab_state,
+          phone: showInfoLawyer?.phone,
+          email: showInfoLawyer?.email,
+        };
+      } else {
+        return {
+          id: showInfoLawyer?.id,
+          full_name: showInfoLawyer?.full_name,
+          bio: showInfoLawyer?.bio,
+          avatar_image: showInfoLawyer?.avatar_image,
+          specialization: showInfoLawyer?.specialization,
+          lawyer_status: showInfoLawyer?.lawyer_status,
+          oab_number: showInfoLawyer?.oab_number,
+          oab_state: showInfoLawyer?.oab_state,
+          phone: showInfoLawyer?.phone,
+          email: showInfoLawyer?.email,
+        };
+      }
+    }
+
+    throw new ForbiddenException('Role não autorizada para acessar o perfil');
     }
   }
-}
+
