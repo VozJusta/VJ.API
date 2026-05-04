@@ -18,7 +18,7 @@ model Citizen {
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
-  stripe_customer_id String?            @unique
+  stripe_customer_id String?            @unique 
   phone              String?            @unique
   email              String             @unique
   session_id         String             @default(uuid())
@@ -31,6 +31,7 @@ model Citizen {
   validationCodes    ValidationCode[]
   cases              Case[]
   caseRequests       CaseRequest[]
+  notifications      Notification[]
 }
 
 model Lawyer {
@@ -55,6 +56,7 @@ model Lawyer {
   validationCodes    ValidationCode[]
   cases              Case[]
   caseRequests       CaseRequest[]
+  notifications      Notification[]
 }
 
 model Plan {
@@ -74,9 +76,9 @@ model Subscription {
   id                     String             @id @default(uuid())
   stripe_subscription_id String             @unique @default(uuid())
   subscription_status    SubscriptionStatus
-  user                   Citizen?           @relation(fields: [user_id], references: [id])
+  citizen                Citizen?           @relation(fields: [citizen_id], references: [id])
   lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
-  user_id                String?            @unique
+  citizen_id             String?            @unique
   lawyer_id              String?            @unique
   planId                 String
   plan                   Plan               @relation(fields: [planId], references: [id])
@@ -95,10 +97,10 @@ model Report {
   simplified_explanation String
   category_detected      Specialization
   confidence_score       Float?
-  user_id                String
+  citizen_id             String
   lawyer_id              String?
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  user                   Citizen        @relation(fields: [user_id], references: [id])
+  citizen                Citizen        @relation(fields: [citizen_id], references: [id])
   evidence               Evidence[]
   ai_versions            AiResponse[]
   created_at             DateTime       @default(now())
@@ -110,9 +112,9 @@ model Report {
 
 model Case {
   id            String         @id @default(uuid())
-  user_id       String
+  citizen_id    String
   lawyer_id     String?
-  user          Citizen        @relation(fields: [user_id], references: [id])
+  citizen       Citizen        @relation(fields: [citizen_id], references: [id])
   lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
   title         String
   status        Status         @default(Pending)
@@ -187,9 +189,9 @@ model RagContext {
 model ValidationCode {
   id         String   @id @default(uuid())
   type       Types
-  user_id    String?
+  citizen_id String?
   lawyer_id  String?
-  user       Citizen? @relation(fields: [user_id], references: [id])
+  citizen    Citizen? @relation(fields: [citizen_id], references: [id])
   lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
   code       String
   validated  Boolean  @default(false)
@@ -200,22 +202,46 @@ model ValidationCode {
 }
 
 model Simulation {
-  id             String      @id @default(uuid())
-  user_id        String
-  user           Citizen     @relation(fields: [user_id], references: [id])
-  report_id      String?
-  report         Report?     @relation(fields: [reportId], references: [id])
-  personality    Personality
-  transcription  String
-  score_feedback String
-  reportId       String?
+  id                String            @id @default(uuid())
+  citizen_id        String
+  citizen           Citizen           @relation(fields: [citizen_id], references: [id])
+  report_id         String?
+  report            Report?           @relation(fields: [report_id], references: [id])
+  personality       Personality
+  transcription     String?
+  score_feedback    String?
+  status            SimStatus?        @default(Waiting)
+  started_at        DateTime          @default(now())
+  ended_at          DateTime?
+  duration_secs     Int?
+  turns             SimulationTurn[]
+  simulation_report SimulationReport?
+}
+
+model SimulationTurn {
+  id            String     @id @default(uuid())
+  simulation_id String
+  simulation    Simulation @relation(fields: [simulation_id], references: [id])
+  role          TurnRole
+  content       String
+  audio_url     String?
+  created_at    DateTime   @default(now())
 }
 
 model SimulationReport {
-  id            String  @id @default(uuid())
-  transcription String
-  user_id       String  @unique
-  user          Citizen @relation(fields: [user_id], references: [id])
+  id              String      @id @default(uuid())
+  simulation_id   String      @unique
+  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
+  user_id         String
+  user            Citizen     @relation(fields: [user_id], references: [id])
+  full_transcript Json
+  score           Int?
+  strengths       String[]
+  weaknesses      String[]
+  metrics_json    Json?
+  duration_secs   Int?
+  personality     Personality
+  created_at      DateTime    @default(now())
 }
 
 model Evidence {
@@ -225,6 +251,24 @@ model Evidence {
   file_url    String
   ocr_content String
   embedding   Json?
+}
+
+model Notification {
+  id         String           @id @default(uuid())
+  title      String
+  body       String
+  type       NotificationType
+  is_read    Boolean          @default(false)
+  metadata   Json?
+  citizen_id String?
+  lawyer_id  String?
+  citizen    Citizen?         @relation(fields: [citizen_id], references: [id])
+  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id])
+  created_at DateTime         @default(now())
+  read_at    DateTime?
+
+  @@index([citizen_id, created_at])
+  @@index([lawyer_id, created_at])
 }
 
 enum Specialization {
@@ -322,6 +366,18 @@ enum Types {
   SMS
 }
 
+enum TurnRole {
+  User
+  Ai
+}
+
+enum SimStatus {
+  Waiting
+  InProgress
+  Completed
+  TimedOut
+}
+
 enum Personality {
   Calm
   Agressive
@@ -359,4 +415,10 @@ enum OabState {
   SP
   SE
   TO
+}
+
+enum NotificationType {
+  REQUEST_SENT
+  REQUEST_ACCEPTED
+  REQUEST_REFUSED
 }

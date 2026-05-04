@@ -1,3 +1,5 @@
+import { PERSONALITY_PROMPTS } from "@modules/common/prompts/personality-prompts";
+import { CompleteSimulationInput, EvaluateSimulationInput, SimulationEvaluation } from "@modules/common/types/simulation.types";
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { firstValueFrom } from "rxjs";
@@ -101,7 +103,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
@@ -149,7 +151,7 @@ export class LlmService {
             this.httpService.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile',
                     messages: [
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
@@ -166,6 +168,126 @@ export class LlmService {
         const content = response.data.choices[0].message.content;
         return this.extractChatDecision(content);
     }
+
+    async completeSimulation({
+        personality,
+        ragContexts,
+        history,
+        userMessage,
+    }: CompleteSimulationInput): Promise<string> {
+
+        const contextText = ragContexts.length
+            ? ragContexts.map(c => c.content).join('\n\n')
+            : 'Nenhum contexto jurídico adicional disponível.';
+
+        const historyText = history
+            .map(t => `${t.role === 'User' ? 'Usuário' : 'IA'}: ${t.content}`)
+            .join('\n');
+
+        const systemPrompt = `${PERSONALITY_PROMPTS[personality]}
+ 
+        Você está conduzindo uma simulação de audiência judicial com fins educativos.
+        O objetivo é treinar o usuário para audiências reais.
+        Nunca quebre o personagem. Responda de forma natural e conversacional.
+        Máximo de 3 frases por resposta para manter o ritmo da audiência.
+        Não use markdown, não use listas, apenas texto corrido.`;
+
+                const userPrompt = `Contexto jurídico do caso:
+        ${contextText}
+        
+        Histórico da audiência:
+        ${historyText}
+        
+        Usuário: ${userMessage}`;
+
+        const response = await firstValueFrom(
+            this.httpService.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                {
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt },
+                    ],
+                    temperature: 0.7,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+                    },
+                }
+            )
+        );
+
+        return response.data.choices[0].message.content?.trim() ?? '';
+    }
+
+    async evaluateSimulation({
+        transcript,
+        personality,
+    }: EvaluateSimulationInput): Promise<SimulationEvaluation> {
+
+        const prompt = `Você é um avaliador especialista em simulações de audiências judiciais.
+ 
+        Avalie a performance do usuário na transcrição abaixo.
+        A audiência usou o perfil de personalidade: ${personality}.
+        
+        TRANSCRIÇÃO:
+        ${transcript}
+        
+        Responda EXCLUSIVAMENTE em JSON válido, sem markdown, sem texto fora do JSON.
+        
+        Formato:
+        {
+        "score": <número inteiro de 0 a 100>,
+        "strengths": ["<ponto forte>"],
+        "weaknesses": ["<ponto a melhorar>"],
+        "metrics": {
+            "clarity": <0 a 10>,
+            "argumentation": <0 a 10>,
+            "emotional_control": <0 a 10>,
+            "legal_knowledge": <0 a 10>
+        }
+        }`;
+
+        const response = await firstValueFrom(
+            this.httpService.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                {
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'user', content: prompt },
+                        { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' },
+                    ],
+                    temperature: 0.3,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+                    },
+                }
+            )
+        );
+
+        const content = response.data.choices[0].message.content;
+
+        try {
+            return this.extractJson(content) as unknown as SimulationEvaluation;
+        } catch {
+            return {
+                score: 0,
+                strengths: [],
+                weaknesses: [],
+                metrics: {
+                    clarity: 0,
+                    argumentation: 0,
+                    emotional_control: 0,
+                    legal_knowledge: 0,
+                },
+            };
+        }
+    }
+
 
     private extractJson(text: string): LlmOutput {
         try {

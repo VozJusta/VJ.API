@@ -162,6 +162,143 @@ pnpm test:e2e      # Testes end-to-end
 
 ---
 
+# 🔌 WebSocket da Simulação
+
+O front end inicia o fluxo em duas etapas:
+
+1. Cria a simulação via HTTP em `POST /simulation` e guarda o `simulationId` retornado.
+2. Abre a conexão Socket.IO com o namespace `/simulation` e dispara o evento `simulation:start` com esse `simulationId`.
+
+## Conexão
+
+Use o mesmo host da API e conecte no namespace:
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('http://link-api/simulation', {
+	transports: ['websocket'],
+});
+```
+
+## Eventos do cliente
+
+- `simulation:start` com payload `{ simulationId: string, citizenId: string }`
+- `simulation:stop` com payload `{ simulationId: string }`
+
+## Eventos do servidor
+
+- `simulation:started` com `{ simulationId }`
+- `simulation:warning` com `{ message, remainingSecs }`
+- `simulation:end` com `{ simulationId, status }`
+- `simulation:report` com `{ simulationId, reportId }`
+
+## Exemplo
+
+```ts
+socket.on('connect', () => {
+	socket.emit('simulation:start', { simulationId });
+});
+
+socket.on('simulation:warning', (data) => {
+	console.log('Aviso da audiência:', data);
+});
+
+socket.on('simulation:report', (data) => {
+	console.log('Report pronto:', data);
+});
+```
+
+---
+
+# 🔔 WebSocket de Notifications
+
+As notifications são entregues em tempo real via Socket.IO no namespace `/notifications`.
+
+## Como conectar
+
+Use o mesmo host da API e envie o access token na conexão. O gateway aceita o token em `auth.token` ou no header `Authorization`.
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('http://link-api/notifications', {
+	transports: ['websocket'],
+	auth: {
+		token: accessToken,
+	},
+});
+```
+
+## Autenticação
+
+O gateway valida o access token e mantém o socket na sala do usuário autenticado. Se o token for inválido ou a sessão estiver expirada, a conexão é encerrada.
+
+## Evento de inscrição
+
+Depois de conectar, você pode confirmar a inscrição no canal do usuário com:
+
+```ts
+socket.emit('notifications:subscribe', (response) => {
+	console.log(response);
+});
+```
+
+Resposta esperada:
+
+```ts
+{
+	ok: true,
+	room: 'user:Citizen:USER_ID',
+	userId: 'USER_ID',
+	role: 'Citizen',
+}
+```
+
+## Eventos que o cliente deve ouvir
+
+- `notifications:new` - recebe uma nova notificação criada para o usuário
+- `notifications:updated` - informa quando uma ou mais notificações foram marcadas como lidas
+- `notifications:deleted` - informa quando uma ou mais notificações foram removidas
+
+## Evento para marcar notificações como lidas
+
+Além dos endpoints HTTP, o gateway também permite marcar notificações como lidas via socket:
+
+```ts
+socket.emit('notifications:mark-read', {
+	notificationIds: ['notification-id-1', 'notification-id-2'],
+});
+```
+
+Se `notificationIds` não for enviado, o backend marca como lidas todas as notificações não lidas do usuário autenticado.
+
+## Exemplo completo
+
+```ts
+socket.on('connect', () => {
+	console.log('Conectado em notifications');
+
+	socket.emit('notifications:subscribe', (response) => {
+		console.log('Inscrito na sala:', response);
+	});
+});
+
+socket.on('notifications:new', (notification) => {
+	console.log('Nova notificação:', notification);
+});
+
+socket.on('notifications:updated', (data) => {
+	console.log('Notificações atualizadas:', data);
+});
+
+socket.on('notifications:deleted', (data) => {
+	console.log('Notificações removidas:', data);
+});
+```
+
+---
+
 # 🛡️ Segurança e Compliance
 
 - **Criptografia** – Senhas hasheadas com **Argon2**  
@@ -176,7 +313,7 @@ pnpm test:e2e      # Testes end-to-end
 - [x] Arquitetura base **NestJS + Prisma**
 - [x] Módulo de **Autenticação JWT**
 - [ ] Integração com **OpenRouter e Pipeline RAG**
-- [ ] **WebSockets** para notificações em tempo real
+- [x] **WebSockets** para notificações em tempo real
 - [ ] **Dashboards de Analytics** para advogados (Plano Master)
 
 ---

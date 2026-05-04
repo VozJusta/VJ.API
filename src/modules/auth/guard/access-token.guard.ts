@@ -11,11 +11,11 @@ import { Observable } from 'rxjs';
 import jwtConfig from '@m/auth/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { PrismaService } from '@m/prisma/service/prisma.service';
-import { TokensPayload } from '../interfaces/interfaces';
+import { TokensPayload } from '@m/common/interfaces/interfaces';
 
 
 @Injectable()
-export class AuthTokenGuard implements CanActivate {
+export class AuthTokenGuardAccess implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,

@@ -20,7 +20,7 @@ export class FindCitizenReportByIdService {
             const report = await this.prisma.report.findFirst({
                 where: {
                     id: reportId,
-                    user_id: userId,
+                    citizen_id: userId,
                 },
                 select: {
                     id: true,

@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { CompleteCitizenRegisterDTO } from '@m/auth/dto/complete-citizen-register.dto';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
-import { TokensPayload } from '../interfaces/interfaces';
+import { TokensPayload } from '@m/common/interfaces/interfaces';
 
 
 

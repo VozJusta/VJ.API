@@ -1,5 +1,5 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
-import { RequestUser } from '@modules/auth/interfaces/interfaces';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 import { FindCitizenReportByIdService } from '@modules/dashboard/service/citizen/findCitizenReportById.service';
 import { Get, UseGuards, Req, Param, Controller } from '@nestjs/common';
 import {
@@ -21,7 +21,7 @@ export class GetOneReportsCitizenController {
     private readonly dashboardService: FindCitizenReportByIdService,
   ) {}
   @Get('/citizens/me/reports/:reportId')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Retorna um relatório do cidadão autenticado por id',
     description:

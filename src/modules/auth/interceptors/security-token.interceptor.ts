@@ -16,7 +16,7 @@ export class SecurityTokenInterceptor implements NestInterceptor {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   intercept(
     context: ExecutionContext,
@@ -24,8 +24,11 @@ export class SecurityTokenInterceptor implements NestInterceptor {
   ): Observable<any> {
     const response = context.switchToHttp().getResponse();
 
+
     return next.handle().pipe(
       tap((data) => {
+        if (data?.type === 'redirect') return;
+
         if (data?.validated === true) {
           const token = this.jwtService.sign(
             {
@@ -45,5 +48,6 @@ export class SecurityTokenInterceptor implements NestInterceptor {
         }
       }),
     );
+
   }
 }

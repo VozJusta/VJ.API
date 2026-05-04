@@ -1,6 +1,6 @@
 import { Patch, UseGuards, Body, Req, Controller } from '@nestjs/common';
 import { ChangePasswordDTO } from '@m/auth/dto/change-password.dto';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { ChangePasswordService } from '@m/auth/service/changePassword.service';
 import {
   ApiBearerAuth,
@@ -9,7 +9,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RequestUser } from '../interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
 
@@ -19,7 +19,7 @@ export class ChangePasswordController {
   constructor(private readonly authService: ChangePasswordService) { }
 
   @Patch('change-password')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Altera a senha do usuário autenticado' })
   @ApiBody({

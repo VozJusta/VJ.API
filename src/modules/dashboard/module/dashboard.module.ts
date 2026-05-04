@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { PrismaModule } from '@m/prisma/prisma.module';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { OperationalStatusService } from '@m/dashboard/service/lawyer/operetionalStatus.service';
 import { HighRelevanceService } from '@m/dashboard/service/lawyer/highRelevance.service';
 import { AcceptedRequestAnalyticsService } from '@m/dashboard/service/lawyer/acceptedRequestAnalytics.service';
@@ -22,7 +22,7 @@ import { ListReportsByCitizenService } from '@m/dashboard/service/citizen/listRe
     AcceptedRequestAnalyticsService,
     FindCitizenReportByIdService,
     ListReportsByCitizenService,
-    AuthTokenGuard
+    AuthTokenGuardAccess
   ],
   controllers: [
     GetOperationStatusController,

@@ -9,8 +9,8 @@ import {
 
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUserDataService } from '@m/auth/service/getUserData.service';
-import { RequestUser } from '../interfaces/interfaces';
-import { AuthTokenGuard } from '../guard/access-token.guard';
+import { RequestUser } from '@m/common/interfaces/interfaces';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 
 @ApiTags('Auth')
 @Controller()
@@ -19,7 +19,7 @@ export class userDataController {
 
   @Get('/me')
   @HttpCode(200)
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiHeader({
     name: 'Authorization',
     required: true,

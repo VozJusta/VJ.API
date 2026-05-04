@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, Headers, Req } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Headers, Req, UseGuards } from '@nestjs/common';
 import {
   ApiHeader,
   ApiBody,
@@ -7,13 +7,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
-import { RequestUser } from '../interfaces/interfaces';
+import { RequestUser } from '@m/common/interfaces/interfaces';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 
 @ApiTags('Auth')
 @Controller()
 export class TerminateAccountController {
   constructor(private terminateAccountService: TerminateAccountService) { }
-  
+
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Exclui permanentemente a conta do usuário autenticado',
     description:

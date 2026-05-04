@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -9,13 +10,15 @@ import { AuthenticateGoogleCitizenService } from '@m/auth/service/authGoogleCiti
 import { AuthenticateGoogleLawyerService } from '@m/auth/service/authGoogleLawyer.service';
 import {
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { GoogleAuthGuard } from '@m/auth/guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
+import { Response } from 'express';
+import { AuthResult } from '@modules/common/types/auth.types';
+
 @ApiTags('Auth')
 @Controller('google')
 export class GoogleController {
@@ -24,14 +27,14 @@ export class GoogleController {
     private readonly authenticateGoogleLawyerService: AuthenticateGoogleLawyerService,
   ) {}
 
-  @Get('google')
+  @Get()
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Inicia autenticação OAuth com Google' })
   @ApiQuery({
     name: 'state',
     required: true,
-    description: 'Perfil de cadastro desejado no fluxo OAuth',
-    example: 'citizen',
+    description: 'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
+    example: 'citizen|mobile',
   })
   @ApiResponse({
     status: 302,
@@ -39,32 +42,7 @@ export class GoogleController {
   })
   async googleLogin() {}
 
-  @Get('google/callback')
-  @UseGuards(GoogleAuthGuard)
-  @UseInterceptors(SecurityTokenInterceptor)
-  @ApiResponse({
-    description: 'Retorno de sucesso da autenticação com o Google',
-    schema: {
-      example: {
-        validated: true,
-        sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-        role: 'User ou Lawyer',
-        email: 'xs.salles@gmail.com',
-        full_name: 'Pedro Sales',
-        loggedWithGoogle: true,
-      },
-    },
-    headers: {
-      'x-security-token': {
-        description: 'x-security-token para autenticação',
-        schema: {
-          type: 'string',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        },
-      },
-    },
-  })
-  @Get('google/callback')
+  @Get('callback')
   @UseGuards(GoogleAuthGuard)
   @UseInterceptors(SecurityTokenInterceptor)
   @ApiOperation({
@@ -73,25 +51,30 @@ export class GoogleController {
   @ApiQuery({
     name: 'state',
     required: false,
-    description: 'Perfil enviado no início do OAuth: citizen ou lawyer',
-    example: 'lawyer',
+    description: 'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
+    example: 'citizen|mobile',
   })
   @ApiResponse({
-    description: 'Retorno de sucesso da autenticação com o Google',
+    status: 302,
+    description: 'Mobile: redireciona para seuapp://auth?x-security-token=...&registerCompleted=...',
+  })
+  @ApiResponse({
+    description: 'Web: retorno de sucesso da autenticação com o Google',
     status: 200,
     schema: {
       example: {
         validated: true,
         sub: '47ff0575-8976-4316-877d-936a2b1d478c',
-        role: 'User ou Lawyer',
+        role: 'Citizen ou Lawyer',
         email: 'xs.salles@gmail.com',
         full_name: 'Pedro Sales',
         loggedWithGoogle: true,
+        registerCompleted: true,
       },
     },
     headers: {
       'x-security-token': {
-        description: 'x-security-token para autenticação',
+        description: 'JWT de autenticação (apenas no fluxo web)',
         schema: {
           type: 'string',
           example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -110,24 +93,32 @@ export class GoogleController {
       },
     },
   })
-  async googleUserCallback(@Req() req) {
-    const role = req.query.state;
+  async googleUserCallback(@Req() req, @Res() res: Response) {
+  const [role, origin] = ((req.query.state as string) ?? 'citizen|web').split('|');
+  const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
 
-    if (role === 'lawyer') {
-      return this.authenticateGoogleLawyerService.authenticateGoogleLawyer(
-        req.user.email,
-        `${req.user.firstName} ${req.user.lastName}`,
-      );
-    } else if (role === 'citizen') {
-      return this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
-        req.user.email,
-        `${req.user.firstName} ${req.user.lastName}`,
-      );
-    }
+  let result: AuthResult;
 
-    return this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
+  if (role === 'lawyer') {
+    result = await this.authenticateGoogleLawyerService.authenticateGoogleLawyer(
       req.user.email,
       `${req.user.firstName} ${req.user.lastName}`,
+      typedOrigin,
+    );
+  } else {
+    result = await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
+      req.user.email,
+      `${req.user.firstName} ${req.user.lastName}`,
+      typedOrigin,
     );
   }
+
+  if (result.type === 'redirect') {
+    return res.redirect(result.url);
+  }
+
+  res.setHeader('x-security-token', result.token);
+  return res.json(result.data);
+}
+
 }

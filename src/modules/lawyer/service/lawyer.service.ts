@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { CreateLawyerDTO } from '@m/lawyer/dto/create-lawyer.dto';
-import { hash, hashSync } from 'bcryptjs';
 import { OabNumberValidationService } from '@m/validation/service/oab-number-validation.service';
 import { ValidateLawyerDTO } from '@m/lawyer/dto/validate-lawyer.dto';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
