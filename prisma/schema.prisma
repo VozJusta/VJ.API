@@ -18,7 +18,8 @@ model Citizen {
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
-  stripe_customer_id String?            @unique 
+  avatar_image       String?
+  stripe_customer_id String?            @unique
   phone              String?            @unique
   email              String             @unique
   session_id         String             @default(uuid())
@@ -40,6 +41,7 @@ model Lawyer {
   full_name          String
   bio                String?
   cpf                String?          @unique
+  cnpj               String?          @unique
   avatar_image       String?
   rating             Decimal?         @default(0)
   specialization     Specialization?
