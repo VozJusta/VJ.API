@@ -12,6 +12,8 @@ import { CreateCaseRequest } from '../service/createCaseRequest.service';
 import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
 import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.service';
 import { CreateEvidenceService } from '../service/createEvidence.service';
+import { CloudinaryProvider } from '../provider/cloudnary.provider';
+import { CloudinaryService } from '../service/cloudinary.service';
 
 @Module({
   imports: [AuthModule, PrismaModule, NotificationsModule],
@@ -20,7 +22,9 @@ import { CreateEvidenceService } from '../service/createEvidence.service';
     ListLawyersForCitizens,
     FindLawyerForCitizen,
     CreateCaseRequest,
-    CreateEvidenceService
+    CreateEvidenceService,
+    CloudinaryProvider,
+    CloudinaryService,
   ],
   controllers: [
     CitizenController,

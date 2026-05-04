@@ -246,6 +246,7 @@ model SimulationReport {
 
 model Evidence {
   id          String @id @default(uuid())
+  public_id   String @unique
   report_id   String
   report      Report @relation(fields: [report_id], references: [id])
   file_url    String

@@ -23,7 +23,8 @@ export class CreateEvidenceController {
     return await this.createEvidenceService.createEvidence(
       file,
       req.user.sub,
-      req.user.role
+      req.user.role,
+      req.reportId!
     )
   }
 }

@@ -10,7 +10,9 @@ export interface RequestUser extends Request {
     fullName?: string;
     loggedWithGoogle?: boolean;
     registerCompleted?: boolean;
+    
   };
+  reportId?: string;
 }
 
 export interface tokenTypes {
