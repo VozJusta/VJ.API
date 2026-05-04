@@ -6,7 +6,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CreateCustomerService } from '../../service/costomer/create.service';
+import { CreateCustomerService } from '@modules/payments/service/costomer/create.service';
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import {
@@ -59,7 +59,7 @@ export class CreateCustomerController {
       'Cliente já existe, email obrigatório faltando, ou erro ao criar cliente.',
   })
   async createCustomer(@Req() req: RequestUser) {
-    return await this.customer.CreateCustomer(
+    return await this.customer.createCustomer(
       req.user.fullName || '',
       req.user.email || '',
     );
