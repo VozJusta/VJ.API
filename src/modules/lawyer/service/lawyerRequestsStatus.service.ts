@@ -6,7 +6,7 @@ import {
 import { Status } from 'generated/prisma/enums';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
-import { PaginationLawyersDTO } from '@modules/lawyer/dto/pagination-lawyers.dto';
+import { PaginationLawyersDTO } from '@modules/citizen/dto/pagination-lawyers.dto';
 
 @Injectable()
 export class LawyerRequestsStatusService {

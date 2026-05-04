@@ -2,7 +2,7 @@ import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { LawyerRequestsStatusService } from '@m/lawyer/service/lawyerRequestsStatus.service';
 import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
-import { PaginationLawyersDTO } from '@modules/lawyer/dto/pagination-lawyers.dto';
+import { PaginationLawyersDTO } from '@modules/citizen/dto/pagination-lawyers.dto';
 import {
   ApiBearerAuth,
   ApiHeader,

@@ -13,12 +13,12 @@ import { RejectCaseRequestController } from '@m/lawyer/controllers/patchRejectCa
 import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
 import { GetCaseByIdController } from '@m/lawyer/controllers/getCaseById.controller';
 import { NotificationsModule } from '@m/notifications/module/notifications.module';
-import { PostCaseRequestController } from '../controllers/postCaseRequest.controller';
-import { GetOneLawyerForCitizen } from '../controllers/getOneLawyerForCitizen.controller';
-import { GetLawyersForCitizen } from '../controllers/getLawyersForCitizen.controller';
-import { CreateCaseRequest } from '../service/createCaseRequest.service';
-import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
-import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.service';
+import { PostCaseRequestController } from '../../citizen/controllers/postCaseRequest.controller';
+import { GetOneLawyerForCitizen } from '../../citizen/controllers/getOneLawyerForCitizen.controller';
+import { GetLawyersForCitizen } from '../../citizen/controllers/getLawyersForCitizen.controller';
+import { CreateCaseRequest } from '../../citizen/service/createCaseRequest.service';
+import { FindLawyerForCitizen } from '../../citizen/service/findLawyerForCitizen.service';
+import { ListLawyersForCitizens } from '../../citizen/service/listLawyersForCitizens.service';
 
 @Module({
   imports: [AuthModule, PrismaModule, NotificationsModule],
@@ -29,9 +29,6 @@ import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.servic
     RejectCaseRequest,
     FindCaseById,
     SecurityTokenInterceptor,
-    ListLawyersForCitizens,
-    FindLawyerForCitizen,
-    CreateCaseRequest,
   ],
   controllers: [
     LawyerController,
@@ -39,9 +36,6 @@ import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.servic
     AcceptCaseRequestController,
     RejectCaseRequestController,
     GetCaseByIdController,
-    GetLawyersForCitizen,
-    GetOneLawyerForCitizen,
-    PostCaseRequestController,
   ],
 })
 export class LawyerModule {}

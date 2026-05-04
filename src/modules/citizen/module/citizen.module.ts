@@ -5,16 +5,29 @@ import { PrismaModule } from '@m/prisma/prisma.module';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { NotificationsModule } from '@m/notifications/module/notifications.module';
 import { CreateEvidenceController } from '../controllers/createEvidence.controller';
+import { GetLawyersForCitizen } from '../controllers/getLawyersForCitizen.controller';
+import { GetOneLawyerForCitizen } from '../controllers/getOneLawyerForCitizen.controller';
+import { PostCaseRequestController } from '../controllers/postCaseRequest.controller';
+import { CreateCaseRequest } from '../service/createCaseRequest.service';
+import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
+import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.service';
+import { CreateEvidenceService } from '../service/createEvidence.service';
 
 @Module({
   imports: [AuthModule, PrismaModule, NotificationsModule],
   providers: [
     CitizenService,
-
+    ListLawyersForCitizens,
+    FindLawyerForCitizen,
+    CreateCaseRequest,
+    CreateEvidenceService
   ],
   controllers: [
     CitizenController,
     CreateEvidenceController,
+    GetLawyersForCitizen,
+    GetOneLawyerForCitizen,
+    PostCaseRequestController,
   ],
 })
-export class CitizenModule {}
+export class CitizenModule { }

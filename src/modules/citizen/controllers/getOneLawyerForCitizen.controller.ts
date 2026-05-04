@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { FindLawyerForCitizen } from '@m/lawyer/service/findLawyerForCitizen.service';
+import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import {
@@ -11,8 +11,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-@Controller()
-@ApiTags('Lawyer')
+@Controller('lawyers')
+@ApiTags('Citizen')
 @ApiBearerAuth()
 @ApiHeader({
   name: 'Authorization',
