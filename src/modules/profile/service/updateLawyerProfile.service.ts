@@ -2,13 +2,20 @@ import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
   BadRequestException,
   ForbiddenException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { UpdateLawyerDTO } from '../dto/update-lawyer.dto';
 import { CpfNumberValidation } from '@modules/validation/service/cpf-number-validation.service';
 import { CnpjNumberValidation } from '@modules/validation/service/cnpj-number-validation.service';
+import { EmailValidationService } from '@modules/validation/service/email-validation.service';
+import {
+  ensureUniqueAcrossProfiles,
+  ensureUniqueLawyerOab,
+  ensureValidCnpj,
+  ensureValidCpf,
+  ensureValidEmail,
+} from '@m/profile/helpers/profile-validation.helpers';
 
 @Injectable()
 export class UpdateLawyerProfileService {
@@ -16,6 +23,7 @@ export class UpdateLawyerProfileService {
     private readonly prisma: PrismaService,
     private readonly cpfValidation: CpfNumberValidation,
     private readonly cnpjValidation: CnpjNumberValidation,
+    private readonly emailValidation: EmailValidationService,
   ) {}
 
   async updateLawyer(userId: string, role: string, update: UpdateLawyerDTO) {
@@ -58,23 +66,15 @@ export class UpdateLawyerProfileService {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
     }
 
-    if (hasCpfUpdate) {
-      const valid = await this.cpfValidation.validate(String(update.cpf));
-      if (!valid) {
-        throw new BadRequestException('CPF inválido');
-      }
-    }
+    await ensureValidCpf(
+      this.cpfValidation,
+      hasCpfUpdate ? update.cpf : undefined,
+    );
 
-    if (hasCnpjUpdate) {
-      try {
-        const result = await this.cnpjValidation.validate(String(update.cnpj));
-        if (!result) {
-          throw new BadRequestException('CNPJ inválido');
-        }
-      } catch (err) {
-        throw new BadRequestException('CNPJ inválido');
-      }
-    }
+    await ensureValidCnpj(
+      this.cnpjValidation,
+      hasCnpjUpdate ? update.cnpj : undefined,
+    );
 
     if (profileHasCpf && hasCnpjUpdate) {
       throw new BadRequestException('Este perfil usa CPF, não CNPJ');
@@ -83,6 +83,8 @@ export class UpdateLawyerProfileService {
     if (profileHasCnpj && hasCpfUpdate) {
       throw new BadRequestException('Este perfil usa CNPJ, não CPF');
     }
+
+    await ensureValidEmail(this.emailValidation, update.email);
 
     const data: Record<string, string | undefined> = {};
 
@@ -126,116 +128,69 @@ export class UpdateLawyerProfileService {
       data.oab_state = update.oabState;
     }
 
-    if (update.email !== undefined) {
-      const [conflictLawyer, conflictCitizen] = await Promise.all([
-        this.prisma.lawyer.findFirst({
-          where: { email: update.email, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.citizen.findFirst({
-          where: { email: update.email, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'email',
+      update.email,
+      userId,
+      'Email já cadastrado em outro usuário',
+    );
 
-      if (conflictLawyer || conflictCitizen) {
-        throw new ConflictException('Email já cadastrado em outro usuário');
-      }
-    }
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'phone',
+      update.phone,
+      userId,
+      'Telefone já cadastrado em outro usuário',
+    );
 
-    if (update.phone !== undefined) {
-      const [conflictLawyer, conflictCitizen] = await Promise.all([
-        this.prisma.lawyer.findFirst({
-          where: { phone: update.phone, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.citizen.findFirst({
-          where: { phone: update.phone, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'cpf',
+      hasCpfUpdate ? update.cpf : undefined,
+      userId,
+      'CPF já cadastrado em outro usuário',
+    );
 
-      if (conflictLawyer || conflictCitizen) {
-        throw new ConflictException('Telefone já cadastrado em outro usuário');
-      }
-    }
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'cnpj',
+      hasCnpjUpdate ? update.cnpj : undefined,
+      userId,
+      'CNPJ já cadastrado em outro usuário',
+    );
 
-    if (hasCpfUpdate) {
-      const [conflictLawyer, conflictCitizen] = await Promise.all([
-        this.prisma.lawyer.findFirst({
-          where: { cpf: update.cpf, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.citizen.findFirst({
-          where: { cpf: update.cpf, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
-
-      if (conflictLawyer || conflictCitizen) {
-        throw new ConflictException('CPF já cadastrado em outro usuário');
-      }
-    }
-
-    if (hasCnpjUpdate) {
-      const [conflictLawyer, conflictCitizen] = await Promise.all([
-        this.prisma.lawyer.findFirst({
-          where: { cnpj: update.cnpj, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.citizen.findFirst({
-          where: { cnpj: update.cnpj, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
-
-      if (conflictLawyer || conflictCitizen) {
-        throw new ConflictException('CNPJ já cadastrado em outro usuário');
-      }
-    }
-
-    if (update.oabNumber !== undefined) {
-      const conflict = await this.prisma.lawyer.findFirst({
-        where: { oab_number: update.oabNumber, NOT: { id: userId } },
-        select: { id: true },
-      });
-
-      if (conflict) {
-        throw new ConflictException('OAB já cadastrado em outro advogado');
-      }
-    }
+    await ensureUniqueLawyerOab(this.prisma, update.oabNumber, userId);
 
     const updateUser = await this.prisma.lawyer.update({
       where: { id: userId },
       data,
     });
 
-    if (profileHasCpf) {
-      return {
-        id: updateUser.id,
-        full_name: updateUser.full_name,
-        bio: updateUser.bio,
-        cpf: updateUser.cpf,
-        specialization: updateUser.specialization,
-        lawyer_status: updateUser.lawyer_status,
-        oab_number: updateUser.oab_number,
-        oab_state: updateUser.oab_state,
-        phone: updateUser.phone,
-        email: updateUser.email,
-      };
-    } else if (profileHasCnpj) {
-      return {
-        id: updateUser.id,
-        full_name: updateUser.full_name,
-        bio: updateUser.bio,
-        cnpj: updateUser.cnpj,
-        specialization: updateUser.specialization,
-        lawyer_status: updateUser.lawyer_status,
-        oab_number: updateUser.oab_number,
-        oab_state: updateUser.oab_state,
-        phone: updateUser.phone,
-        email: updateUser.email,
-      };
-    }
+    return profileHasCpf
+      ? {
+          id: updateUser.id,
+          full_name: updateUser.full_name,
+          bio: updateUser.bio,
+          cpf: updateUser.cpf,
+          specialization: updateUser.specialization,
+          lawyer_status: updateUser.lawyer_status,
+          oab_number: updateUser.oab_number,
+          oab_state: updateUser.oab_state,
+          phone: updateUser.phone,
+          email: updateUser.email,
+        }
+      : {
+          id: updateUser.id,
+          full_name: updateUser.full_name,
+          bio: updateUser.bio,
+          cnpj: updateUser.cnpj,
+          specialization: updateUser.specialization,
+          lawyer_status: updateUser.lawyer_status,
+          oab_number: updateUser.oab_number,
+          oab_state: updateUser.oab_state,
+          phone: updateUser.phone,
+          email: updateUser.email,
+        };
   }
 }
