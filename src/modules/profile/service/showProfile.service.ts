@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 @Injectable()
-export class ShowProfile {
+export class ShowProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
   async showProfileByRole(userId: string, role: string) {
