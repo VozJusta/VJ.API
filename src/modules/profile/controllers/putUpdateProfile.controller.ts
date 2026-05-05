@@ -1,4 +1,4 @@
-import { Body, Controller, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Put, Req, UseGuards } from '@nestjs/common';
 import { UpdateCitizenProfileService } from '@m/profile/service/updateCitizenProfile.service';
 import { UpdateLawyerProfileService } from '@m/profile/service/updateLawyerProfile.service';
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
@@ -15,12 +15,16 @@ export class PutUpdateProfile {
   @UseGuards(AuthTokenGuardAccess)
   async putUpdateProfile(@Req() req: RequestUser, @Body() body: any) {
     const userId = req.user.sub;
-    const role = req.user.role;
+    const role = req.user.role?.toLowerCase?.() ?? '';
 
-    if (role === 'Citizen') {
+    if (role === 'citizen') {
       return this.updateCitizen.updateCitizen(userId, role, body);
-    } else if (role === 'Lawyer') {
+    }
+
+    if (role === 'lawyer') {
       return this.updateLawyer.updateLawyer(userId, role, body);
     }
+
+    throw new ForbiddenException('Role não autorizada para atualizar o perfil');
   }
 }
