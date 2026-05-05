@@ -10,19 +10,10 @@ export class ShowProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
   async showProfileByRole(userId: string, role: string) {
-    const userRole = role.toLowerCase();
+    const userRole = role?.toLowerCase?.() ?? '';
 
     if (userRole === 'citizen') {
-      const citizen = await this.prisma.citizen.findFirst({
-        where: { id: userId },
-        select: { id: true },
-      });
-
-      if (!citizen) {
-        throw new NotFoundException('Cidadão não encontrado');
-      }
-
-      const showInfoCitizen = await this.prisma.citizen.findFirst({
+      const citizen = await this.prisma.citizen.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -35,41 +26,35 @@ export class ShowProfileService {
         },
       });
 
-      const cpfExists = showInfoCitizen?.cpf?.trim();
-      const cnpjExists = showInfoCitizen?.cnpj?.trim();
+      if (!citizen) {
+        throw new NotFoundException('Cidadão não encontrado');
+      }
 
-      if (cpfExists) {
+      if (citizen.cpf?.trim()) {
         return {
-          id: showInfoCitizen?.id,
-          full_name: showInfoCitizen?.full_name,
-          email: showInfoCitizen?.email,
-          cpf: showInfoCitizen?.cpf,
-          avatar_image: showInfoCitizen?.avatar_image,
-          phone: showInfoCitizen?.phone,
+          id: citizen.id,
+          full_name: citizen.full_name,
+          email: citizen.email,
+          cpf: citizen.cpf,
+          avatar_image: citizen.avatar_image,
+          phone: citizen.phone,
         };
-      } else if (cnpjExists) {
+      }
+
+      if (citizen.cnpj?.trim()) {
         return {
-          id: showInfoCitizen?.id,
-          full_name: showInfoCitizen?.full_name,
-          email: showInfoCitizen?.email,
-          cnpj: showInfoCitizen?.cnpj,
-          avatar_image: showInfoCitizen?.avatar_image,
-          phone: showInfoCitizen?.phone,
+          id: citizen.id,
+          full_name: citizen.full_name,
+          email: citizen.email,
+          cnpj: citizen.cnpj,
+          avatar_image: citizen.avatar_image,
+          phone: citizen.phone,
         };
       }
     }
 
     if (userRole === 'lawyer') {
-      const lawyer = await this.prisma.lawyer.findFirst({
-        where: { id: userId },
-        select: { id: true },
-      });
-
-      if (!lawyer) {
-        throw new NotFoundException('Advogado não encontrado');
-      }
-
-      const showInfoLawyer = await this.prisma.lawyer.findFirst({
+      const lawyer = await this.prisma.lawyer.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -87,41 +72,44 @@ export class ShowProfileService {
         },
       });
 
-      const cpfExists = showInfoLawyer?.cpf?.trim();
-      const cnpjExists = showInfoLawyer?.cnpj?.trim();
+      if (!lawyer) {
+        throw new NotFoundException('Advogado não encontrado');
+      }
 
-      if (cpfExists) {
+      if (lawyer.cpf?.trim()) {
         return {
-          id: showInfoLawyer?.id,
-          full_name: showInfoLawyer?.full_name,
-          bio: showInfoLawyer?.bio,
-          cpf: showInfoLawyer?.cpf,
-          avatar_image: showInfoLawyer?.avatar_image,
-          specialization: showInfoLawyer?.specialization,
-          lawyer_status: showInfoLawyer?.lawyer_status,
-          oab_number: showInfoLawyer?.oab_number,
-          oab_state: showInfoLawyer?.oab_state,
-          phone: showInfoLawyer?.phone,
-          email: showInfoLawyer?.email,
+          id: lawyer.id,
+          full_name: lawyer.full_name,
+          bio: lawyer.bio,
+          cpf: lawyer.cpf,
+          avatar_image: lawyer.avatar_image,
+          specialization: lawyer.specialization,
+          lawyer_status: lawyer.lawyer_status,
+          oab_number: lawyer.oab_number,
+          oab_state: lawyer.oab_state,
+          phone: lawyer.phone,
+          email: lawyer.email,
         };
-      } else if (cnpjExists) {
+      }
+
+      if (lawyer.cnpj?.trim()) {
         return {
-          id: showInfoLawyer?.id,
-          full_name: showInfoLawyer?.full_name,
-          bio: showInfoLawyer?.bio,
-          cnpj: showInfoLawyer?.cnpj,
-          avatar_image: showInfoLawyer?.avatar_image,
-          specialization: showInfoLawyer?.specialization,
-          lawyer_status: showInfoLawyer?.lawyer_status,
-          oab_number: showInfoLawyer?.oab_number,
-          oab_state: showInfoLawyer?.oab_state,
-          phone: showInfoLawyer?.phone,
-          email: showInfoLawyer?.email,
+          id: lawyer.id,
+          full_name: lawyer.full_name,
+          bio: lawyer.bio,
+          cnpj: lawyer.cnpj,
+          avatar_image: lawyer.avatar_image,
+          specialization: lawyer.specialization,
+          lawyer_status: lawyer.lawyer_status,
+          oab_number: lawyer.oab_number,
+          oab_state: lawyer.oab_state,
+          phone: lawyer.phone,
+          email: lawyer.email,
         };
       }
     }
 
     throw new ForbiddenException('Role não autorizada para acessar o perfil');
-    }
   }
+}
 
