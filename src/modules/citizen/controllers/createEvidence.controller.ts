@@ -1,6 +1,7 @@
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import {
+  Body,
   Controller,
   Post,
   Req,
@@ -24,7 +25,6 @@ export class CreateEvidenceController {
       file,
       req.user.sub,
       req.user.role,
-      req.reportId!
     )
   }
 }

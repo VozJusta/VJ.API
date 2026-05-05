@@ -12,7 +12,6 @@ export interface RequestUser extends Request {
     registerCompleted?: boolean;
     
   };
-  reportId?: string;
 }
 
 export interface tokenTypes {

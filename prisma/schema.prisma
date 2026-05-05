@@ -101,7 +101,6 @@ model Report {
   lawyer_id              String?
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
   citizen                Citizen        @relation(fields: [citizen_id], references: [id])
-  evidence               Evidence[]
   ai_versions            AiResponse[]
   created_at             DateTime       @default(now())
   ragContexts            RagContext[]
@@ -247,8 +246,6 @@ model SimulationReport {
 model Evidence {
   id          String @id @default(uuid())
   public_id   String @unique
-  report_id   String
-  report      Report @relation(fields: [report_id], references: [id])
   file_url    String
   ocr_content String
   embedding   Json?
