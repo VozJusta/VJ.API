@@ -9,13 +9,21 @@ import {
 import { UpdateCitizenDTO } from '@m/profile/dto/update-citizen.dto';
 import { CpfNumberValidation } from '@modules/validation/service/cpf-number-validation.service';
 import { CnpjNumberValidation } from '@modules/validation/service/cnpj-number-validation.service';
+import { EmailValidationService } from '@modules/validation/service/email-validation.service';
+import {
+  ensureUniqueAcrossProfiles,
+  ensureValidCnpj,
+  ensureValidCpf,
+  ensureValidEmail,
+} from '@m/profile/helpers/profile-validation.helpers';
 
 @Injectable()
 export class UpdateCitizenProfileService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cpfValidation: CpfNumberValidation,
-    private readonly cnpjValidation: CnpjNumberValidation
+    private readonly cnpjValidation: CnpjNumberValidation,
+    private readonly emailValidation: EmailValidationService,
   ) {}
 
   async updateCitizen(userId: string, role: string, update: UpdateCitizenDTO) {
@@ -58,23 +66,15 @@ export class UpdateCitizenProfileService {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
     }
 
-    if (hasCpfUpdate) {
-      const valid = await this.cpfValidation.validate(String(update.cpf));
-      if (!valid) {
-        throw new BadRequestException('CPF inválido');
-      }
-    }
+    await ensureValidCpf(
+      this.cpfValidation,
+      hasCpfUpdate ? update.cpf : undefined,
+    );
 
-    if (hasCnpjUpdate) {
-      try {
-        const result = await this.cnpjValidation.validate(String(update.cnpj));
-        if (!result) {
-          throw new BadRequestException('CNPJ inválido');
-        }
-      } catch (err) {
-        throw new BadRequestException('CNPJ inválido');
-      }
-    }
+    await ensureValidCnpj(
+      this.cnpjValidation,
+      hasCnpjUpdate ? update.cnpj : undefined,
+    );
 
     if (profileHasCpf && hasCnpjUpdate) {
       throw new BadRequestException('Este perfil usa CPF, não CNPJ');
@@ -83,6 +83,8 @@ export class UpdateCitizenProfileService {
     if (profileHasCnpj && hasCpfUpdate) {
       throw new BadRequestException('Este perfil usa CNPJ, não CPF');
     }
+
+    await ensureValidEmail(this.emailValidation, update.email);
 
     const data: Record<string, string | undefined> = {};
 
@@ -106,95 +108,56 @@ export class UpdateCitizenProfileService {
       data.cnpj = update.cnpj;
     }
 
-    if (update.email !== undefined) {
-      const [conflictCitizen, conflictLawyer] = await Promise.all([
-        this.prisma.citizen.findFirst({
-          where: { email: update.email, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.lawyer.findFirst({
-          where: { email: update.email, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'email',
+      update.email,
+      userId,
+      'Email já cadastrado em outro usuário',
+    );
 
-      if (conflictCitizen || conflictLawyer) {
-        throw new ConflictException('Email já cadastrado em outro usuário');
-      }
-    }
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'phone',
+      update.phone,
+      userId,
+      'Telefone já cadastrado em outro usuário',
+    );
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'cpf',
+      hasCpfUpdate ? update.cpf : undefined,
+      userId,
+      'CPF já cadastrado em outro usuário',
+    );
 
-    if (update.phone !== undefined) {
-      const [conflictCitizen, conflictLawyer] = await Promise.all([
-        this.prisma.citizen.findFirst({
-          where: { phone: update.phone, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.lawyer.findFirst({
-          where: { phone: update.phone, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
-
-      if (conflictCitizen || conflictLawyer) {
-        throw new ConflictException('Telefone já cadastrado em outro usuário');
-      }
-    }
-
-    if (hasCpfUpdate) {
-      const [conflictCitizen, conflictLawyer] = await Promise.all([
-        this.prisma.citizen.findFirst({
-          where: { cpf: update.cpf, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.lawyer.findFirst({
-          where: { cpf: update.cpf, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
-
-      if (conflictCitizen || conflictLawyer) {
-        throw new ConflictException('CPF já cadastrado em outro usuário');
-      }
-    }
-
-    if (hasCnpjUpdate) {
-      const [conflictCitizen, conflictLawyer] = await Promise.all([
-        this.prisma.citizen.findFirst({
-          where: { cnpj: update.cnpj, NOT: { id: userId } },
-          select: { id: true },
-        }),
-        this.prisma.lawyer.findFirst({
-          where: { cnpj: update.cnpj, NOT: { id: userId } },
-          select: { id: true },
-        }),
-      ]);
-
-      if (conflictCitizen || conflictLawyer) {
-        throw new ConflictException('CNPJ já cadastrado em outro usuário');
-      }
-    }
+    await ensureUniqueAcrossProfiles(
+      this.prisma,
+      'cnpj',
+      hasCnpjUpdate ? update.cnpj : undefined,
+      userId,
+      'CNPJ já cadastrado em outro usuário',
+    );
 
     const updateUser = await this.prisma.citizen.update({
       where: { id: userId },
       data,
     });
 
-    if (profileHasCpf) {
-      return {
-        id: updateUser.id,
-        full_name: updateUser.full_name,
-        email: updateUser.email,
-        phone: updateUser.phone,
-        cpf: updateUser.cpf,
-      };
-    } else if(profileHasCnpj) {
-      return {
-        id: updateUser.id,
-        full_name: updateUser.full_name,
-        email: updateUser.email,
-        phone: updateUser.phone,
-        cnpj: updateUser.cnpj,
-      };
-    }
+    return profileHasCpf
+      ? {
+          id: updateUser.id,
+          full_name: updateUser.full_name,
+          email: updateUser.email,
+          phone: updateUser.phone,
+          cpf: updateUser.cpf,
+        }
+      : {
+          id: updateUser.id,
+          full_name: updateUser.full_name,
+          email: updateUser.email,
+          phone: updateUser.phone,
+          cnpj: updateUser.cnpj,
+        };
   }
 }
