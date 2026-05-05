@@ -1,6 +1,6 @@
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 import { RequestUser } from "@m/common/interfaces/interfaces";
-import { OperationalStatusService } from "@modules/dashboard/service/lawyer/operetionalStatus.service";
+import { OperationalStatusService } from "@modules/dashboard/service/lawyer/operationalStatus.service";
 import { Get, UseGuards, Req, Controller } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiHeader, ApiResponse, ApiTags } from "@nestjs/swagger";
 
