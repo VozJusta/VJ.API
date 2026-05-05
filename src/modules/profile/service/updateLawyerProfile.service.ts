@@ -2,6 +2,7 @@ import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
   BadRequestException,
   ForbiddenException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -101,6 +102,85 @@ export class UpdateLawyerProfileService {
       data.oab_state = update.oabState;
     }
 
+    if (update.email !== undefined) {
+      const [conflictLawyer, conflictCitizen] = await Promise.all([
+        this.prisma.lawyer.findFirst({
+          where: { email: update.email, NOT: { id: userId } },
+          select: { id: true },
+        }),
+        this.prisma.citizen.findFirst({
+          where: { email: update.email, NOT: { id: userId } },
+          select: { id: true },
+        }),
+      ]);
+
+      if (conflictLawyer || conflictCitizen) {
+        throw new ConflictException('Email já cadastrado em outro usuário');
+      }
+    }
+
+    if (update.phone !== undefined) {
+      const [conflictLawyer, conflictCitizen] = await Promise.all([
+        this.prisma.lawyer.findFirst({
+          where: { phone: update.phone, NOT: { id: userId } },
+          select: { id: true },
+        }),
+        this.prisma.citizen.findFirst({
+          where: { phone: update.phone, NOT: { id: userId } },
+          select: { id: true },
+        }),
+      ]);
+
+      if (conflictLawyer || conflictCitizen) {
+        throw new ConflictException('Telefone já cadastrado em outro usuário');
+      }
+    }
+
+    if (hasCpfUpdate) {
+      const [conflictLawyer, conflictCitizen] = await Promise.all([
+        this.prisma.lawyer.findFirst({
+          where: { cpf: update.cpf, NOT: { id: userId } },
+          select: { id: true },
+        }),
+        this.prisma.citizen.findFirst({
+          where: { cpf: update.cpf, NOT: { id: userId } },
+          select: { id: true },
+        }),
+      ]);
+
+      if (conflictLawyer || conflictCitizen) {
+        throw new ConflictException('CPF já cadastrado em outro usuário');
+      }
+    }
+
+    if (hasCnpjUpdate) {
+      const [conflictLawyer, conflictCitizen] = await Promise.all([
+        this.prisma.lawyer.findFirst({
+          where: { cnpj: update.cnpj, NOT: { id: userId } },
+          select: { id: true },
+        }),
+        this.prisma.citizen.findFirst({
+          where: { cnpj: update.cnpj, NOT: { id: userId } },
+          select: { id: true },
+        }),
+      ]);
+
+      if (conflictLawyer || conflictCitizen) {
+        throw new ConflictException('CNPJ já cadastrado em outro usuário');
+      }
+    }
+
+    if (update.oabNumber !== undefined) {
+      const conflict = await this.prisma.lawyer.findFirst({
+        where: { oab_number: update.oabNumber, NOT: { id: userId } },
+        select: { id: true },
+      });
+
+      if (conflict) {
+        throw new ConflictException('OAB já cadastrado em outro advogado');
+      }
+    }
+
     const updateUser = await this.prisma.lawyer.update({
       where: { id: userId },
       data,
@@ -119,7 +199,7 @@ export class UpdateLawyerProfileService {
         phone: updateUser.phone,
         email: updateUser.email,
       };
-    } else {
+    } else if (profileHasCnpj) {
       return {
         id: updateUser.id,
         full_name: updateUser.full_name,
