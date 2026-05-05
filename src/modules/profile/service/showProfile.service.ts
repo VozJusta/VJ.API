@@ -56,14 +56,6 @@ export class ShowProfile {
           avatar_image: showInfoCitizen?.avatar_image,
           phone: showInfoCitizen?.phone,
         };
-      } else {
-        return {
-          id: showInfoCitizen?.id,
-          full_name: showInfoCitizen?.full_name,
-          email: showInfoCitizen?.email,
-          avatar_image: showInfoCitizen?.avatar_image,
-          phone: showInfoCitizen?.phone,
-        };
       }
     }
 
@@ -118,19 +110,6 @@ export class ShowProfile {
           full_name: showInfoLawyer?.full_name,
           bio: showInfoLawyer?.bio,
           cnpj: showInfoLawyer?.cnpj,
-          avatar_image: showInfoLawyer?.avatar_image,
-          specialization: showInfoLawyer?.specialization,
-          lawyer_status: showInfoLawyer?.lawyer_status,
-          oab_number: showInfoLawyer?.oab_number,
-          oab_state: showInfoLawyer?.oab_state,
-          phone: showInfoLawyer?.phone,
-          email: showInfoLawyer?.email,
-        };
-      } else {
-        return {
-          id: showInfoLawyer?.id,
-          full_name: showInfoLawyer?.full_name,
-          bio: showInfoLawyer?.bio,
           avatar_image: showInfoLawyer?.avatar_image,
           specialization: showInfoLawyer?.specialization,
           lawyer_status: showInfoLawyer?.lawyer_status,
