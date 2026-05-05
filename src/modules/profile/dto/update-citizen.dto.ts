@@ -14,7 +14,7 @@ export class UpdateCitizenDTO {
   @MinLength(3)
   @MaxLength(100)
   @Transform(({ value }) => value?.trim())
-  readonly full_name?: string;
+  readonly fullName?: string;
 
   @IsOptional()
   @IsEmail()
