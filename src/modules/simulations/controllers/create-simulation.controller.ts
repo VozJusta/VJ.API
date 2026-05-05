@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
-import { CreateSimulationService } from "../services/create-simulation.service";
+import { CreateSimulationService } from "@m/simulations/services/create-simulation.service";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateSimulationDTO } from "../dto/create-simulation.dto";
+import { CreateSimulationDTO } from "@m/simulations/dto/create-simulation.dto";
 import { RequestUser } from "@modules/common/interfaces/interfaces";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 
 @Controller()
 @ApiTags('Simulation')
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class CreateSimulationController {
     constructor(private readonly createSimulationService: CreateSimulationService) {}
 

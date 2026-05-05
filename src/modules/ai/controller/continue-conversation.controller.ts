@@ -1,8 +1,8 @@
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ContinueConversationDto } from "../dto/continue-conversation.dto";
-import { AuthTokenGuard } from "@modules/auth/guard/access-token.guard";
-import { ContinueConversationService } from "../services/continue-conversation.service";
+import { ContinueConversationDto } from "@m/ai/dto/continue-conversation.dto";
+import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
+import { ContinueConversationService } from "@m/ai/services/continue-conversation.service";
 import { RequestUser } from "@modules/common/interfaces/interfaces";
 
 @Controller('conversation')
@@ -13,7 +13,7 @@ import { RequestUser } from "@modules/common/interfaces/interfaces";
     description: 'Token de acesso no formato: Bearer <token>',
     required: true
 })
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 export class ContinueConversationController {
     constructor(private readonly continueConversation: ContinueConversationService) {}
 

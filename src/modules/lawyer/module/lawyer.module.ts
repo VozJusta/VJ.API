@@ -12,9 +12,10 @@ import { AcceptCaseRequestController } from '@m/lawyer/controllers/patchAcceptCa
 import { RejectCaseRequestController } from '@m/lawyer/controllers/patchRejectCaseRequest.controller';
 import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
 import { GetCaseByIdController } from '@m/lawyer/controllers/getCaseById.controller';
+import { NotificationsModule } from '@m/notifications/module/notifications.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule],
+  imports: [AuthModule, PrismaModule, NotificationsModule],
   providers: [
     LawyerService,
     LawyerRequestsStatusService,

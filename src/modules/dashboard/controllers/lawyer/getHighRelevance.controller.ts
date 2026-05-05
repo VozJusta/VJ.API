@@ -1,4 +1,4 @@
-import { AuthTokenGuard } from '@modules/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 import { HighRelevanceService } from '@modules/dashboard/service/lawyer/highRelevance.service';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
@@ -18,7 +18,7 @@ import {
 export class GetHighRelevanceController {
     constructor(private readonly dashboardService: HighRelevanceService) { }
     @Get('/lawyer/high-relevance')
-    @UseGuards(AuthTokenGuard)
+    @UseGuards(AuthTokenGuardAccess)
     @ApiOperation({
         summary: 'Retorna relatórios com maior relevância para o advogado',
         description:

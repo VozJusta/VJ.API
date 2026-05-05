@@ -13,7 +13,7 @@ import {
   ApiBearerAuth,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { RejectCaseRequest } from '@m/lawyer/service/rejectCaseRequest.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
@@ -30,7 +30,7 @@ export class RejectCaseRequestController {
   constructor(private readonly rejectCaseRequestService: RejectCaseRequest) {}
 
   @Patch('requests/:id/reject')
-  @UseGuards(AuthTokenGuard)
+  @UseGuards(AuthTokenGuardAccess)
   @ApiOperation({
     summary: 'Recusa uma solicitação de caso do advogado autenticado',
     description: 'Atualiza parcialmente o status da solicitação para Refused.',

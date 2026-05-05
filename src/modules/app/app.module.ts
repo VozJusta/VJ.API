@@ -12,6 +12,8 @@ import { RouterModule } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { SimulationModule } from '@modules/simulations/simulation.module';
 import { BullModule } from '@nestjs/bull';
+import { PaymentModule } from '@modules/payments/modules/payments.module';
+import { NotificationsModule } from '@modules/notifications/module/notifications.module';
 
 @Module({
   imports: [
@@ -25,9 +27,9 @@ import { BullModule } from '@nestjs/bull';
           password: process.env.UPSTASH_PASSWORD,
           tls: {
             rejectUnauthorized: false,
-          },  
-          maxRetriesPerRequest: null, 
-          enableReadyCheck: false,    
+          },
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
         },
       }),
     }),
@@ -40,10 +42,16 @@ import { BullModule } from '@nestjs/bull';
     AiModule,
     DashboardModule,
     SimulationModule,
+    PaymentModule,
+    NotificationsModule,
     RouterModule.register([
       {
         path: '/auth',
         module: AuthModule,
+      },
+      {
+        path: '/payments',
+        module: PaymentModule,
       },
       {
         path: '/dashboard',
@@ -61,4 +69,4 @@ import { BullModule } from '@nestjs/bull';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}

@@ -9,16 +9,16 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthTokenGuard } from '@m/auth/guard/access-token.guard';
+import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { TtsService } from '@m/ai/services/tts.service';
-import { SimulationChatService } from '../services/chat.service';
-import { SimulationChatDto, SynthesizeDto } from '../dto/simulation.dto';
-import { CreateSimulationDTO } from '../dto/create-simulation.dto';
-import { SimulationService } from '../services/simulation.service';
+import { SimulationChatService } from '@m/simulations/services/chat.service';
+import { SimulationChatDto, SynthesizeDto } from '@m/simulations/dto/simulation.dto';
+import { CreateSimulationDTO } from '@m/simulations/dto/create-simulation.dto';
+import { SimulationService } from '@m/simulations/services/simulation.service';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 
 @ApiTags('Simulation')
-@UseGuards(AuthTokenGuard)
+@UseGuards(AuthTokenGuardAccess)
 @Controller()
 export class SimulationController {
     constructor(

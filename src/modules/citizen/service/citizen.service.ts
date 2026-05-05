@@ -69,6 +69,7 @@ export class CitizenService {
         phone: body.phone,
         email: body.email,
         password: hashedPassword,
+        stripe_customer_id: null,
         subscription: {
           create: {
             plan: {
