@@ -1,11 +1,11 @@
 import { Controller, Get, Req, UseGuards } from "@nestjs/common";
-import { ShowProfile } from "@m/profile/service/showProfile.service";
+import { ShowProfileService } from "@m/profile/service/showProfile.service";
 import { AuthTokenGuardAccess } from "@modules/auth/guard/access-token.guard";
 import { RequestUser } from "@modules/common/interfaces/interfaces";
 
 @Controller('profile')
-export class GetProfile{
-    constructor(private readonly showProfile: ShowProfile){}
+export class GetProfileController{
+    constructor(private readonly showProfile: ShowProfileService){}
 
     @Get()
     @UseGuards(AuthTokenGuardAccess)
