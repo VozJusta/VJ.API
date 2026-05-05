@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class updateCitizenDTO {
+export class UpdateCitizenDTO {
   @IsOptional()
   @IsString()
   @MinLength(3)
