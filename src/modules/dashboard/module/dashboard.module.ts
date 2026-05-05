@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '@m/auth/module/auth.module';
 import { PrismaModule } from '@m/prisma/prisma.module';
 import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
-import { OperationalStatusService } from '@m/dashboard/service/lawyer/operetionalStatus.service';
+import { OperationalStatusService } from '@modules/dashboard/service/lawyer/operationalStatus.service';
 import { HighRelevanceService } from '@m/dashboard/service/lawyer/highRelevance.service';
 import { AcceptedRequestAnalyticsService } from '@m/dashboard/service/lawyer/acceptedRequestAnalytics.service';
 import { GetOperationStatusController } from '@m/dashboard/controllers/lawyer/getOperationalStatus.controller';
