@@ -7,10 +7,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UpdateLawyerDTO } from '../dto/update-lawyer.dto';
+import { CpfNumberValidation } from '@modules/validation/service/cpf-number-validation.service';
+import { CnpjNumberValidation } from '@modules/validation/service/cnpj-number-validation.service';
 
 @Injectable()
 export class UpdateLawyerProfileService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cpfValidation: CpfNumberValidation,
+    private readonly cnpjValidation: CnpjNumberValidation,
+  ) {}
 
   async updateLawyer(userId: string, role: string, update: UpdateLawyerDTO) {
     const userRole = role?.toLowerCase?.() ?? '';
@@ -50,6 +56,24 @@ export class UpdateLawyerProfileService {
 
     if (hasCpfUpdate && hasCnpjUpdate) {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
+    }
+
+    if (hasCpfUpdate) {
+      const valid = await this.cpfValidation.validate(String(update.cpf));
+      if (!valid) {
+        throw new BadRequestException('CPF inválido');
+      }
+    }
+
+    if (hasCnpjUpdate) {
+      try {
+        const result = await this.cnpjValidation.validate(String(update.cnpj));
+        if (!result) {
+          throw new BadRequestException('CNPJ inválido');
+        }
+      } catch (err) {
+        throw new BadRequestException('CNPJ inválido');
+      }
     }
 
     if (profileHasCpf && hasCnpjUpdate) {

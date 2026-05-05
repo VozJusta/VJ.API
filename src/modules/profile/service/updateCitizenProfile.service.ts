@@ -6,16 +6,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
-import { CnpjNumberValidation } from '@m/validation/service/cnpj-number-validation.service';
 import { UpdateCitizenDTO } from '@m/profile/dto/update-citizen.dto';
+import { CpfNumberValidation } from '@modules/validation/service/cpf-number-validation.service';
+import { CnpjNumberValidation } from '@modules/validation/service/cnpj-number-validation.service';
 
 @Injectable()
 export class UpdateCitizenProfileService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cpfValidation: CpfNumberValidation,
-    private readonly cnpjValidation: CnpjNumberValidation,
+    private readonly cnpjValidation: CnpjNumberValidation
   ) {}
 
   async updateCitizen(userId: string, role: string, update: UpdateCitizenDTO) {
@@ -58,6 +58,24 @@ export class UpdateCitizenProfileService {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
     }
 
+    if (hasCpfUpdate) {
+      const valid = await this.cpfValidation.validate(String(update.cpf));
+      if (!valid) {
+        throw new BadRequestException('CPF inválido');
+      }
+    }
+
+    if (hasCnpjUpdate) {
+      try {
+        const result = await this.cnpjValidation.validate(String(update.cnpj));
+        if (!result) {
+          throw new BadRequestException('CNPJ inválido');
+        }
+      } catch (err) {
+        throw new BadRequestException('CNPJ inválido');
+      }
+    }
+
     if (profileHasCpf && hasCnpjUpdate) {
       throw new BadRequestException('Este perfil usa CPF, não CNPJ');
     }
@@ -86,25 +104,6 @@ export class UpdateCitizenProfileService {
 
     if (profileHasCnpj && hasCnpjUpdate) {
       data.cnpj = update.cnpj;
-    }
-
-    // Validate cpf/cnpj formats using validation services
-    if (hasCpfUpdate) {
-      const valid = await this.cpfValidation.validate(String(update.cpf));
-      if (!valid) {
-        throw new BadRequestException('CPF inválido');
-      }
-    }
-
-    if (hasCnpjUpdate) {
-      try {
-        const result = await this.cnpjValidation.validate(String(update.cnpj));
-        if (!result) {
-          throw new BadRequestException('CNPJ inválido');
-        }
-      } catch (err) {
-        throw new BadRequestException('CNPJ inválido');
-      }
     }
 
     if (update.email !== undefined) {
