@@ -33,7 +33,7 @@ export class FindCitizenReportByIdService {
                             status: true,
                         },
                     },
-                    evidence: true,
+                    // evidence: true,
                     lawyer: {
                         select: {
                             full_name: true,
