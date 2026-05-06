@@ -63,11 +63,11 @@ export class FindCaseById {
               simplified_explanation: true,
               legal_analysis: true,
               category_detected: true,
-              evidence: {
-                select: {
-                  file_url: true,
-                },
-              },
+              // evidence: {
+              //   select: {
+              //     file_url: true,
+              //   },
+              // },
               citizen: {
                 select: {
                   full_name: true,
@@ -106,7 +106,7 @@ export class FindCaseById {
             category_detected: latestReport.category_detected,
             status: allInfoCase.caseRequests[0]?.status ?? null,
             created_at: formattedRequestCreatedAt,
-            evidence: latestReport.evidence.map((item) => item.file_url),
+            // evidence: latestReport.evidence.map((item) => item.file_url),
             citizen: {
               full_name: latestReport.citizen.full_name,
               phone: latestReport.citizen.phone,
