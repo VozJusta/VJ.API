@@ -124,6 +124,10 @@ export class UploadProfileImageController {
     FileInterceptor('file', {
       storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/svg+xml') {
+          return cb(new BadRequestException('Formato SVG não é permitido'), false);
+        }
+
         if (!file.mimetype.startsWith('image/')) {
           return cb(new BadRequestException('Apenas imagens são permitidas'), false);
         }
