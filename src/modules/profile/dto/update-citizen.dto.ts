@@ -46,10 +46,10 @@ export class UpdateCitizenDTO {
   readonly cnpj?: string;
 
   @ApiPropertyOptional({
-    example: '11 99999-9999',
-    description: 'Telefone atualizado do cidadão',
+    example: '(11) 9 1336-2815',
+    description: 'Telefone atualizado do cidadão. Formatos aceitos: (11) 91336-2815, (11) 9 1336-2815, 11 91336-2815, +55 11 91336-2815',
   })
   @IsOptional()
-  @Matches(/^(?:\+55\s?)?\(?[1-9][0-9]\)?9?[\s-]?[2-9]\d{3}[\s-]?\d{4}$/)
+  @Matches(/^(?:\+55\s?)?\(?[1-9][0-9]\)?[\s-]?(?:9[\s-]?\d{4}[\s-]?\d{4}|\d{4}[\s-]?\d{4})$/)
   readonly phone?: string;
 }

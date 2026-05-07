@@ -1,10 +1,19 @@
-import { Body, Controller, ForbiddenException, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Put,
+  Req,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import { UpdateCitizenProfileService } from '@m/profile/service/updateCitizenProfile.service';
 import { UpdateLawyerProfileService } from '@m/profile/service/updateLawyerProfile.service';
 import { AuthTokenGuardAccess } from '@modules/auth/guard/access-token.guard';
 import { RequestUser } from '@modules/common/interfaces/interfaces';
 import { UpdateCitizenDTO } from '@m/profile/dto/update-citizen.dto';
 import { UpdateLawyerDTO } from '@m/profile/dto/update-lawyer.dto';
+import { ValidateUpdateProfilePipe } from '@m/profile/pipes/validate-update-profile.pipe';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -31,6 +40,7 @@ export class PutUpdateProfile {
 
   @Put()
   @UseGuards(AuthTokenGuardAccess)
+  @UsePipes(ValidateUpdateProfilePipe)
   @ApiOperation({
     summary: 'Atualiza o perfil autenticado',
     description:

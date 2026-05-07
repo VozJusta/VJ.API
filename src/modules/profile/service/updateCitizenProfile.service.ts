@@ -2,7 +2,6 @@ import { PrismaService } from '@modules/prisma/service/prisma.service';
 import {
   BadRequestException,
   ForbiddenException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -25,6 +24,20 @@ export class UpdateCitizenProfileService {
     private readonly cnpjValidation: CnpjNumberValidation,
     private readonly emailValidation: EmailValidationService,
   ) {}
+
+  private normalizeOptionalString(value?: string) {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    const normalized = value.trim();
+    return normalized.length ? normalized : undefined;
+  }
+
+  private normalizeOptionalEmail(value?: string) {
+    const normalized = this.normalizeOptionalString(value);
+    return normalized?.toLowerCase();
+  }
 
   async updateCitizen(userId: string, role: string, update: UpdateCitizenDTO) {
     const userRole = role?.toLowerCase?.() ?? '';
@@ -59,8 +72,16 @@ export class UpdateCitizenProfileService {
       throw new BadRequestException('Perfil sem CPF ou CNPJ cadastrado');
     }
 
-    const hasCpfUpdate = update.cpf !== undefined;
-    const hasCnpjUpdate = update.cnpj !== undefined;
+    const normalizedUpdate = {
+      fullName: this.normalizeOptionalString(update.fullName),
+      email: this.normalizeOptionalEmail(update.email),
+      phone: this.normalizeOptionalString(update.phone),
+      cpf: this.normalizeOptionalString(update.cpf),
+      cnpj: this.normalizeOptionalString(update.cnpj),
+    };
+
+    const hasCpfUpdate = normalizedUpdate.cpf !== undefined;
+    const hasCnpjUpdate = normalizedUpdate.cnpj !== undefined;
 
     if (hasCpfUpdate && hasCnpjUpdate) {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
@@ -68,12 +89,12 @@ export class UpdateCitizenProfileService {
 
     await ensureValidCpf(
       this.cpfValidation,
-      hasCpfUpdate ? update.cpf : undefined,
+      hasCpfUpdate ? normalizedUpdate.cpf : undefined,
     );
 
     await ensureValidCnpj(
       this.cnpjValidation,
-      hasCnpjUpdate ? update.cnpj : undefined,
+      hasCnpjUpdate ? normalizedUpdate.cnpj : undefined,
     );
 
     if (profileHasCpf && hasCnpjUpdate) {
@@ -84,34 +105,34 @@ export class UpdateCitizenProfileService {
       throw new BadRequestException('Este perfil usa CNPJ, não CPF');
     }
 
-    await ensureValidEmail(this.emailValidation, update.email);
+    await ensureValidEmail(this.emailValidation, normalizedUpdate.email);
 
     const data: Record<string, string | undefined> = {};
 
-    if (update.fullName !== undefined) {
-      data.full_name = update.fullName;
+    if (normalizedUpdate.fullName !== undefined) {
+      data.full_name = normalizedUpdate.fullName;
     }
 
-    if (update.email !== undefined) {
-      data.email = update.email;
+    if (normalizedUpdate.email !== undefined) {
+      data.email = normalizedUpdate.email;
     }
 
-    if (update.phone !== undefined) {
-      data.phone = update.phone;
+    if (normalizedUpdate.phone !== undefined) {
+      data.phone = normalizedUpdate.phone;
     }
 
     if (profileHasCpf && hasCpfUpdate) {
-      data.cpf = update.cpf;
+      data.cpf = normalizedUpdate.cpf;
     }
 
     if (profileHasCnpj && hasCnpjUpdate) {
-      data.cnpj = update.cnpj;
+      data.cnpj = normalizedUpdate.cnpj;
     }
 
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'email',
-      update.email,
+      normalizedUpdate.email,
       userId,
       'Email já cadastrado em outro usuário',
     );
@@ -119,14 +140,14 @@ export class UpdateCitizenProfileService {
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'phone',
-      update.phone,
+      normalizedUpdate.phone,
       userId,
       'Telefone já cadastrado em outro usuário',
     );
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'cpf',
-      hasCpfUpdate ? update.cpf : undefined,
+      hasCpfUpdate ? normalizedUpdate.cpf : undefined,
       userId,
       'CPF já cadastrado em outro usuário',
     );
@@ -134,7 +155,7 @@ export class UpdateCitizenProfileService {
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'cnpj',
-      hasCnpjUpdate ? update.cnpj : undefined,
+      hasCnpjUpdate ? normalizedUpdate.cnpj : undefined,
       userId,
       'CNPJ já cadastrado em outro usuário',
     );

@@ -26,6 +26,20 @@ export class UpdateLawyerProfileService {
     private readonly emailValidation: EmailValidationService,
   ) {}
 
+  private normalizeOptionalString(value?: string) {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    const normalized = value.trim();
+    return normalized.length ? normalized : undefined;
+  }
+
+  private normalizeOptionalEmail(value?: string) {
+    const normalized = this.normalizeOptionalString(value);
+    return normalized?.toLowerCase();
+  }
+
   async updateLawyer(userId: string, role: string, update: UpdateLawyerDTO) {
     const userRole = role?.toLowerCase?.() ?? '';
 
@@ -59,8 +73,21 @@ export class UpdateLawyerProfileService {
       throw new BadRequestException('Perfil sem CPF ou CNPJ cadastrado');
     }
 
-    const hasCpfUpdate = update.cpf !== undefined;
-    const hasCnpjUpdate = update.cnpj !== undefined;
+    const normalizedUpdate = {
+      fullName: this.normalizeOptionalString(update.fullName),
+      bio: this.normalizeOptionalString(update.bio),
+      email: this.normalizeOptionalEmail(update.email),
+      phone: this.normalizeOptionalString(update.phone),
+      cpf: this.normalizeOptionalString(update.cpf),
+      cnpj: this.normalizeOptionalString(update.cnpj),
+      lawyerStatus: this.normalizeOptionalString(update.lawyerStatus),
+      oabNumber: this.normalizeOptionalString(update.oabNumber),
+      oabState: this.normalizeOptionalString(update.oabState),
+      specialization: update.specialization,
+    };
+
+    const hasCpfUpdate = normalizedUpdate.cpf !== undefined;
+    const hasCnpjUpdate = normalizedUpdate.cnpj !== undefined;
 
     if (hasCpfUpdate && hasCnpjUpdate) {
       throw new BadRequestException('Envie apenas CPF ou CNPJ, não ambos');
@@ -68,12 +95,12 @@ export class UpdateLawyerProfileService {
 
     await ensureValidCpf(
       this.cpfValidation,
-      hasCpfUpdate ? update.cpf : undefined,
+      hasCpfUpdate ? normalizedUpdate.cpf : undefined,
     );
 
     await ensureValidCnpj(
       this.cnpjValidation,
-      hasCnpjUpdate ? update.cnpj : undefined,
+      hasCnpjUpdate ? normalizedUpdate.cnpj : undefined,
     );
 
     if (profileHasCpf && hasCnpjUpdate) {
@@ -84,54 +111,54 @@ export class UpdateLawyerProfileService {
       throw new BadRequestException('Este perfil usa CNPJ, não CPF');
     }
 
-    await ensureValidEmail(this.emailValidation, update.email);
+    await ensureValidEmail(this.emailValidation, normalizedUpdate.email);
 
     const data: Record<string, string | undefined> = {};
 
-    if (update.fullName !== undefined) {
-      data.full_name = update.fullName;
+    if (normalizedUpdate.fullName !== undefined) {
+      data.full_name = normalizedUpdate.fullName;
     }
 
     if (profileHasCpf && hasCpfUpdate) {
-      data.cpf = update.cpf;
+      data.cpf = normalizedUpdate.cpf;
     }
 
     if (profileHasCnpj && hasCnpjUpdate) {
-      data.cnpj = update.cnpj;
+      data.cnpj = normalizedUpdate.cnpj;
     }
 
-    if (update.email !== undefined) {
-      data.email = update.email;
+    if (normalizedUpdate.email !== undefined) {
+      data.email = normalizedUpdate.email;
     }
 
-    if (update.phone !== undefined) {
-      data.phone = update.phone;
+    if (normalizedUpdate.phone !== undefined) {
+      data.phone = normalizedUpdate.phone;
     }
 
-    if (update.bio !== undefined) {
-      data.bio = update.bio;
+    if (normalizedUpdate.bio !== undefined) {
+      data.bio = normalizedUpdate.bio;
     }
 
-    if (update.specialization !== undefined) {
-      data.specialization = update.specialization;
+    if (normalizedUpdate.specialization !== undefined) {
+      data.specialization = normalizedUpdate.specialization;
     }
 
-    if (update.lawyerStatus !== undefined) {
-      data.lawyer_status = update.lawyerStatus;
+    if (normalizedUpdate.lawyerStatus !== undefined) {
+      data.lawyer_status = normalizedUpdate.lawyerStatus;
     }
 
-    if (update.oabNumber !== undefined) {
-      data.oab_number = update.oabNumber;
+    if (normalizedUpdate.oabNumber !== undefined) {
+      data.oab_number = normalizedUpdate.oabNumber;
     }
 
-    if (update.oabState !== undefined) {
-      data.oab_state = update.oabState;
+    if (normalizedUpdate.oabState !== undefined) {
+      data.oab_state = normalizedUpdate.oabState;
     }
 
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'email',
-      update.email,
+      normalizedUpdate.email,
       userId,
       'Email já cadastrado em outro usuário',
     );
@@ -139,7 +166,7 @@ export class UpdateLawyerProfileService {
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'phone',
-      update.phone,
+      normalizedUpdate.phone,
       userId,
       'Telefone já cadastrado em outro usuário',
     );
@@ -147,7 +174,7 @@ export class UpdateLawyerProfileService {
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'cpf',
-      hasCpfUpdate ? update.cpf : undefined,
+      hasCpfUpdate ? normalizedUpdate.cpf : undefined,
       userId,
       'CPF já cadastrado em outro usuário',
     );
@@ -155,12 +182,12 @@ export class UpdateLawyerProfileService {
     await ensureUniqueAcrossProfiles(
       this.prisma,
       'cnpj',
-      hasCnpjUpdate ? update.cnpj : undefined,
+      hasCnpjUpdate ? normalizedUpdate.cnpj : undefined,
       userId,
       'CNPJ já cadastrado em outro usuário',
     );
 
-    await ensureUniqueLawyerOab(this.prisma, update.oabNumber, userId);
+    await ensureUniqueLawyerOab(this.prisma, normalizedUpdate.oabNumber, userId);
 
     const updateUser = await this.prisma.lawyer.update({
       where: { id: userId },
