@@ -27,6 +27,7 @@ export class CreateEvidenceService {
         }
 
         const upload = await this.cloudinaryService.uploadFile(file);
+        console.log(upload);
 
         const ocr = await Tesseract.recognize(file.buffer, 'eng');
 
