@@ -21,30 +21,22 @@ export class OperationalStatusService {
                 throw new NotFoundException('Advogado não encontrado');
             }
 
-            const reportsWithStatus = await this.prisma.report.findMany({
+            const caseRequestsWithStatus = await this.prisma.caseRequest.findMany({
                 where: {
-                    case: {
-                        lawyer_id: userId,
-                        status: {
-                            in: ['Pending', 'Refused', 'Accepted'],
-                        },
+                    lawyer_id: userId,
+                    status: {
+                        in: ['Pending', 'Refused', 'Accepted'],
                     },
                 },
-                select: {
-                    case: {
-                        select: {
-                            status: true,
-                        },
-                    },
-                },
+                select: { status: true },
             });
 
-            const counts = reportsWithStatus.reduce<{
+            const counts = caseRequestsWithStatus.reduce<{
                 pending: number;
                 refused: number;
                 accepted: number;
-            }>((acc, report) => {
-                const status = report.case.status.toLowerCase();
+            }>((acc, caseRequest) => {
+                const status = caseRequest.status.toLowerCase();
 
                 if (status === 'pending') acc.pending += 1;
                 if (status === 'refused') acc.refused += 1;

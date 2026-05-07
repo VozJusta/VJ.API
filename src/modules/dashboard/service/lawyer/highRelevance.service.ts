@@ -10,7 +10,7 @@ export class HighRelevanceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async highRelevance(userId: string, role: string) {
-    const userRole = role.toLowerCase();
+    const userRole = role?.toLowerCase?.() ?? '';
 
     if (userRole === 'lawyer') {
       const lawyer = await this.prisma.lawyer.findFirst({
@@ -22,32 +22,68 @@ export class HighRelevanceService {
         throw new NotFoundException('Advogado não encontrado');
       }
 
-      const scoreRelevance = await this.prisma.report.findMany({
+      const caseRequests = await this.prisma.caseRequest.findMany({
         where: {
+          lawyer_id: userId,
           case: {
-            lawyer_id: userId,
+            reports: {
+              some: {
+                confidence_score: { not: null },
+              },
+            },
           },
-          confidence_score: { not: null },
         },
         select: {
           id: true,
-          case: { select: { title: true, status: true } },
-          confidence_score: true,
-          category_detected: true,
-        },
-        take: 3,
-        orderBy: {
-          confidence_score: 'desc',
+          status: true,
+          case: {
+            select: {
+              id: true,
+              title: true,
+              reports: {
+                where: { confidence_score: { not: null } },
+                select: {
+                  confidence_score: true,
+                  category_detected: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      return scoreRelevance.map((report) => ({
-        id: report.id,
-        title: report.case.title,
-        status: report.case.status,
-        confidence_score: report.confidence_score,
-        category_detected: report.category_detected,
-      }));
+      const relevance = caseRequests
+        .flatMap((caseRequest) => {
+          const reports = caseRequest.case.reports;
+          let bestReport: (typeof reports)[number] | null = null;
+
+          for (const report of reports) {
+            if (
+              bestReport === null ||
+              (report.confidence_score ?? 0) > (bestReport.confidence_score ?? 0)
+            ) {
+              bestReport = report;
+            }
+          }
+
+          if (!bestReport) {
+            return [];
+          }
+
+          return [
+            {
+              id: caseRequest.id,
+              title: caseRequest.case.title,
+              status: caseRequest.status,
+              confidence_score: bestReport.confidence_score,
+              category_detected: bestReport.category_detected,
+            },
+          ];
+        })
+        .sort((a, b) => (b.confidence_score ?? 0) - (a.confidence_score ?? 0))
+        .slice(0, 3);
+
+      return relevance;
     }
     throw new BadRequestException('Role inválida');
   }
