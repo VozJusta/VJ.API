@@ -14,6 +14,7 @@ import { SimulationModule } from '@modules/simulations/simulation.module';
 import { BullModule } from '@nestjs/bull';
 import { PaymentModule } from '@modules/payments/modules/payments.module';
 import { NotificationsModule } from '@modules/notifications/module/notifications.module';
+import { ProfileModule } from '@modules/profile/module/profile.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { NotificationsModule } from '@modules/notifications/module/notifications
     SimulationModule,
     PaymentModule,
     NotificationsModule,
+    ProfileModule,
     RouterModule.register([
       {
         path: '/auth',
