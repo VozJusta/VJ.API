@@ -7,13 +7,15 @@ import {
 } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
 import Tesseract from 'tesseract.js';
+import * as pdfParseModule from 'pdf-parse';
+
 
 @Injectable()
 export class CreateEvidenceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
   async createEvidence(
     file: Express.Multer.File,
     userId: string,
@@ -39,12 +41,47 @@ export class CreateEvidenceService {
     const citizenId = await this.prisma.citizen.findUnique({
       where: { id: userId },
     });
+
     if (!citizenId) {
       throw new NotFoundException('Cidadão não encontrado');
     }
 
+
     const upload = await this.cloudinaryService.uploadFile(file);
-    console.log(upload);
+
+    let extractedText = '';
+
+    if (
+      file.mimetype === 'image/jpeg' ||
+      file.mimetype === 'image/png'
+    ) {
+      const ocr = await Tesseract.recognize(
+        file.buffer,
+        'eng',
+      );
+
+      extractedText = ocr.data.text;
+    }
+
+    if (file.mimetype === 'application/pdf') {
+     const parsedPdf = await (pdfParseModule as any).default(file.buffer);
+
+      if (parsedPdf.text.trim()) {
+        extractedText = parsedPdf.text;
+      } else {
+        throw new BadRequestException(
+          'PDF sem texto detectável. OCR para PDF escaneado ainda não foi implementado.',
+        );
+      }
+    }
+
+    if (!extractedText.trim()) {
+      throw new BadRequestException(
+        'Não foi possível extrair texto do arquivo',
+      );
+    }
+
+
 
     const ocr = await Tesseract.recognize(file.buffer, 'eng');
 

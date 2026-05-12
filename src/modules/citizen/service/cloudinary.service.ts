@@ -1,11 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { v2 as cloudinary } from 'cloudinary';
+import { Injectable } from '@nestjs/common';
+import cloudinary from '../../common/cloudinary/cloudinary.client';
 import * as streamifier from 'streamifier';
 
 @Injectable()
 export class CloudinaryService {
-  constructor(@Inject('CLOUDINARY') private readonly cloudinaryConfig: any) {}
-
   async uploadFile(file: Express.Multer.File): Promise<any> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -19,7 +17,7 @@ export class CloudinaryService {
           } else {
             resolve(result);
           }
-        }
+        },
       );
 
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
