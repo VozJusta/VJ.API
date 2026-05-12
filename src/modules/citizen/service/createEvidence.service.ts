@@ -64,7 +64,7 @@ export class CreateEvidenceService {
     }
 
     if (file.mimetype === 'application/pdf') {
-     const parsedPdf = await (pdfParseModule as any).default(file.buffer);
+      const parsedPdf = await (pdfParseModule as any).default(file.buffer);
 
       if (parsedPdf.text.trim()) {
         extractedText = parsedPdf.text;
@@ -81,14 +81,23 @@ export class CreateEvidenceService {
       );
     }
 
+    function cleanOCR(text: string) {
+      return text
+        .replace(/\n+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/[^\w\s.,:À-ÿ]/g, '')
+        .trim();
+    }
 
+
+    const cleanedText = cleanOCR(extractedText);
 
     const ocr = await Tesseract.recognize(file.buffer, 'eng');
 
     const evidence = await this.prisma.evidence.create({
       data: {
         file_url: upload.secure_url,
-        ocr_content: ocr.data.text,
+        ocr_content: cleanedText,
         public_id: upload.public_id,
       },
     });
