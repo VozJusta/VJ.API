@@ -92,13 +92,12 @@ export class CreateEvidenceService {
 
     const cleanedText = cleanOCR(extractedText);
 
-    const ocr = await Tesseract.recognize(file.buffer, 'eng');
-
     const evidence = await this.prisma.evidence.create({
       data: {
         file_url: upload.secure_url,
         ocr_content: cleanedText,
         public_id: upload.public_id,
+        citizenId: userId
       },
     });
     return evidence;

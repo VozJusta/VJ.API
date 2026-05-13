@@ -13,6 +13,8 @@ import { FindLawyerForCitizen } from '../service/findLawyerForCitizen.service';
 import { ListLawyersForCitizens } from '../service/listLawyersForCitizens.service';
 import { CreateEvidenceService } from '../service/createEvidence.service';
 import { CloudinaryService } from '../service/cloudinary.service';
+import { ListEvidenceCitizenService } from '../service/listEvidenceCitizen.service';
+import { ListEvidenceCitizenController } from '../controllers/listEvidenceCitizen.controller';
 
 
 @Module({
@@ -24,6 +26,7 @@ import { CloudinaryService } from '../service/cloudinary.service';
     CreateCaseRequest,
     CreateEvidenceService,
     CloudinaryService,
+    ListEvidenceCitizenService
   ],
   controllers: [
     CitizenController,
@@ -31,6 +34,7 @@ import { CloudinaryService } from '../service/cloudinary.service';
     GetLawyersForCitizen,
     GetOneLawyerForCitizen,
     PostCaseRequestController,
+    ListEvidenceCitizenController
   ],
 })
 export class CitizenModule { }

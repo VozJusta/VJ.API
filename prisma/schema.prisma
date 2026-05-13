@@ -12,15 +12,16 @@ model Citizen {
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
-  avatar_image       String?
   stripe_customer_id String?            @unique
   phone              String?            @unique
   email              String             @unique
   password           String?
   created_at         DateTime           @default(now())
   session_id         String             @default(uuid())
+  avatar_image       String?
   cases              Case[]
   caseRequests       CaseRequest[]
+  evidences          Evidence[]
   notifications      Notification[]
   report             Report[]
   simulation         Simulation[]
@@ -35,7 +36,6 @@ model Lawyer {
   full_name          String
   bio                String?
   cpf                String?          @unique
-  cnpj               String?            @unique
   avatar_image       String?
   rating             Decimal?         @default(0)
   specialization     Specialization?
@@ -47,6 +47,7 @@ model Lawyer {
   created_at         DateTime         @default(now())
   oab_state          OabState?
   session_id         String           @default(uuid())
+  cnpj               String?          @unique
   cases              Case[]
   caseRequests       CaseRequest[]
   notifications      Notification[]
@@ -72,7 +73,7 @@ model Subscription {
   id                     String             @id @default(uuid())
   citizen_id             String?            @unique
   lawyer_id              String?            @unique
-  stripe_subscription_id String             @unique @default(uuid())
+  stripe_subscription_id String             @unique
   subscription_status    SubscriptionStatus
   interviews_used        Int                @default(0)
   simulations_used       Int                @default(0)
@@ -235,11 +236,13 @@ model SimulationReport {
 }
 
 model Evidence {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   file_url    String
   ocr_content String
   embedding   Json?
-  public_id   String @unique
+  public_id   String   @unique
+  citizenId   String?
+  citizen     Citizen? @relation(fields: [citizenId], references: [id])
 }
 
 model Notification {
