@@ -31,13 +31,13 @@ import { CreateEvidenceService } from '../service/createEvidence.service';
   description: 'Token JWT recebido no login no formato "Bearer <token>"',
   required: true,
 })
-@UseInterceptors(FileInterceptor('file'))
 export class CreateEvidenceController {
   constructor(
     private readonly createEvidenceService: CreateEvidenceService
   ) { }
   @Post('evidence')
   @UseGuards(AuthTokenGuardAccess)
+  @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Cria uma evidência para o cidadão autenticado',
