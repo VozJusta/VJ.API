@@ -77,12 +77,7 @@ export class LawyerService {
         subscription: {
           create: {
             plan: {
-              create: {
-                billing_type: body.billingType,
-                max_interviews: 3,
-                max_simulation: 0,
-                name: body.namePlan,
-              },
+              connect: { id: 'plan_adv_junior' },
             },
             subscription_status: 'active',
             current_period_end: new Date(

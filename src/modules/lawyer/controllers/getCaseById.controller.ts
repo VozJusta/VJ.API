@@ -11,7 +11,7 @@ import {
 import { FindCaseById } from '@m/lawyer/service/findCaseById.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
-@Controller('lawyer')
+@Controller()
 @ApiTags('Lawyer')
 @ApiBearerAuth()
 @ApiHeader({

@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@m/prisma/service/prisma.service';
 import { CreateCitizenDTO } from '@modules/citizen/dto/create-citizen.dto';
-import { hash } from 'bcryptjs';
 import { HashingServiceProtocol } from '@m/auth/hash/hashing.service';
 import { CpfNumberValidation } from '@m/validation/service/cpf-number-validation.service';
 import { CnpjNumberValidation } from '@m/validation/service/cnpj-number-validation.service';
@@ -52,12 +51,15 @@ export class CitizenService {
 
     const cpfValid = await this.validateCPF.validate(body.cpf);
 
-    if (body.cnpj) {
-      const cnpjValid = await this.validateCnpj.validate(body.cnpj);
-    }
-
     if (!cpfValid) {
       throw new NotAcceptableException('CPF inválido');
+    }
+
+    if (body.cnpj) {
+      const cnpjValid = await this.validateCnpj.validate(body.cnpj);
+      if (!cnpjValid) {
+        throw new NotAcceptableException('CNPJ inválido');
+      }
     }
     const hashedPassword = await this.hashingService.hash(body.password);
 
@@ -73,15 +75,8 @@ export class CitizenService {
         subscription: {
           create: {
             plan: {
-              create: {
-                billing_type: body.billingType,
-                max_interviews: 3,
-                max_simulation: 0,
-                stripe_price_id: 'price_1N8Xo2KqYjYp3sQh7n9v5ZtL',
-                name: body.namePlan,
-              },
+              connect: { id: 'plan_free' },
             },
-            stripe_subscription_id: 'sub_1N8Xo2KqYjYp3sQh7n9v5ZtL',
             subscription_status: 'active',
             current_period_end: new Date(
               new Date().setMonth(new Date().getMonth() + 1),
@@ -110,8 +105,6 @@ export class CitizenService {
       },
     });
 
-    'token invalido'
-
     return {
       validated: true,
       sub: newUser.id,
@@ -119,13 +112,15 @@ export class CitizenService {
       email: newUser.email,
       full_name: newUser.full_name,
       loggedWithGoogle: false,
-      subscription: {
-        plan: {
-          type: newUser.subscription?.plan.type,
-          billing_type: newUser.subscription?.plan.billing_type,
-          name: newUser.subscription?.plan.name,
-        },
-      },
+      subscription: newUser.subscription
+        ? {
+            plan: {
+              type: newUser.subscription.plan?.type,
+              billing_type: newUser.subscription.plan?.billing_type,
+              name: newUser.subscription.plan?.name,
+            },
+          }
+        : null,
     };
   }
 }

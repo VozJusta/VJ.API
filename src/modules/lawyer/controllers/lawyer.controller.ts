@@ -4,7 +4,7 @@ import { CreateLawyerDTO } from '@m/lawyer/dto/create-lawyer.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 @ApiTags('Lawyer')
-@Controller('lawyer')
+@Controller()
 export class LawyerController {
   constructor(private readonly lawyerService: LawyerService) {}
 
@@ -28,8 +28,6 @@ export class LawyerController {
         phone: '11 99999-9999',
         email: 'thiago@gmail.com',
         password: '@Za12345678',
-        billingType: 'Monthly',
-        namePlan: 'Plano Adv Premium',
       },
     },
   })

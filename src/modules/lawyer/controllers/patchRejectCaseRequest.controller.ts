@@ -18,7 +18,7 @@ import { RejectCaseRequest } from '@m/lawyer/service/rejectCaseRequest.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
-@Controller('lawyer')
+@Controller()
 @ApiTags('Lawyer')
 @ApiBearerAuth()
 @ApiHeader({

@@ -55,36 +55,38 @@ export class LawyerRequestsStatusService {
         ...(reportStatus !== undefined ? { status: reportStatus } : {}),
       };
 
-      const [caseRequestsByStatus, totalItems] = await this.prisma.$transaction([
-        this.prisma.caseRequest.findMany({
-          where,
-          select: {
-            id: true,
-            status: true,
-            created_at: true,
-            citizen: {
-              select: { full_name: true },
-            },
-            case: {
-              select: {
-                id:true,
-                title: true,
-                reports: {
-                  select: { category_detected: true, id: true },
-                  orderBy: { created_at: 'desc' },
-                  take: 1,
+      const [caseRequestsByStatus, totalItems] = await this.prisma.$transaction(
+        [
+          this.prisma.caseRequest.findMany({
+            where,
+            select: {
+              id: true,
+              status: true,
+              created_at: true,
+              citizen: {
+                select: { full_name: true },
+              },
+              case: {
+                select: {
+                  id: true,
+                  title: true,
+                  reports: {
+                    select: { category_detected: true, id: true },
+                    orderBy: { created_at: 'desc' },
+                    take: 1,
+                  },
                 },
               },
             },
-          },
-          orderBy: { created_at: 'desc' },
-          skip,
-          take: pageSize,
-        }),
-        this.prisma.caseRequest.count({
-          where,
-        }),
-      ]);
+            orderBy: { created_at: 'desc' },
+            skip,
+            take: pageSize,
+          }),
+          this.prisma.caseRequest.count({
+            where,
+          }),
+        ],
+      );
 
       const totalPages = Math.ceil(totalItems / pageSize);
 

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -18,21 +12,22 @@ model Citizen {
   full_name          String
   cpf                String?            @unique
   cnpj               String?            @unique
-  avatar_image       String?
   stripe_customer_id String?            @unique
   phone              String?            @unique
   email              String             @unique
+  password           String?
+  created_at         DateTime           @default(now())
   session_id         String             @default(uuid())
-  subscription       Subscription?
+  avatar_image       String?
+  cases              Case[]
+  caseRequests       CaseRequest[]
+  evidences          Evidence[]
+  notifications      Notification[]
   report             Report[]
   simulation         Simulation[]
   simulation_report  SimulationReport[]
-  password           String?
-  created_at         DateTime           @default(now())
+  subscription       Subscription?
   validationCodes    ValidationCode[]
-  cases              Case[]
-  caseRequests       CaseRequest[]
-  notifications      Notification[]
 }
 
 model Lawyer {
@@ -41,24 +36,24 @@ model Lawyer {
   full_name          String
   bio                String?
   cpf                String?          @unique
-  cnpj               String?          @unique
   avatar_image       String?
   rating             Decimal?         @default(0)
   specialization     Specialization?
   lawyer_status      LawyerStatus     @default(Pending)
   oab_number         String?
-  oab_state          OabState?
   phone              String?          @unique
   email              String           @unique
-  session_id         String           @default(uuid())
   password           String?
-  subscription       Subscription?
-  report             Report[]
   created_at         DateTime         @default(now())
-  validationCodes    ValidationCode[]
+  oab_state          OabState?
+  session_id         String           @default(uuid())
+  cnpj               String?          @unique
   cases              Case[]
   caseRequests       CaseRequest[]
   notifications      Notification[]
+  report             Report[]
+  subscription       Subscription?
+  validationCodes    ValidationCode[]
 }
 
 model Plan {
@@ -76,73 +71,67 @@ model Plan {
 
 model Subscription {
   id                     String             @id @default(uuid())
-  stripe_subscription_id String             @unique @default(uuid())
-  subscription_status    SubscriptionStatus
-  citizen                Citizen?           @relation(fields: [citizen_id], references: [id])
-  lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
   citizen_id             String?            @unique
   lawyer_id              String?            @unique
-  planId                 String
-  plan                   Plan               @relation(fields: [planId], references: [id])
+  stripe_subscription_id String             @unique @default(uuid())
+  subscription_status    SubscriptionStatus
   interviews_used        Int                @default(0)
   simulations_used       Int                @default(0)
   leads_used             Int                @default(0)
   current_period_start   DateTime           @default(now())
   current_period_end     DateTime
+  planId                 String
+  citizen                Citizen?           @relation(fields: [citizen_id], references: [id])
+  lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
+  plan                   Plan               @relation(fields: [planId], references: [id])
 }
 
 model Report {
   id                     String         @id @default(uuid())
   transcription          String
-  normalized_text        String
   legal_analysis         String
   simplified_explanation String
   category_detected      Specialization
-  confidence_score       Float?
   citizen_id             String
   lawyer_id              String?
-  lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  citizen                Citizen        @relation(fields: [citizen_id], references: [id])
-  evidence               Evidence[]
-  ai_versions            AiResponse[]
   created_at             DateTime       @default(now())
-  ragContexts            RagContext[]
-  simulations            Simulation[]
-  case                   Case           @relation(fields: [caseId], references: [id])
+  confidence_score       Float?
+  normalized_text        String
   caseId                 String
+  ai_versions            AiResponse[]
+  ragContexts            RagContext[]
+  case                   Case           @relation(fields: [caseId], references: [id])
+  citizen                Citizen        @relation(fields: [citizen_id], references: [id])
+  lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
+  simulations            Simulation[]
 }
 
 model Case {
   id            String         @id @default(uuid())
   citizen_id    String
   lawyer_id     String?
-  citizen       Citizen        @relation(fields: [citizen_id], references: [id])
-  lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
-  title         String
   status        Status         @default(Pending)
-  reports       Report[]
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
-  conversations Conversation[]
+  title         String
+  citizen       Citizen        @relation(fields: [citizen_id], references: [id])
+  lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
   caseRequests  CaseRequest[]
+  conversations Conversation[]
+  reports       Report[]
 }
 
 model CaseRequest {
-  id String @id @default(uuid())
-
-  case_id String
-  case    Case   @relation(fields: [case_id], references: [id])
-
+  id         String   @id @default(uuid())
+  case_id    String
   citizen_id String
-  citizen    Citizen @relation(fields: [citizen_id], references: [id])
-
-  lawyer_id String
-  lawyer    Lawyer @relation(fields: [lawyer_id], references: [id])
-
-  status Status @default(Pending)
-
+  lawyer_id  String
+  status     Status   @default(Pending)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  case       Case     @relation(fields: [case_id], references: [id])
+  citizen    Citizen  @relation(fields: [citizen_id], references: [id])
+  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
 
   @@unique([case_id, lawyer_id])
 }
@@ -150,25 +139,24 @@ model CaseRequest {
 model Conversation {
   id         String    @id @default(uuid())
   case_id    String
-  case       Case      @relation(fields: [case_id], references: [id])
-  messages   Message[]
   is_closed  Boolean   @default(false)
   created_at DateTime  @default(now())
+  case       Case      @relation(fields: [case_id], references: [id])
+  messages   Message[]
 }
 
 model Message {
   id              String       @id @default(uuid())
   conversation_id String
-  conversation    Conversation @relation(fields: [conversation_id], references: [id])
   role            MessageRole
   content         String
   created_at      DateTime     @default(now())
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
 }
 
 model AiResponse {
   id          String   @id @default(uuid())
   report_id   String
-  report      Report   @relation(fields: [report_id], references: [id])
   model       String
   provider    String
   prompt      String
@@ -176,83 +164,85 @@ model AiResponse {
   tokens_used Int?
   latency_ms  Int?
   created_at  DateTime @default(now())
+  report      Report   @relation(fields: [report_id], references: [id])
 }
 
 model RagContext {
   id         String   @id @default(uuid())
   report_id  String
-  report     Report   @relation(fields: [report_id], references: [id])
   source     String
   content    String
   score      Float
   created_at DateTime @default(now())
+  report     Report   @relation(fields: [report_id], references: [id])
 }
 
 model ValidationCode {
   id         String   @id @default(uuid())
   type       Types
-  citizen_id String?
-  lawyer_id  String?
-  citizen    Citizen? @relation(fields: [citizen_id], references: [id])
-  lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
-  code       String
-  validated  Boolean  @default(false)
-  email      String
   expired    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  validated  Boolean  @default(false)
+  email      String
+  code       String
+  lawyer_id  String?
+  citizen_id String?
+  citizen    Citizen? @relation(fields: [citizen_id], references: [id])
+  lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
 }
 
 model Simulation {
   id                String            @id @default(uuid())
   citizen_id        String
-  citizen           Citizen           @relation(fields: [citizen_id], references: [id])
-  report_id         String?
-  report            Report?           @relation(fields: [report_id], references: [id])
   personality       Personality
   transcription     String?
   score_feedback    String?
-  status            SimStatus?        @default(Waiting)
-  started_at        DateTime          @default(now())
-  ended_at          DateTime?
+  report_id         String?
   duration_secs     Int?
-  turns             SimulationTurn[]
+  ended_at          DateTime?
+  started_at        DateTime          @default(now())
+  status            SimStatus?        @default(Waiting)
+  citizen           Citizen           @relation(fields: [citizen_id], references: [id])
+  report            Report?           @relation(fields: [report_id], references: [id])
   simulation_report SimulationReport?
+  turns             SimulationTurn[]
 }
 
 model SimulationTurn {
   id            String     @id @default(uuid())
   simulation_id String
-  simulation    Simulation @relation(fields: [simulation_id], references: [id])
   role          TurnRole
   content       String
   audio_url     String?
   created_at    DateTime   @default(now())
+  simulation    Simulation @relation(fields: [simulation_id], references: [id])
 }
 
 model SimulationReport {
   id              String      @id @default(uuid())
-  simulation_id   String      @unique
-  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
-  user_id         String
-  user            Citizen     @relation(fields: [user_id], references: [id])
-  full_transcript Json
-  score           Int?
-  strengths       String[]
-  weaknesses      String[]
-  metrics_json    Json?
-  duration_secs   Int?
-  personality     Personality
   created_at      DateTime    @default(now())
+  duration_secs   Int?
+  full_transcript Json
+  metrics_json    Json?
+  personality     Personality
+  score           Int?
+  simulation_id   String      @unique
+  strengths       String[]
+  user_id         String
+  weaknesses      String[]
+  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
+  user            Citizen     @relation(fields: [user_id], references: [id])
 }
 
 model Evidence {
-  id          String @id @default(uuid())
-  report_id   String
-  report      Report @relation(fields: [report_id], references: [id])
+  id          String   @id @default(uuid())
   file_url    String
   ocr_content String
   embedding   Json?
+  public_id   String   @unique
+  citizenId   String?
+  citizen     Citizen? @relation(fields: [citizenId], references: [id])
 }
 
 model Notification {
@@ -264,10 +254,10 @@ model Notification {
   metadata   Json?
   citizen_id String?
   lawyer_id  String?
-  citizen    Citizen?         @relation(fields: [citizen_id], references: [id])
-  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id])
   created_at DateTime         @default(now())
   read_at    DateTime?
+  citizen    Citizen?         @relation(fields: [citizen_id], references: [id])
+  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id])
 
   @@index([citizen_id, created_at])
   @@index([lawyer_id, created_at])

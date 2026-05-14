@@ -13,7 +13,7 @@ export class ForgotController {
 
   ) {}
 
-  @Post('forgot/password')
+  @Post('password')
   @ApiBody({
     description: 'Rota para redefinir senha apos validacao de codigo',
     required: true,

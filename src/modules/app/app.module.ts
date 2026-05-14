@@ -67,6 +67,14 @@ import { ProfileModule } from '@modules/profile/module/profile.module';
         path: '/report',
         module: AiModule,
       },
+      {
+        path: '/citizen',
+        module: CitizenModule,
+      },
+      {
+      path: '/lawyer',
+      module: LawyerModule,
+      }
     ]),
   ],
   controllers: [AppController],
