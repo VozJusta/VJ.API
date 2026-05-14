@@ -10,7 +10,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { BillingType, OabState, Specialization } from 'generated/prisma/enums';
+import {  OabState, Specialization } from 'generated/prisma/enums';
 
 export class CreateLawyerDTO {
   @ApiProperty({
@@ -96,21 +96,5 @@ export class CreateLawyerDTO {
   @IsNotEmpty({ message: 'O campo password é obrigatório' })
   readonly password: string;
 
-  @ApiProperty({
-    enum: BillingType,
-    example: BillingType.Monthly,
-    description: 'Tipo de cobranca do plano',
-  })
-  @IsEnum(BillingType, { message: 'Tipo de cobrança inválido' })
-  @IsNotEmpty({ message: 'O campo billingType é obrigatório' })
-  @IsString({ message: 'Tipo de cobrança inválido' })
-  readonly billingType: BillingType;
 
-  @ApiProperty({
-    example: 'Plano Adv Premium',
-    description: 'Nome do plano para assinatura',
-  })
-  @MinLength(1, { message: 'O campo namePlan deve ser preenchido' })
-  @IsString({ message: 'Nome do plano é obrigatório' })
-  readonly namePlan: string;
 }

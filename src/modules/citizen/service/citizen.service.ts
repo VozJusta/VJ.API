@@ -75,12 +75,7 @@ export class CitizenService {
         subscription: {
           create: {
             plan: {
-              create: {
-                billing_type: body.billingType,
-                max_interviews: 3,
-                max_simulation: 0,
-                name: body.namePlan,
-              },
+              connect: { id: 'plan_free' },
             },
             subscription_status: 'active',
             current_period_end: new Date(
@@ -117,13 +112,15 @@ export class CitizenService {
       email: newUser.email,
       full_name: newUser.full_name,
       loggedWithGoogle: false,
-      subscription: newUser.subscription ? {
-        plan: {
-          type: newUser.subscription.plan?.type,
-          billing_type: newUser.subscription.plan?.billing_type,
-          name: newUser.subscription.plan?.name,
-        },
-      } : null,
+      subscription: newUser.subscription
+        ? {
+            plan: {
+              type: newUser.subscription.plan?.type,
+              billing_type: newUser.subscription.plan?.billing_type,
+              name: newUser.subscription.plan?.name,
+            },
+          }
+        : null,
     };
   }
 }

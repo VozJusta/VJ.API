@@ -22,8 +22,6 @@ export class CitizenController {
         phone: '11 99999-9999',
         email: 'pedro@gmail.com',
         password: '@Za12345678',
-        billingType: 'Monthly',
-        namePlan: 'Plano Inicial',
       },
     },
   })

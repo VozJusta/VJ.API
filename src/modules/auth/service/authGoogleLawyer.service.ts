@@ -13,35 +13,32 @@ export class AuthenticateGoogleLawyerService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) { }
+  ) {}
 
   async authenticateGoogleLawyer(
     email: string,
     name: string,
     origin: 'web' | 'mobile',
   ): Promise<AuthResult> {
-    const sessionId = randomUUID();
     let lawyer = await this.prisma.lawyer.findFirst({ where: { email } });
     const isNew = !lawyer;
 
     if (!lawyer) {
       const citizen = await this.prisma.citizen.findFirst({
-        where: { email: email }
-      })
+        where: { email: email },
+      });
 
       if (citizen) {
-        throw new ConflictException('Usuário já cadastrado')
+        throw new ConflictException('Usuário já cadastrado');
       }
 
+      const sessionId = randomUUID();
       lawyer = await this.prisma.lawyer.create({
         data: { email, full_name: name, session_id: sessionId },
       });
-    } else {
-      await this.prisma.lawyer.update({
-        where: { id: lawyer.id },
-        data: { session_id: sessionId },
-      });
     }
+
+    const sessionId = lawyer.session_id;
 
     const payload = {
       validated: true,

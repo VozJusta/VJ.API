@@ -9,7 +9,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BillingType } from 'generated/prisma/enums';
+
 
 export class CreateCitizenDTO {
   @ApiProperty({
@@ -74,19 +74,4 @@ export class CreateCitizenDTO {
   )
   readonly password: string;
 
-  @ApiProperty({
-    enum: BillingType,
-    example: BillingType.Monthly,
-    description: 'Tipo de cobranca do plano',
-  })
-  @IsEnum(BillingType, { message: 'Tipo de cobrança inválido' })
-  @IsString({ message: 'Tipo de cobrança inválido' })
-  readonly billingType: BillingType;
-
-  @ApiProperty({
-    example: 'Plano Inicial',
-    description: 'Nome do plano para assinatura',
-  })
-  @IsString({ message: 'Nome do plano é obrigatório' })
-  readonly namePlan: string;
 }

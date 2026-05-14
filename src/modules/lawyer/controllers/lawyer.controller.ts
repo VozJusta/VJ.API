@@ -28,8 +28,6 @@ export class LawyerController {
         phone: '11 99999-9999',
         email: 'thiago@gmail.com',
         password: '@Za12345678',
-        billingType: 'Monthly',
-        namePlan: 'Plano Adv Premium',
       },
     },
   })
