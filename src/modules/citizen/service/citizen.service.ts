@@ -91,6 +91,7 @@ export class CitizenService {
         cnpj: true,
         phone: true,
         email: true,
+        session_id: true,
         subscription: {
           include: {
             plan: {
@@ -112,6 +113,7 @@ export class CitizenService {
       email: newUser.email,
       full_name: newUser.full_name,
       loggedWithGoogle: false,
+      sessionId: newUser.session_id,
       subscription: newUser.subscription
         ? {
             plan: {
