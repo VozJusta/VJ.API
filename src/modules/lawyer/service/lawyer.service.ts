@@ -92,6 +92,7 @@ export class LawyerService {
         cpf: true,
         oab_number: true,
         oab_state: true,
+        session_id: true,
         subscription: {
           include: {
             plan: {
@@ -116,6 +117,7 @@ export class LawyerService {
       role: 'Lawyer',
       email: newLawyer.email,
       full_name: newLawyer.full_name,
+      sessionId: newLawyer.session_id,
       loggedWithGoogle: false,
       subscription: {
         plan: {
