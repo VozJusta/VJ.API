@@ -38,11 +38,11 @@ export class CreateEvidenceService {
       );
     }
 
-    const citizenId = await this.prisma.citizen.findUnique({
+    const citizen = await this.prisma.citizen.findUnique({
       where: { id: userId },
     });
 
-    if (!citizenId) {
+    if (!citizen) {
       throw new NotFoundException('Cidadão não encontrado');
     }
 
