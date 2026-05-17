@@ -11,6 +11,7 @@ import {
   ApiConsumes,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOperation,
   ApiPayloadTooLargeResponse,
@@ -21,6 +22,11 @@ import {
 
 @ApiTags('Profile')
 @ApiBearerAuth()
+@ApiHeader({
+  name: 'Authorization',
+  description: 'Token JWT recebido no login no formato "Bearer <token>"',
+  required: true,
+})
 @Controller('profile')
 export class UploadProfileImageController {
   constructor(private readonly uploadService: UploadImageProfileService) {}
