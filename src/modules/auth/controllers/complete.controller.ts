@@ -79,7 +79,7 @@ export class CompleteController {
   ) {
     return await this.authService.completeCitizenInformation(body, token);
   }
-  @Put('complete/lawyer')
+  @Put('/lawyer')
   @ApiOperation({
     summary: 'Completa o cadastro do advogado após validação de email',
   })
@@ -143,7 +143,7 @@ export class CompleteController {
       },
     },
   })
-  async completeLayerInformation(
+  async completeLawyerInformation(
     @Body() body: CompleteLawyerRegisterDTO,
     @Headers('x-security-token') token: string,
   ) {
