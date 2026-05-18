@@ -125,50 +125,51 @@ export class SimulationGateway
   }
 
   @OnEvent('simulation.report.ready')
-handleReportReady(body: ReportReadyDTO) {
-  if (!this.server) {
-    const list = this.pendingReports.get(body.citizenId) ?? [];
-    list.push(body);
-    this.pendingReports.set(body.citizenId, list);
-    return;
+  handleReportReady(body: ReportReadyDTO) {
+    if (!this.server) {
+      const list = this.pendingReports.get(body.citizenId) ?? [];
+      list.push(body);
+      this.pendingReports.set(body.citizenId, list);
+      return;
+    }
+
+    const roomName = `citizen:${body.citizenId}`;
+    const isConnected = this.userMap.has(body.citizenId);
+
+    if (isConnected) {
+      this.server.to(roomName).emit('simulation:report', {
+        simulationId: body.simulationId,
+        reportId: body.reportId,
+      });
+    } else {
+      const list = this.pendingReports.get(body.citizenId) ?? [];
+      list.push(body);
+      this.pendingReports.set(body.citizenId, list);
+    }
   }
 
-  const roomName = `citizen:${body.citizenId}`;
-  const isConnected = this.userMap.has(body.citizenId);
+  private async finishSimulation(
+    clientId: string,
+    simulationId: string,
+    status: 'Completed' | 'TimedOut',
+  ) {
+    const activeSimulationId = this.sessionMap.get(clientId);
+    if (!activeSimulationId || activeSimulationId !== simulationId) return;
 
-  if (isConnected) {
-    this.server.to(roomName).emit('simulation:report', {
-      simulationId: body.simulationId,
-      reportId: body.reportId,
-    });
-  } else {
-    const list = this.pendingReports.get(body.citizenId) ?? [];
-    list.push(body);
-    this.pendingReports.set(body.citizenId, list);
+    this.clearTimers(clientId);
+    this.sessionMap.delete(clientId);
+
+    await this.simulationService.finish(simulationId, status);
+
+    const citizenId = this.socketToCitizen.get(clientId);
+    if (citizenId) {
+      this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+        simulationId,
+        status,
+      });
+      this.socketToCitizen.delete(clientId);
+    }
   }
-}
-
-private async finishSimulation(
-  clientId: string,
-  simulationId: string,
-  status: 'Completed' | 'TimedOut',
-) {
-  if (!this.sessionMap.has(clientId)) return;
-
-  this.clearTimers(clientId);
-  this.sessionMap.delete(clientId);
-
-  await this.simulationService.finish(simulationId, status);
-
-  const citizenId = this.socketToCitizen.get(clientId);
-  if (citizenId) {
-    this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
-      simulationId,
-      status,
-    });
-    this.socketToCitizen.delete(clientId);
-  }
-}
 
   private clearTimers(clientId: string) {
     clearTimeout(this.timers.get(clientId));
