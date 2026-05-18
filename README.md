@@ -164,89 +164,124 @@ pnpm test:e2e      # Testes end-to-end
 
 # 🔌 WebSocket da Simulação
 
-O front end inicia o fluxo em duas etapas:
+O namespace `/simulation` gerencia todo o ciclo de vida de uma audiência simulada em tempo real. O gateway é resiliente a reconexões: se o relatório final chegar enquanto o cliente estiver desconectado (por exemplo, durante uma navegação de tela), ele é guardado internamente e entregue assim que o cliente reconectar.
 
-1. Cria a simulação via HTTP em `POST /simulation` e guarda o `simulationId` retornado.
-2. Abre a conexão Socket.IO com o namespace `/simulation` e dispara o evento `simulation:start` com esse `simulationId`.
+## Fluxo completo
+
+```
+Cliente                          Servidor
+  |                                  |
+  |── POST /simulation ─────────────>|  cria simulação, retorna simulationId
+  |<─ { simulationId } ─────────────|
+  |                                  |
+  |── connect (auth: citizenId) ────>|  entra no room citizen:{citizenId}
+  |── simulation:start ─────────────>|  inicia o timer de 4 minutos
+  |<─ simulation:started ───────────|
+  |                                  |
+  |   ... audiência em andamento ... |
+  |                                  |
+  |<─ simulation:warning ───────────|  aviso aos 2 minutos restantes
+  |<─ simulation:end ───────────────|  audiência encerrada (Completed ou TimedOut)
+  |                                  |
+  |   [cliente pode navegar de tela] |
+  |                                  |
+  |── connect (auth: citizenId) ────>|  reconecta ao room citizen:{citizenId}
+  |<─ simulation:report ────────────|  relatório entregue (imediato ou pendente)
+```
 
 ## Conexão
 
-Use o mesmo host da API e conecte no namespace:
-
-```ts
-import { io } from 'socket.io-client';
-
-const socket = io('http://link-api/simulation', {
-	transports: ['websocket'],
-});
-```
-
-### Como consumir no Front-end (recomendado)
-
-- Envie o `citizenId` no `handshake.auth` ao conectar para que o servidor coloque automaticamente o socket no room `citizen:{citizenId}` e o usuário continue recebendo eventos mesmo após reconexões.
-- Em aplicações React Native, não use `extraHeaders` (não funciona bem). Use `auth` para enviar `citizenId` e `token`.
-- Se precisar enviar token, use `auth: { token: ACCESS_TOKEN }` ou `auth: { xSecurityToken: X_SECURITY_TOKEN }` conforme seu fluxo.
-
-Exemplo (Web):
+Conecte no namespace `/simulation` enviando o `citizenId` em `auth`. Isso garante que o socket entre no room correto e receba o `simulation:report` mesmo após reconexões.
 
 ```ts
 import { io } from 'socket.io-client';
 
 const socket = io('https://api.example.com/simulation', {
-	transports: ['websocket'],
-	auth: { citizenId: 'CITIZEN_UUID', token: 'ACCESS_TOKEN_IF_NEEDED' },
+  transports: ['websocket'],
+  auth: { citizenId: 'CITIZEN_UUID' },
 });
-
-socket.on('connect', () => {
-	socket.emit('simulation:start', { simulationId: 'SIM_UUID', citizenId: 'CITIZEN_UUID' });
-});
-
-socket.on('simulation:report', (data) => console.log('report', data));
 ```
 
-Exemplo (React Native):
+> **Importante:** sempre envie `citizenId` em `auth`, nunca em `query`. Em React Native, não use `extraHeaders` — use `auth`.
 
-```js
-import { io } from 'socket.io-client';
+## Eventos do cliente → servidor
 
-const socket = io('https://api.example.com/simulation', {
-	transports: ['websocket'],
-	reconnection: true,
-	auth: { citizenId: 'CITIZEN_UUID', token: 'ACCESS_TOKEN_IF_NEEDED' },
-});
+| Evento | Payload | Descrição |
+|---|---|---|
+| `simulation:start` | `{ simulationId, citizenId }` | Inicia a audiência e o timer de 4 minutos |
+| `simulation:stop` | `{ simulationId }` | Encerra a audiência manualmente |
 
-socket.on('connect', () => console.log('connected', socket.id));
-socket.on('simulation:report', (data) => console.log('report', data));
-```
+## Eventos do servidor → cliente
 
-Observação: o servidor atual não exige token na conexão do gateway de simulação, mas enviar `citizenId` em `auth` garante que, ao reconectar, o cliente reencontre seu room e receba `simulation:report`.
+| Evento | Payload | Descrição |
+|---|---|---|
+| `simulation:started` | `{ simulationId }` | Confirmação de início |
+| `simulation:warning` | `{ message, remainingSecs }` | Aviso aos 2 minutos restantes |
+| `simulation:end` | `{ simulationId, status }` | Audiência encerrada (`Completed` ou `TimedOut`) |
+| `simulation:report` | `{ simulationId, reportId }` | Relatório disponível |
 
-## Eventos do cliente
+## Comportamento de reconexão
 
-- `simulation:start` com payload `{ simulationId: string, citizenId: string }`
-- `simulation:stop` com payload `{ simulationId: string }`
-
-## Eventos do servidor
-
-- `simulation:started` com `{ simulationId }`
-- `simulation:warning` com `{ message, remainingSecs }`
-- `simulation:end` com `{ simulationId, status }`
-- `simulation:report` com `{ simulationId, reportId }`
-
-## Exemplo
+O servidor mantém um `pendingReports` interno. Se o evento `simulation:report` for gerado enquanto o cliente estiver desconectado, ele é guardado. Na próxima conexão com o mesmo `citizenId`, o relatório é entregue automaticamente no `handleConnection` — sem necessidade de nenhuma lógica extra no cliente.
 
 ```ts
-socket.on('connect', () => {
-	socket.emit('simulation:start', { simulationId });
-});
-
-socket.on('simulation:warning', (data) => {
-	console.log('Aviso da audiência:', data);
-});
-
+// O cliente só precisa ouvir o evento normalmente.
+// A entrega em caso de reconexão é transparente.
 socket.on('simulation:report', (data) => {
-	console.log('Report pronto:', data);
+  console.log('Relatório disponível:', data.reportId);
 });
+```
+
+## Exemplo completo (Web)
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('https://api.example.com/simulation', {
+  transports: ['websocket'],
+  reconnection: true,
+  auth: { citizenId: 'CITIZEN_UUID' },
+});
+
+socket.on('connect', () => {
+  socket.emit('simulation:start', {
+    simulationId: 'SIM_UUID',
+    citizenId: 'CITIZEN_UUID',
+  });
+});
+
+socket.on('simulation:started', ({ simulationId }) => {
+  console.log('Audiência iniciada:', simulationId);
+});
+
+socket.on('simulation:warning', ({ message, remainingSecs }) => {
+  console.log(message, remainingSecs);
+});
+
+socket.on('simulation:end', ({ simulationId, status }) => {
+  console.log('Audiência encerrada:', status);
+  // Pode navegar de tela aqui — o report será entregue na reconexão
+});
+
+socket.on('simulation:report', ({ simulationId, reportId }) => {
+  console.log('Relatório pronto:', reportId);
+});
+```
+
+## Exemplo completo (React Native)
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('https://api.example.com/simulation', {
+  transports: ['websocket'],
+  reconnection: true,
+  auth: { citizenId: 'CITIZEN_UUID' },
+});
+
+socket.on('connect', () => console.log('conectado:', socket.id));
+socket.on('simulation:end', ({ status }) => console.log('fim:', status));
+socket.on('simulation:report', ({ reportId }) => console.log('report:', reportId));
 ```
 
 ---
@@ -263,10 +298,10 @@ Use o mesmo host da API e envie o access token na conexão. O gateway aceita o t
 import { io } from 'socket.io-client';
 
 const socket = io('http://link-api/notifications', {
-	transports: ['websocket'],
-	auth: {
-		token: accessToken,
-	},
+  transports: ['websocket'],
+  auth: {
+    token: accessToken,
+  },
 });
 ```
 
@@ -280,7 +315,7 @@ Depois de conectar, você pode confirmar a inscrição no canal do usuário com:
 
 ```ts
 socket.emit('notifications:subscribe', (response) => {
-	console.log(response);
+  console.log(response);
 });
 ```
 
@@ -288,18 +323,18 @@ Resposta esperada:
 
 ```ts
 {
-	ok: true,
-	room: 'user:Citizen:USER_ID',
-	userId: 'USER_ID',
-	role: 'Citizen',
+  ok: true,
+  room: 'user:Citizen:USER_ID',
+  userId: 'USER_ID',
+  role: 'Citizen',
 }
 ```
 
 ## Eventos que o cliente deve ouvir
 
-- `notifications:new` - recebe uma nova notificação criada para o usuário
-- `notifications:updated` - informa quando uma ou mais notificações foram marcadas como lidas
-- `notifications:deleted` - informa quando uma ou mais notificações foram removidas
+- `notifications:new` — recebe uma nova notificação criada para o usuário
+- `notifications:updated` — informa quando uma ou mais notificações foram marcadas como lidas
+- `notifications:deleted` — informa quando uma ou mais notificações foram removidas
 
 ## Evento para marcar notificações como lidas
 
@@ -307,7 +342,7 @@ Além dos endpoints HTTP, o gateway também permite marcar notificações como l
 
 ```ts
 socket.emit('notifications:mark-read', {
-	notificationIds: ['notification-id-1', 'notification-id-2'],
+  notificationIds: ['notification-id-1', 'notification-id-2'],
 });
 ```
 
@@ -317,23 +352,23 @@ Se `notificationIds` não for enviado, o backend marca como lidas todas as notif
 
 ```ts
 socket.on('connect', () => {
-	console.log('Conectado em notifications');
+  console.log('Conectado em notifications');
 
-	socket.emit('notifications:subscribe', (response) => {
-		console.log('Inscrito na sala:', response);
-	});
+  socket.emit('notifications:subscribe', (response) => {
+    console.log('Inscrito na sala:', response);
+  });
 });
 
 socket.on('notifications:new', (notification) => {
-	console.log('Nova notificação:', notification);
+  console.log('Nova notificação:', notification);
 });
 
 socket.on('notifications:updated', (data) => {
-	console.log('Notificações atualizadas:', data);
+  console.log('Notificações atualizadas:', data);
 });
 
 socket.on('notifications:deleted', (data) => {
-	console.log('Notificações removidas:', data);
+  console.log('Notificações removidas:', data);
 });
 ```
 
@@ -354,13 +389,14 @@ socket.on('notifications:deleted', (data) => {
 - [x] Módulo de **Autenticação JWT**
 - [ ] Integração com **OpenRouter e Pipeline RAG**
 - [x] **WebSockets** para notificações em tempo real
+- [x] **WebSocket de simulação** com entrega resiliente de relatório
 - [ ] **Dashboards de Analytics** para advogados (Plano Master)
 
 ---
 
 # 🤝 Equipe e Orientação
 
-**Desenvolvedor:** Cauã Alves
+**Desenvolvedor:** Cauã Alves  
 **Orientação:** Prof. Lucas Correa  
 **Instituição:** SENAI Suíço Brasileiro (TCC 2026)
 
