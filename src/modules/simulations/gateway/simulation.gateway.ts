@@ -28,15 +28,37 @@ export class SimulationGateway
   private sessionMap = new Map<string, string>();
   private userMap = new Map<string, string>();
 
+  private pendingReports = new Map<string, ReportReadyDTO>();
+
   constructor(private readonly simulationService: SimulationService) {}
 
   async handleConnection(client: Socket) {
     const citizenId =
       (client.handshake?.auth && (client.handshake.auth as any).citizenId) ||
       (client.handshake?.query && (client.handshake.query as any).citizenId);
+
+    console.log(
+      'handleConnection | citizenId:',
+      citizenId,
+      '| socketId:',
+      client.id,
+    );
+
     if (typeof citizenId === 'string' && citizenId.trim()) {
       client.join(`citizen:${citizenId}`);
       this.userMap.set(citizenId, client.id);
+
+      console.log('Rooms após join:', [...client.rooms]);
+
+      const pending = this.pendingReports.get(citizenId);
+      if (pending) {
+        console.log('Entregando pendingReport para:', citizenId);
+        client.emit('simulation:report', {
+          simulationId: pending.simulationId,
+          reportId: pending.reportId,
+        });
+        this.pendingReports.delete(citizenId);
+      }
     }
   }
 
@@ -77,11 +99,9 @@ export class SimulationGateway
   }
 
   async handleDisconnect(client: Socket) {
-    const simulationId = this.sessionMap.get(client.id);
-    if (simulationId) {
-      await this.finishSimulation(client, simulationId, 'Completed');
-    }
     this.clearTimers(client.id);
+    this.sessionMap.delete(client.id);
+
     for (const [citizenId, socketId] of this.userMap.entries()) {
       if (socketId === client.id) this.userMap.delete(citizenId);
     }
@@ -89,17 +109,30 @@ export class SimulationGateway
 
   @OnEvent('simulation.report.ready')
   handleReportReady(body: ReportReadyDTO) {
-    this.server.to(`citizen:${body.citizenId}`).emit('simulation:report', {
+    if (!this.server) {
+      this.pendingReports.set(body.citizenId, body);
+      return;
+    }
+
+    const roomName = `citizen:${body.citizenId}`;
+
+    this.server.to(roomName).emit('simulation:report', {
       simulationId: body.simulationId,
       reportId: body.reportId,
     });
-  }
 
+    this.pendingReports.set(body.citizenId, body);
+
+    console.log('simulation:report emitido para room:', roomName);
+  }
   private async finishSimulation(
     client: Socket,
     simulationId: string,
     status: 'Completed' | 'TimedOut',
   ) {
+    
+    if (!this.sessionMap.has(client.id)) return;
+
     this.clearTimers(client.id);
     this.sessionMap.delete(client.id);
 
