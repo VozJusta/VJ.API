@@ -5,7 +5,6 @@ import {
   Res,
   HttpCode,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';

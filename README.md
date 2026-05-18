@@ -243,11 +243,16 @@ const socket = io('https://api.example.com/simulation', {
   auth: { citizenId: 'CITIZEN_UUID' },
 });
 
+let simulationStarted = false;
+
 socket.on('connect', () => {
-  socket.emit('simulation:start', {
-    simulationId: 'SIM_UUID',
-    citizenId: 'CITIZEN_UUID',
-  });
+  if (!simulationStarted) {
+    simulationStarted = true;
+    socket.emit('simulation:start', {
+      simulationId: 'SIM_UUID',
+      citizenId: 'CITIZEN_UUID',
+    });
+  }
 });
 
 socket.on('simulation:started', ({ simulationId }) => {
@@ -260,7 +265,6 @@ socket.on('simulation:warning', ({ message, remainingSecs }) => {
 
 socket.on('simulation:end', ({ simulationId, status }) => {
   console.log('Audiência encerrada:', status);
-  // Pode navegar de tela aqui — o report será entregue na reconexão
 });
 
 socket.on('simulation:report', ({ simulationId, reportId }) => {
