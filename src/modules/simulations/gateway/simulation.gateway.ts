@@ -8,6 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 import { SimulationService } from '../services/simulation.service';
 import { StartSimulationDto, StopSimulationDto } from '../dto/simulation.dto';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -25,23 +26,35 @@ export class SimulationGateway
 
   private timers = new Map<string, NodeJS.Timeout>();
   private warningTimers = new Map<string, NodeJS.Timeout>();
-
   private sessionMap = new Map<string, string>();
-
   private socketToCitizen = new Map<string, string>();
-
   private userMap = new Map<string, string>();
-
   private pendingReports = new Map<string, ReportReadyDTO>();
 
-  constructor(private readonly simulationService: SimulationService) {}
+  constructor(
+    private readonly simulationService: SimulationService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async handleConnection(client: Socket) {
-    const citizenId =
-      (client.handshake?.auth && (client.handshake.auth as any).citizenId) ||
-      (client.handshake?.query && (client.handshake.query as any).citizenId);
+    try {
+      const token =
+        client.handshake?.auth?.token ||
+        client.handshake?.headers?.authorization?.replace('Bearer ', '');
 
-    if (typeof citizenId === 'string' && citizenId.trim()) {
+      if (!token) {
+        client.disconnect();
+        return;
+      }
+
+      const payload = this.jwtService.verify(token);
+      const citizenId = payload.sub;
+
+      if (!citizenId) {
+        client.disconnect();
+        return;
+      }
+
       client.join(`citizen:${citizenId}`);
       this.userMap.set(citizenId, client.id);
       this.socketToCitizen.set(client.id, citizenId);
@@ -54,6 +67,8 @@ export class SimulationGateway
         });
         this.pendingReports.delete(citizenId);
       }
+    } catch {
+      client.disconnect();
     }
   }
 
@@ -62,14 +77,20 @@ export class SimulationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() body: StartSimulationDto,
   ) {
+    // citizenId vem do token validado no handleConnection, não do body
+    const citizenId = this.socketToCitizen.get(client.id);
+    if (!citizenId) {
+      client.disconnect();
+      return;
+    }
+
     await this.simulationService.start(body);
 
     this.sessionMap.set(client.id, body.simulationId);
-    this.socketToCitizen.set(client.id, body.citizenId);
-    client.join(`citizen:${body.citizenId}`);
+    client.join(`citizen:${citizenId}`);
 
     const warningTimer = setTimeout(() => {
-      this.server.to(`citizen:${body.citizenId}`).emit('simulation:warning', {
+      this.server.to(`citizen:${citizenId}`).emit('simulation:warning', {
         message: 'A audiência encerra em 2 minutos.',
         remainingSecs: 120,
       });
@@ -81,7 +102,7 @@ export class SimulationGateway
 
     this.timers.set(client.id, timer);
     this.warningTimers.set(client.id, warningTimer);
-    this.userMap.set(body.citizenId, client.id);
+    this.userMap.set(citizenId, client.id);
 
     client.emit('simulation:started', { simulationId: body.simulationId });
   }
