@@ -70,6 +70,10 @@ export class GetAllReportsCitizenController {
                     type: 'string',
                     example: 'Labor_and_employment',
                   },
+                   title: {
+                    type: 'string',
+                    example: 'Test',
+                  },
                   status: {
                     type: 'string',
                     example: 'Pending',
@@ -120,12 +124,14 @@ export class GetAllReportsCitizenController {
             {
               id: '91b84236-6d06-4792-8366-1ba35a3b8676',
               category_detected: 'Labor_and_employment',
+              title: 'Test',
               status: 'Pending',
               created_at: '2026-04-07 18:08:09.824',
             },
             {
               id: '3ad8f318-c730-4e1a-b4d7-545f1a6d55c2',
               category_detected: 'Labor_and_employment',
+              title: 'Test',
               status: 'Accepted',
               created_at: '2026-04-06 14:22:31.102',
             },

@@ -47,6 +47,7 @@ export class ListReportsByCitizenService {
             category_detected: true,
             case: {
               select: {
+                title: true,
                 status: true,
               },
             },
@@ -64,6 +65,7 @@ export class ListReportsByCitizenService {
       const reportsWithStatus = reports.map((report) => ({
         id: report.id,
         category_detected: report.category_detected,
+        title: report.case.title,
         status: report.case.status,
         created_at: report.created_at,
       }));
