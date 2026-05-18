@@ -29,7 +29,7 @@ export class SimulationGateway
   private sessionMap = new Map<string, string>();
   private socketToCitizen = new Map<string, string>();
   private userMap = new Map<string, string>();
-  private pendingReports = new Map<string, ReportReadyDTO>();
+  private pendingReports = new Map<string, ReportReadyDTO[]>();
 
   constructor(
     private readonly simulationService: SimulationService,
@@ -60,11 +60,13 @@ export class SimulationGateway
       this.socketToCitizen.set(client.id, citizenId);
 
       const pending = this.pendingReports.get(citizenId);
-      if (pending) {
-        client.emit('simulation:report', {
-          simulationId: pending.simulationId,
-          reportId: pending.reportId,
-        });
+      if (pending?.length) {
+        for (const report of pending) {
+          client.emit('simulation:report', {
+            simulationId: report.simulationId,
+            reportId: report.reportId,
+          });
+        }
         this.pendingReports.delete(citizenId);
       }
     } catch {
@@ -77,7 +79,6 @@ export class SimulationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() body: StartSimulationDto,
   ) {
-    // citizenId vem do token validado no handleConnection, não do body
     const citizenId = this.socketToCitizen.get(client.id);
     if (!citizenId) {
       client.disconnect();
@@ -126,7 +127,9 @@ export class SimulationGateway
   @OnEvent('simulation.report.ready')
   handleReportReady(body: ReportReadyDTO) {
     if (!this.server) {
-      this.pendingReports.set(body.citizenId, body);
+      const list = this.pendingReports.get(body.citizenId) ?? [];
+      list.push(body);
+      this.pendingReports.set(body.citizenId, list);
       return;
     }
 
@@ -137,7 +140,9 @@ export class SimulationGateway
       reportId: body.reportId,
     });
 
-    this.pendingReports.set(body.citizenId, body);
+    const list = this.pendingReports.get(body.citizenId) ?? [];
+    list.push(body);
+    this.pendingReports.set(body.citizenId, list);
   }
 
   private async finishSimulation(
