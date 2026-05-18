@@ -25,7 +25,7 @@ export class ReportProcessor {
         this.eventEmitter.emit('simulation.report.ready', {
             simulationId,
             reportId: report.id,
-            userId: report.user_id,
+            citizenId: report.user_id,
         })
 
         this.logger.log(`Report gerado com sucesso: ${report.id}`);
