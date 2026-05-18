@@ -25,7 +25,11 @@ export class SimulationGateway
 
   private timers = new Map<string, NodeJS.Timeout>();
   private warningTimers = new Map<string, NodeJS.Timeout>();
+
   private sessionMap = new Map<string, string>();
+
+  private socketToCitizen = new Map<string, string>();
+
   private userMap = new Map<string, string>();
 
   private pendingReports = new Map<string, ReportReadyDTO>();
@@ -37,22 +41,13 @@ export class SimulationGateway
       (client.handshake?.auth && (client.handshake.auth as any).citizenId) ||
       (client.handshake?.query && (client.handshake.query as any).citizenId);
 
-    console.log(
-      'handleConnection | citizenId:',
-      citizenId,
-      '| socketId:',
-      client.id,
-    );
-
     if (typeof citizenId === 'string' && citizenId.trim()) {
       client.join(`citizen:${citizenId}`);
       this.userMap.set(citizenId, client.id);
-
-      console.log('Rooms após join:', [...client.rooms]);
+      this.socketToCitizen.set(client.id, citizenId);
 
       const pending = this.pendingReports.get(citizenId);
       if (pending) {
-        console.log('Entregando pendingReport para:', citizenId);
         client.emit('simulation:report', {
           simulationId: pending.simulationId,
           reportId: pending.reportId,
@@ -70,17 +65,18 @@ export class SimulationGateway
     await this.simulationService.start(body);
 
     this.sessionMap.set(client.id, body.simulationId);
+    this.socketToCitizen.set(client.id, body.citizenId);
     client.join(`citizen:${body.citizenId}`);
 
     const warningTimer = setTimeout(() => {
-      client.emit('simulation:warning', {
+      this.server.to(`citizen:${body.citizenId}`).emit('simulation:warning', {
         message: 'A audiência encerra em 2 minutos.',
         remainingSecs: 120,
       });
     }, WARNING_MS);
 
     const timer = setTimeout(async () => {
-      await this.finishSimulation(client, body.simulationId, 'TimedOut');
+      await this.finishSimulation(client.id, body.simulationId, 'TimedOut');
     }, DURATION_MS);
 
     this.timers.set(client.id, timer);
@@ -95,12 +91,11 @@ export class SimulationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() body: StopSimulationDto,
   ) {
-    await this.finishSimulation(client, body.simulationId, 'Completed');
+    await this.finishSimulation(client.id, body.simulationId, 'Completed');
   }
 
   async handleDisconnect(client: Socket) {
-    this.clearTimers(client.id);
-    this.sessionMap.delete(client.id);
+    this.socketToCitizen.delete(client.id);
 
     for (const [citizenId, socketId] of this.userMap.entries()) {
       if (socketId === client.id) this.userMap.delete(citizenId);
@@ -122,23 +117,28 @@ export class SimulationGateway
     });
 
     this.pendingReports.set(body.citizenId, body);
-
-    console.log('simulation:report emitido para room:', roomName);
   }
+
   private async finishSimulation(
-    client: Socket,
+    clientId: string,
     simulationId: string,
     status: 'Completed' | 'TimedOut',
   ) {
-    
-    if (!this.sessionMap.has(client.id)) return;
+    if (!this.sessionMap.has(clientId)) return;
 
-    this.clearTimers(client.id);
-    this.sessionMap.delete(client.id);
+    this.clearTimers(clientId);
+    this.sessionMap.delete(clientId);
 
     await this.simulationService.finish(simulationId, status);
 
-    client.emit('simulation:end', { simulationId, status });
+    const citizenId = this.socketToCitizen.get(clientId);
+    if (citizenId) {
+      this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+        simulationId,
+        status,
+      });
+      this.socketToCitizen.delete(clientId);
+    }
   }
 
   private clearTimers(clientId: string) {
