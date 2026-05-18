@@ -15,10 +15,12 @@ import { BullModule } from '@nestjs/bull';
 import { PaymentModule } from '@modules/payments/modules/payments.module';
 import { NotificationsModule } from '@modules/notifications/module/notifications.module';
 import { ProfileModule } from '@modules/profile/module/profile.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    EventEmitterModule.forRoot(),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: () => ({
@@ -72,9 +74,9 @@ import { ProfileModule } from '@modules/profile/module/profile.module';
         module: CitizenModule,
       },
       {
-      path: '/lawyer',
-      module: LawyerModule,
-      }
+        path: '/lawyer',
+        module: LawyerModule,
+      },
     ]),
   ],
   controllers: [AppController],
