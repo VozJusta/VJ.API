@@ -15,13 +15,15 @@ export class AuthSessionService {
       issuer: 'api',
     });
 
-    if (!payload.session_id) {
+    const sessionId = payload.sessionId ?? payload.session_id;
+
+    if (!sessionId) {
       throw new UnauthorizedException();
     }
 
     const session = await this.prisma.session.findUnique({
       where: {
-        id: payload.session_id,
+        id: sessionId,
       },
     });
 
