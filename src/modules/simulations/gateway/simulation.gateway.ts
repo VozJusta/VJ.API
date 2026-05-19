@@ -88,14 +88,14 @@ export class SimulationGateway
       return;
     }
 
-    this.clearTimers(citizenId);
-
     const startRequest: StartSimulationDto & { citizenId: string } = {
       ...body,
       citizenId,
     };
 
     await this.simulationService.start(startRequest);
+
+    this.clearTimers(citizenId);
 
     this.activeSimulations.set(citizenId, body.simulationId);
     client.join(`citizen:${citizenId}`);
@@ -159,28 +159,28 @@ export class SimulationGateway
   }
 
   private async finishSimulation(
-  citizenId: string,
-  simulationId: string,
-  status: 'Completed' | 'TimedOut',
-) {
-  const activeSimulationId = this.activeSimulations.get(citizenId);
-  if (!activeSimulationId || activeSimulationId !== simulationId) return;
+    citizenId: string,
+    simulationId: string,
+    status: 'Completed' | 'TimedOut',
+  ) {
+    const activeSimulationId = this.activeSimulations.get(citizenId);
+    if (!activeSimulationId || activeSimulationId !== simulationId) return;
 
-  this.clearTimers(citizenId);
-  this.activeSimulations.delete(citizenId);
+    this.clearTimers(citizenId);
+    this.activeSimulations.delete(citizenId);
 
-  try {
-    await this.simulationService.finish(simulationId, status);
-  } catch (error) {
-    this.activeSimulations.set(citizenId, simulationId);
-    throw error;
+    try {
+      await this.simulationService.finish(simulationId, status);
+    } catch (error) {
+      this.activeSimulations.set(citizenId, simulationId);
+      throw error;
+    }
+
+    this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+      simulationId,
+      status,
+    });
   }
-
-  this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
-    simulationId,
-    status,
-  });
-}
 
   private clearTimers(citizenId: string) {
     clearTimeout(this.timers.get(citizenId));
