@@ -164,7 +164,7 @@ pnpm test:e2e      # Testes end-to-end
 
 # 🔌 WebSocket da Simulação
 
-O namespace `/simulation` gerencia todo o ciclo de vida de uma audiência simulada em tempo real. O gateway é resiliente a reconexões: se o relatório final chegar enquanto o cliente estiver desconectado (por exemplo, durante uma navegação de tela), ele é guardado internamente e entregue assim que o cliente reconectar.
+O namespace `/simulation` gerencia todo o ciclo de vida de uma audiência simulada em tempo real. O gateway autentica via JWT e é resiliente a reconexões: se o relatório final chegar enquanto o cliente estiver desconectado, ele é persistido no banco e entregue automaticamente na próxima conexão.
 
 ## Fluxo completo
 
@@ -174,7 +174,7 @@ Cliente                          Servidor
   |── POST /simulation ─────────────>|  cria simulação, retorna simulationId
   |<─ { simulationId } ─────────────|
   |                                  |
-  |── connect (auth: citizenId) ────>|  entra no room citizen:{citizenId}
+  |── connect (auth: token) ────────>|  JWT validado, entra no room citizen:{citizenId}
   |── simulation:start ─────────────>|  inicia o timer de 4 minutos
   |<─ simulation:started ───────────|
   |                                  |
@@ -185,30 +185,31 @@ Cliente                          Servidor
   |                                  |
   |   [cliente pode navegar de tela] |
   |                                  |
-  |── connect (auth: citizenId) ────>|  reconecta ao room citizen:{citizenId}
-  |<─ simulation:report ────────────|  relatório entregue (imediato ou pendente)
+  |── connect (auth: token) ────────>|  reconecta, JWT validado novamente
+  |<─ simulation:report ────────────|  relatório entregue do banco e marcado como entregue
 ```
 
-## Conexão
+## Conexão e autenticação
 
-Conecte no namespace `/simulation` enviando o `citizenId` em `auth`. Isso garante que o socket entre no room correto e receba o `simulation:report` mesmo após reconexões.
+O gateway valida o JWT no handshake e extrai o `citizenId` do payload do token. Envie o access token em `auth.token` — conexões sem token ou com token inválido são desconectadas imediatamente.
 
 ```ts
 import { io } from 'socket.io-client';
 
 const socket = io('https://api.example.com/simulation', {
   transports: ['websocket'],
-  auth: { citizenId: 'CITIZEN_UUID' },
+  reconnection: true,
+  auth: { token: accessToken },
 });
 ```
 
-> **Importante:** sempre envie `citizenId` em `auth`, nunca em `query`. Em React Native, não use `extraHeaders` — use `auth`.
+> **Importante:** envie o token em `auth.token`. Em React Native, não use `extraHeaders` — use `auth`. O `citizenId` é extraído do token pelo servidor — nunca envie pelo cliente.
 
 ## Eventos do cliente → servidor
 
 | Evento | Payload | Descrição |
 |---|---|---|
-| `simulation:start` | `{ simulationId, citizenId }` | Inicia a audiência e o timer de 4 minutos |
+| `simulation:start` | `{ simulationId }` | Inicia a audiência e o timer de 4 minutos |
 | `simulation:stop` | `{ simulationId }` | Encerra a audiência manualmente |
 
 ## Eventos do servidor → cliente
@@ -219,16 +220,17 @@ const socket = io('https://api.example.com/simulation', {
 | `simulation:warning` | `{ message, remainingSecs }` | Aviso aos 2 minutos restantes |
 | `simulation:end` | `{ simulationId, status }` | Audiência encerrada (`Completed` ou `TimedOut`) |
 | `simulation:report` | `{ simulationId, reportId }` | Relatório disponível |
+| `simulation:resumed` | `{ simulationId }` | Simulação em andamento detectada ao reconectar |
 
 ## Comportamento de reconexão
 
-O servidor mantém um `pendingReports` interno. Se o evento `simulation:report` for gerado enquanto o cliente estiver desconectado, ele é guardado. Na próxima conexão com o mesmo `citizenId`, o relatório é entregue automaticamente no `handleConnection` — sem necessidade de nenhuma lógica extra no cliente.
+Os reports não entregues são persistidos no banco com `delivered_at: null`. Na próxima conexão com o mesmo token, o gateway busca todos os reports pendentes, entrega e marca como entregues — sem nenhuma lógica extra no cliente. Essa abordagem é resiliente a restarts do servidor e ambientes com múltiplas instâncias.
 
 ```ts
 // O cliente só precisa ouvir o evento normalmente.
 // A entrega em caso de reconexão é transparente.
-socket.on('simulation:report', (data) => {
-  console.log('Relatório disponível:', data.reportId);
+socket.on('simulation:report', ({ reportId }) => {
+  console.log('Relatório disponível:', reportId);
 });
 ```
 
@@ -240,18 +242,18 @@ import { io } from 'socket.io-client';
 const socket = io('https://api.example.com/simulation', {
   transports: ['websocket'],
   reconnection: true,
-  auth: { citizenId: 'CITIZEN_UUID' },
+  auth: { token: accessToken },
 });
 
+// Controla se a simulação já foi iniciada para não re-emitir em reconexões
 let simulationStarted = false;
 
 socket.on('connect', () => {
+  // Só emite simulation:start na primeira conexão.
+  // Em reconexões, o servidor entrega reports pendentes automaticamente.
   if (!simulationStarted) {
     simulationStarted = true;
-    socket.emit('simulation:start', {
-      simulationId: 'SIM_UUID',
-      citizenId: 'CITIZEN_UUID',
-    });
+    socket.emit('simulation:start', { simulationId: 'SIM_UUID' });
   }
 });
 
@@ -265,10 +267,15 @@ socket.on('simulation:warning', ({ message, remainingSecs }) => {
 
 socket.on('simulation:end', ({ simulationId, status }) => {
   console.log('Audiência encerrada:', status);
+  // Pode navegar de tela aqui — o report será entregue na reconexão
 });
 
 socket.on('simulation:report', ({ simulationId, reportId }) => {
   console.log('Relatório pronto:', reportId);
+});
+
+socket.on('simulation:resumed', ({ simulationId }) => {
+  console.log('Simulação em andamento ao reconectar:', simulationId);
 });
 ```
 
@@ -280,12 +287,21 @@ import { io } from 'socket.io-client';
 const socket = io('https://api.example.com/simulation', {
   transports: ['websocket'],
   reconnection: true,
-  auth: { citizenId: 'CITIZEN_UUID' },
+  auth: { token: accessToken },
 });
 
-socket.on('connect', () => console.log('conectado:', socket.id));
+let simulationStarted = false;
+
+socket.on('connect', () => {
+  if (!simulationStarted) {
+    simulationStarted = true;
+    socket.emit('simulation:start', { simulationId: 'SIM_UUID' });
+  }
+});
+
 socket.on('simulation:end', ({ status }) => console.log('fim:', status));
 socket.on('simulation:report', ({ reportId }) => console.log('report:', reportId));
+socket.on('simulation:resumed', ({ simulationId }) => console.log('retomado:', simulationId));
 ```
 
 ---
@@ -393,7 +409,7 @@ socket.on('notifications:deleted', (data) => {
 - [x] Módulo de **Autenticação JWT**
 - [ ] Integração com **OpenRouter e Pipeline RAG**
 - [x] **WebSockets** para notificações em tempo real
-- [x] **WebSocket de simulação** com entrega resiliente de relatório
+- [x] **WebSocket de simulação** com entrega resiliente de relatório via banco
 - [ ] **Dashboards de Analytics** para advogados (Plano Master)
 
 ---
