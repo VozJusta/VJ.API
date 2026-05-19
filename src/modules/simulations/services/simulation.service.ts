@@ -3,7 +3,6 @@ import { PrismaService } from 'src/modules/prisma/service/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { StartSimulationDto } from '../dto/simulation.dto';
-import { CreateSimulationDTO } from '../dto/create-simulation.dto';
 
 @Injectable()
 export class SimulationService {
@@ -21,19 +20,12 @@ export class SimulationService {
     });
 
     if (!simulation) {
-      throw new ForbiddenException(
-        'Simulation does not belong to this citizen',
-      );
+      throw new ForbiddenException('Simulation does not belong to this citizen');
     }
 
     return this.prisma.simulation.update({
-      where: {
-        id: data.simulationId,
-      },
-      data: {
-        status: 'InProgress',
-        started_at: new Date(),
-      },
+      where: { id: data.simulationId },
+      data: { status: 'InProgress', started_at: new Date() },
     });
   }
 
@@ -57,5 +49,21 @@ export class SimulationService {
       { simulationId },
       { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
     );
+  }
+
+  async findUndeliveredReports(citizenId: string) {
+    return this.prisma.simulationReport.findMany({
+      where: {
+        user_id: citizenId,
+        delivered_at: null,
+      },
+    });
+  }
+
+  async markReportDelivered(reportId: string) {
+    await this.prisma.simulationReport.update({
+      where: { id: reportId },
+      data: { delivered_at: new Date() },
+    });
   }
 }
