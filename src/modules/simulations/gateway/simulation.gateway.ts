@@ -88,7 +88,7 @@ export class SimulationGateway
       return;
     }
 
-    this.clearTimers(citizenId)
+    this.clearTimers(citizenId);
 
     const startRequest: StartSimulationDto & { citizenId: string } = {
       ...body,
@@ -145,33 +145,36 @@ export class SimulationGateway
   handleReportReady(body: ReportReadyDTO) {
     if (!this.server) return;
 
-    const isConnected = this.userMap.has(body.citizenId);
-    if (!isConnected) return;
+    const roomName = `citizen:${body.citizenId}`;
+    const room = (this.server.adapter as any).rooms?.get(roomName);
+    const isConnected = room && room.size > 0;
 
-    this.server.to(`citizen:${body.citizenId}`).emit('simulation:report', {
-      simulationId: body.simulationId,
-      reportId: body.reportId,
-    });
+    if (isConnected) {
+      this.server.to(roomName).emit('simulation:report', {
+        simulationId: body.simulationId,
+        reportId: body.reportId,
+      });
+    }
   }
 
   private async finishSimulation(
-  citizenId: string,
-  simulationId: string,
-  status: 'Completed' | 'TimedOut',
-) {
-  const activeSimulationId = this.activeSimulations.get(citizenId);
-  if (!activeSimulationId || activeSimulationId !== simulationId) return;
+    citizenId: string,
+    simulationId: string,
+    status: 'Completed' | 'TimedOut',
+  ) {
+    const activeSimulationId = this.activeSimulations.get(citizenId);
+    if (!activeSimulationId || activeSimulationId !== simulationId) return;
 
-  this.clearTimers(citizenId);
+    this.clearTimers(citizenId);
 
-  await this.simulationService.finish(simulationId, status);
-  this.activeSimulations.delete(citizenId);
+    await this.simulationService.finish(simulationId, status);
+    this.activeSimulations.delete(citizenId);
 
-  this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
-    simulationId,
-    status,
-  });
-}
+    this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+      simulationId,
+      status,
+    });
+  }
 
   private clearTimers(citizenId: string) {
     clearTimeout(this.timers.get(citizenId));
