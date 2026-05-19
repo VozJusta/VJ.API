@@ -180,20 +180,21 @@ export class SimulationGateway
     status: 'Completed' | 'TimedOut',
   ) {
     const activeSimulationId = this.activeSimulations.get(citizenId);
-
-    if (!activeSimulationId || activeSimulationId !== simulationId) {
-      return;
-    }
+    if (!activeSimulationId || activeSimulationId !== simulationId) return;
 
     this.clearTimers(citizenId);
-    this.activeSimulations.delete(citizenId);
 
-    await this.simulationService.finish(simulationId, status);
+    try {
+      await this.simulationService.finish(simulationId, status);
+      this.activeSimulations.delete(citizenId);
 
-    this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
-      simulationId,
-      status,
-    });
+      this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+        simulationId,
+        status,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   private clearTimers(citizenId: string) {
