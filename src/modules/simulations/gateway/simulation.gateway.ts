@@ -88,6 +88,8 @@ export class SimulationGateway
       return;
     }
 
+    this.clearTimers(citizenId)
+
     const startRequest: StartSimulationDto & { citizenId: string } = {
       ...body,
       citizenId,
