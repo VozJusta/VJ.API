@@ -18,8 +18,10 @@ model Citizen {
   password           String?
   created_at         DateTime           @default(now())
   session_id         String             @default(uuid())
+  avatar_image       String?
   cases              Case[]
   caseRequests       CaseRequest[]
+  evidences          Evidence[]
   notifications      Notification[]
   report             Report[]
   simulation         Simulation[]
@@ -45,6 +47,7 @@ model Lawyer {
   created_at         DateTime         @default(now())
   oab_state          OabState?
   session_id         String           @default(uuid())
+  cnpj               String?          @unique
   cases              Case[]
   caseRequests       CaseRequest[]
   notifications      Notification[]
@@ -101,7 +104,6 @@ model Report {
   citizen                Citizen        @relation(fields: [citizen_id], references: [id])
   lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
   simulations            Simulation[]
-  evidence               Evidence[]
 }
 
 model Case {
@@ -234,14 +236,13 @@ model SimulationReport {
 }
 
 model Evidence {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   file_url    String
   ocr_content String
   embedding   Json?
-  report_id   String
-  report      Report @relation(fields: [report_id], references: [id])
-  public_id   String @unique
-  reportId    String
+  public_id   String   @unique
+  citizenId   String?
+  citizen     Citizen? @relation(fields: [citizenId], references: [id])
 }
 
 model Notification {

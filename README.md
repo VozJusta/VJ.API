@@ -181,6 +181,46 @@ const socket = io('http://link-api/simulation', {
 });
 ```
 
+### Como consumir no Front-end (recomendado)
+
+- Envie o `citizenId` no `handshake.auth` ao conectar para que o servidor coloque automaticamente o socket no room `citizen:{citizenId}` e o usuário continue recebendo eventos mesmo após reconexões.
+- Em aplicações React Native, não use `extraHeaders` (não funciona bem). Use `auth` para enviar `citizenId` e `token`.
+- Se precisar enviar token, use `auth: { token: ACCESS_TOKEN }` ou `auth: { xSecurityToken: X_SECURITY_TOKEN }` conforme seu fluxo.
+
+Exemplo (Web):
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('https://api.example.com/simulation', {
+	transports: ['websocket'],
+	auth: { citizenId: 'CITIZEN_UUID', token: 'ACCESS_TOKEN_IF_NEEDED' },
+});
+
+socket.on('connect', () => {
+	socket.emit('simulation:start', { simulationId: 'SIM_UUID', citizenId: 'CITIZEN_UUID' });
+});
+
+socket.on('simulation:report', (data) => console.log('report', data));
+```
+
+Exemplo (React Native):
+
+```js
+import { io } from 'socket.io-client';
+
+const socket = io('https://api.example.com/simulation', {
+	transports: ['websocket'],
+	reconnection: true,
+	auth: { citizenId: 'CITIZEN_UUID', token: 'ACCESS_TOKEN_IF_NEEDED' },
+});
+
+socket.on('connect', () => console.log('connected', socket.id));
+socket.on('simulation:report', (data) => console.log('report', data));
+```
+
+Observação: o servidor atual não exige token na conexão do gateway de simulação, mas enviar `citizenId` em `auth` garante que, ao reconectar, o cliente reencontre seu room e receba `simulation:report`.
+
 ## Eventos do cliente
 
 - `simulation:start` com payload `{ simulationId: string, citizenId: string }`

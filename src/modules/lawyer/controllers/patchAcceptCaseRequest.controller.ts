@@ -18,7 +18,7 @@ import { AcceptCaseRequest } from '@m/lawyer/service/acceptCaseRequest.service';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
 
-@Controller('lawyer')
+@Controller()
 @ApiTags('Lawyer')
 @ApiBearerAuth()
 @ApiHeader({

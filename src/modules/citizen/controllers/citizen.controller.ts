@@ -5,7 +5,7 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 
 @ApiTags('Citizen')
-@Controller('citizen')
+@Controller()
 export class CitizenController {
   constructor(private readonly citizenService: CitizenService) {}
 
@@ -22,8 +22,6 @@ export class CitizenController {
         phone: '11 99999-9999',
         email: 'pedro@gmail.com',
         password: '@Za12345678',
-        billingType: 'Monthly',
-        namePlan: 'Plano Inicial',
       },
     },
   })

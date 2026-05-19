@@ -77,12 +77,7 @@ export class LawyerService {
         subscription: {
           create: {
             plan: {
-              create: {
-                billing_type: body.billingType,
-                max_interviews: 3,
-                max_simulation: 0,
-                name: body.namePlan,
-              },
+              connect: { id: 'plan_adv_junior' },
             },
             subscription_status: 'active',
             current_period_end: new Date(
@@ -97,6 +92,7 @@ export class LawyerService {
         cpf: true,
         oab_number: true,
         oab_state: true,
+        session_id: true,
         subscription: {
           include: {
             plan: {
@@ -121,6 +117,7 @@ export class LawyerService {
       role: 'Lawyer',
       email: newLawyer.email,
       full_name: newLawyer.full_name,
+      sessionId: newLawyer.session_id,
       loggedWithGoogle: false,
       subscription: {
         plan: {

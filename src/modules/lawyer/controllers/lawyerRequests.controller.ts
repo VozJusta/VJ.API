@@ -2,7 +2,7 @@ import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthTokenGuardAccess } from '@m/auth/guard/access-token.guard';
 import { LawyerRequestsStatusService } from '@m/lawyer/service/lawyerRequestsStatus.service';
 import { RequestsStatusDTO } from '@m/lawyer/dto/requests-status.dto';
-import { PaginationLawyersDTO } from '@m/citizen/dto/pagination-lawyers.dto';
+import { PaginationLawyersDTO } from '@modules/citizen/dto/pagination-lawyers.dto';
 import {
   ApiBearerAuth,
   ApiHeader,
@@ -14,7 +14,7 @@ import {
 import { Status } from 'generated/prisma/enums';
 import { RequestUser } from '@m/common/interfaces/interfaces';
 
-@Controller('lawyer')
+@Controller()
 @ApiTags('Lawyer')
 @ApiBearerAuth()
 @ApiHeader({
@@ -23,7 +23,9 @@ import { RequestUser } from '@m/common/interfaces/interfaces';
   required: true,
 })
 export class LawyerRequestController {
-  constructor(private readonly lawyerRequestStatus: LawyerRequestsStatusService) {}
+  constructor(
+    private readonly lawyerRequestStatus: LawyerRequestsStatusService,
+  ) {}
 
   @Get('/requests')
   @UseGuards(AuthTokenGuardAccess)

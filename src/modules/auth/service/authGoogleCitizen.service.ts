@@ -13,28 +13,31 @@ export class AuthenticateGoogleCitizenService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) {}
 
-  ) { }
-
-  async authenticateGoogleCitizen(email: string, name: string, origin: 'web' | 'mobile'): Promise<AuthResult> {
-    const sessionId = randomUUID();
+  async authenticateGoogleCitizen(
+    email: string,
+    name: string,
+    origin: 'web' | 'mobile',
+  ): Promise<AuthResult> {
     let citizen = await this.prisma.citizen.findFirst({
       where: {
         email: email,
       },
     });
 
-    const isNew = !citizen
+    const isNew = !citizen;
 
     if (!citizen) {
       const lawyer = await this.prisma.lawyer.findFirst({
-        where: { email: email }
-      })
+        where: { email: email },
+      });
 
-      if(lawyer) {
-        throw new ConflictException('Usuário já cadastrado')
+      if (lawyer) {
+        throw new ConflictException('Usuário já cadastrado');
       }
 
+      const sessionId = randomUUID();
       citizen = await this.prisma.citizen.create({
         data: {
           email: email,
@@ -43,12 +46,8 @@ export class AuthenticateGoogleCitizenService {
         },
       });
     }
-    else {
-      await this.prisma.citizen.update({
-        where: { id: citizen.id },
-        data: { session_id: sessionId },
-      });
-    }
+
+    const sessionId = citizen.session_id;
 
     const payload = {
       validated: true,
@@ -59,7 +58,7 @@ export class AuthenticateGoogleCitizenService {
       loggedWithGoogle: true,
       registerCompleted: !isNew,
       sessionId,
-    }
+    };
 
     const token = this.jwtService.sign(
       { type: 'security', ...payload },
@@ -98,4 +97,3 @@ export class AuthenticateGoogleCitizenService {
     return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
   }
 }
-

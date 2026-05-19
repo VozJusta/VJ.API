@@ -108,6 +108,7 @@ export class LlmService {
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
                     ],
+                    max_tokens: 900,
                 },
                 {
                     headers: {
@@ -156,6 +157,7 @@ export class LlmService {
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
                     ],
+                    max_tokens: 120,
                 },
                 {
                     headers: {
@@ -260,6 +262,7 @@ export class LlmService {
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' },
                     ],
                     temperature: 0.3,
+                    max_tokens: 400
                 },
                 {
                     headers: {
