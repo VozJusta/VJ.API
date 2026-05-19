@@ -13,6 +13,7 @@ import { SimulationService } from '../services/simulation.service';
 import { StartSimulationDto, StopSimulationDto } from '../dto/simulation.dto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ReportReadyDTO } from '../dto/report-ready.dto';
+import { AuthSessionService } from '@modules/auth/service/authSession.service';
 
 const DURATION_MS = 4 * 60 * 1000;
 const WARNING_MS = 2 * 60 * 1000;
@@ -33,7 +34,7 @@ export class SimulationGateway
 
   constructor(
     private readonly simulationService: SimulationService,
-    private readonly jwtService: JwtService,
+    private readonly authSessionService: AuthSessionService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -47,10 +48,15 @@ export class SimulationGateway
         return;
       }
 
-      const payload = this.jwtService.verify(token);
+      const payload = await this.authSessionService.validateAccessToken(token);
       const citizenId = payload.sub;
 
       if (!citizenId) {
+        client.disconnect();
+        return;
+      }
+
+      if (payload.role !== 'Citizen') {
         client.disconnect();
         return;
       }
