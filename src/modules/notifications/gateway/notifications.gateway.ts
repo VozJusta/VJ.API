@@ -25,7 +25,6 @@ type SocketUser = Pick<TokensPayload, 'role' | 'sub'>;
 
 const allowedOrigins = [
 	'http://localhost:3000',
-	'http://localhost:3001',
 	'https://vozjusta.com.br',
 	'http://localhost:5678',
 ];

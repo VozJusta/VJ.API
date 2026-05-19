@@ -36,7 +36,6 @@ import { TerminateAccountController } from '@m/auth/controllers/terminateAccount
 import { TerminateAccountService } from '@m/auth/service/terminateAccount.service';
 import { LogoutController } from '@m/auth/controllers/logout.controller';
 import { GetUserDataService } from '@m/auth/service/getUserData.service';
-import { AuthSessionService } from '../service/authSession.service';
 
 @Global()
 @Module({
@@ -77,7 +76,6 @@ import { AuthSessionService } from '../service/authSession.service';
     AuthTokenGuardRefresh,
     TerminateAccountService,
     GetUserDataService,
-    AuthSessionService,
   ],
   exports: [
     HashingServiceProtocol,
@@ -85,7 +83,6 @@ import { AuthSessionService } from '../service/authSession.service';
     AuthTokenGuardAccess,
     ConfigModule,
     SecurityTokenInterceptor,
-    AuthSessionService,
   ],
   controllers: [
     AuthenticateController,
@@ -102,4 +99,4 @@ import { AuthSessionService } from '../service/authSession.service';
     LogoutController,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }
