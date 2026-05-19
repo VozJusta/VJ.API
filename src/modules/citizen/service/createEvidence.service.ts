@@ -95,13 +95,16 @@ Seja objetivo e detalhado. Escreva em português.`,
         extractedText = '';
       }
     }
-    console.log('Groq retornou:', extractedText);
+
+
+
     if (file.mimetype === 'application/pdf') {
       const pdfData = new Uint8Array(file.buffer);
       const parser = new (pdfParse as any).PDFParse(pdfData, {});
       await parser.load();
-      const parsedText = await parser.getText();
-      console.log('PDF retornou:', parsedText);
+      const parsedResult = await parser.getText();
+
+      const parsedText = parsedResult.text ?? '';
 
       if (parsedText.trim()) {
         extractedText = parsedText;
