@@ -16,18 +16,32 @@ export class AuthSessionService {
     });
 
     const sessionId = payload.sessionId ?? payload.session_id;
+    const userId = payload.sub;
+    const role = payload.role;
 
-    if (!sessionId) {
+    if (!sessionId || !userId) {
       throw new UnauthorizedException();
     }
 
-    const session = await this.prisma.session.findUnique({
-      where: {
-        id: sessionId,
-      },
-    });
+    if (role === 'Citizen') {
+      const citizen = await this.prisma.citizen.findUnique({
+        where: { id: userId },
+        select: { session_id: true },
+      });
 
-    if (!session || !session.active) {
+      if (!citizen || citizen.session_id !== sessionId) {
+        throw new UnauthorizedException();
+      }
+    } else if (role === 'Lawyer') {
+      const lawyer = await this.prisma.lawyer.findUnique({
+        where: { id: userId },
+        select: { session_id: true },
+      });
+
+      if (!lawyer || lawyer.session_id !== sessionId) {
+        throw new UnauthorizedException();
+      }
+    } else {
       throw new UnauthorizedException();
     }
 
