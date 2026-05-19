@@ -28,7 +28,6 @@ export class SimulationGateway
   private warningTimers = new Map<string, NodeJS.Timeout>();
   private activeSimulations = new Map<string, string>();
   private socketToCitizen = new Map<string, string>();
-  private userMap = new Map<string, string>();
 
   constructor(
     private readonly simulationService: SimulationService,
@@ -55,7 +54,6 @@ export class SimulationGateway
       }
 
       client.join(`citizen:${citizenId}`);
-      this.userMap.set(citizenId, client.id);
       this.socketToCitizen.set(client.id, citizenId);
 
       const activeSimulationId = this.activeSimulations.get(citizenId);
@@ -113,7 +111,6 @@ export class SimulationGateway
 
     this.timers.set(citizenId, timer);
     this.warningTimers.set(citizenId, warningTimer);
-    this.userMap.set(citizenId, client.id);
 
     client.emit('simulation:started', { simulationId: body.simulationId });
   }
@@ -135,10 +132,6 @@ export class SimulationGateway
 
   async handleDisconnect(client: Socket) {
     this.socketToCitizen.delete(client.id);
-
-    for (const [citizenId, socketId] of this.userMap.entries()) {
-      if (socketId === client.id) this.userMap.delete(citizenId);
-    }
   }
 
   @OnEvent('simulation.report.ready')
