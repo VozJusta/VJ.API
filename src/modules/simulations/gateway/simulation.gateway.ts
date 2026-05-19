@@ -8,7 +8,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { JwtService } from '@nestjs/jwt';
 import { SimulationService } from '../services/simulation.service';
 import { StartSimulationDto, StopSimulationDto } from '../dto/simulation.dto';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -141,40 +140,36 @@ export class SimulationGateway
   }
 
   @OnEvent('simulation.report.ready')
-handleReportReady(body: ReportReadyDTO) {
-  if (!this.server) return;
+  handleReportReady(body: ReportReadyDTO) {
+    if (!this.server) return;
 
-  const isConnected = this.userMap.has(body.citizenId);
-  if (!isConnected) return; // será entregue via banco na reconexão
+    const isConnected = this.userMap.has(body.citizenId);
+    if (!isConnected) return;
 
-  this.server.to(`citizen:${body.citizenId}`).emit('simulation:report', {
-    simulationId: body.simulationId,
-    reportId: body.reportId,
-  });
-}
+    this.server.to(`citizen:${body.citizenId}`).emit('simulation:report', {
+      simulationId: body.simulationId,
+      reportId: body.reportId,
+    });
+  }
 
   private async finishSimulation(
-    citizenId: string,
-    simulationId: string,
-    status: 'Completed' | 'TimedOut',
-  ) {
-    const activeSimulationId = this.activeSimulations.get(citizenId);
-    if (!activeSimulationId || activeSimulationId !== simulationId) return;
+  citizenId: string,
+  simulationId: string,
+  status: 'Completed' | 'TimedOut',
+) {
+  const activeSimulationId = this.activeSimulations.get(citizenId);
+  if (!activeSimulationId || activeSimulationId !== simulationId) return;
 
-    this.clearTimers(citizenId);
+  this.clearTimers(citizenId);
 
-    try {
-      await this.simulationService.finish(simulationId, status);
-      this.activeSimulations.delete(citizenId);
+  await this.simulationService.finish(simulationId, status);
+  this.activeSimulations.delete(citizenId);
 
-      this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
-        simulationId,
-        status,
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
+  this.server.to(`citizen:${citizenId}`).emit('simulation:end', {
+    simulationId,
+    status,
+  });
+}
 
   private clearTimers(citizenId: string) {
     clearTimeout(this.timers.get(citizenId));
