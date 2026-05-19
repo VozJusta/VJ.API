@@ -142,7 +142,7 @@ export class SimulationGateway
   }
 
   @OnEvent('simulation.report.ready')
-  handleReportReady(body: ReportReadyDTO) {
+  async handleReportReady(body: ReportReadyDTO) {
     if (!this.server) return;
 
     const roomName = `citizen:${body.citizenId}`;
@@ -154,6 +154,7 @@ export class SimulationGateway
         simulationId: body.simulationId,
         reportId: body.reportId,
       });
+      await this.simulationService.markReportDelivered(body.reportId);
     }
   }
 
