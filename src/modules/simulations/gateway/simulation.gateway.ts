@@ -30,7 +30,6 @@ export class SimulationGateway
   private activeSimulations = new Map<string, string>();
   private socketToCitizen = new Map<string, string>();
   private userMap = new Map<string, string>();
-  private pendingReports = new Map<string, ReportReadyDTO[]>();
 
   constructor(
     private readonly simulationService: SimulationService,
@@ -51,37 +50,28 @@ export class SimulationGateway
       const payload = await this.authSessionService.validateAccessToken(token);
       const citizenId = payload.sub;
 
-      if (!citizenId) {
+      if (!citizenId || payload.role !== 'Citizen') {
         client.disconnect();
         return;
-      }
-
-      if (payload.role !== 'Citizen') {
-        client.disconnect();
-        return;
-      }
-
-      const activeSimulationId = this.activeSimulations.get(citizenId);
-
-      if (activeSimulationId) {
-        client.emit('simulation:resumed', {
-          simulationId: activeSimulationId,
-        });
       }
 
       client.join(`citizen:${citizenId}`);
       this.userMap.set(citizenId, client.id);
       this.socketToCitizen.set(client.id, citizenId);
 
-      const pending = this.pendingReports.get(citizenId);
-      if (pending?.length) {
-        for (const report of pending) {
-          client.emit('simulation:report', {
-            simulationId: report.simulationId,
-            reportId: report.reportId,
-          });
-        }
-        this.pendingReports.delete(citizenId);
+      const activeSimulationId = this.activeSimulations.get(citizenId);
+      if (activeSimulationId) {
+        client.emit('simulation:resumed', { simulationId: activeSimulationId });
+      }
+
+      const undelivered =
+        await this.simulationService.findUndeliveredReports(citizenId);
+      for (const report of undelivered) {
+        client.emit('simulation:report', {
+          simulationId: report.simulation_id,
+          reportId: report.id,
+        });
+        await this.simulationService.markReportDelivered(report.id);
       }
     } catch {
       client.disconnect();
@@ -151,28 +141,17 @@ export class SimulationGateway
   }
 
   @OnEvent('simulation.report.ready')
-  handleReportReady(body: ReportReadyDTO) {
-    if (!this.server) {
-      const list = this.pendingReports.get(body.citizenId) ?? [];
-      list.push(body);
-      this.pendingReports.set(body.citizenId, list);
-      return;
-    }
+handleReportReady(body: ReportReadyDTO) {
+  if (!this.server) return;
 
-    const roomName = `citizen:${body.citizenId}`;
-    const isConnected = this.userMap.has(body.citizenId);
+  const isConnected = this.userMap.has(body.citizenId);
+  if (!isConnected) return; // será entregue via banco na reconexão
 
-    if (isConnected) {
-      this.server.to(roomName).emit('simulation:report', {
-        simulationId: body.simulationId,
-        reportId: body.reportId,
-      });
-    } else {
-      const list = this.pendingReports.get(body.citizenId) ?? [];
-      list.push(body);
-      this.pendingReports.set(body.citizenId, list);
-    }
-  }
+  this.server.to(`citizen:${body.citizenId}`).emit('simulation:report', {
+    simulationId: body.simulationId,
+    reportId: body.reportId,
+  });
+}
 
   private async finishSimulation(
     citizenId: string,
