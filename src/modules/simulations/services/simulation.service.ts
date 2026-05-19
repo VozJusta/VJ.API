@@ -20,7 +20,9 @@ export class SimulationService {
     });
 
     if (!simulation) {
-      throw new ForbiddenException('Simulation does not belong to this citizen');
+      throw new ForbiddenException(
+        'Simulation does not belong to this citizen',
+      );
     }
 
     return this.prisma.simulation.update({
@@ -60,10 +62,12 @@ export class SimulationService {
     });
   }
 
-  async markReportDelivered(reportId: string) {
-    await this.prisma.simulationReport.update({
-      where: { id: reportId },
+  async markReportDelivered(reportId: string): Promise<boolean> {
+    const result = await this.prisma.simulationReport.updateMany({
+      where: { id: reportId, delivered_at: null },
       data: { delivered_at: new Date() },
     });
+
+    return result.count > 0;
   }
 }

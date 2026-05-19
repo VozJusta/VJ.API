@@ -71,11 +71,16 @@ export class SimulationGateway
       const undelivered =
         await this.simulationService.findUndeliveredReports(citizenId);
       for (const report of undelivered) {
-        client.emit('simulation:report', {
-          simulationId: report.simulation_id,
-          reportId: report.id,
-        });
-        await this.simulationService.markReportDelivered(report.id);
+        const updated = await this.simulationService.markReportDelivered(
+          report.id,
+        );
+
+        if (updated) {
+          client.emit('simulation:report', {
+            simulationId: report.simulation_id,
+            reportId: report.id,
+          });
+        }
       }
     } catch {
       client.disconnect();
@@ -150,11 +155,16 @@ export class SimulationGateway
     const isConnected = room && room.size > 0;
 
     if (isConnected) {
-      this.server.to(roomName).emit('simulation:report', {
-        simulationId: body.simulationId,
-        reportId: body.reportId,
-      });
-      await this.simulationService.markReportDelivered(body.reportId);
+      const updated = await this.simulationService.markReportDelivered(
+        body.reportId,
+      );
+
+      if (updated) {
+        this.server.to(roomName).emit('simulation:report', {
+          simulationId: body.simulationId,
+          reportId: body.reportId,
+        });
+      }
     }
   }
 
