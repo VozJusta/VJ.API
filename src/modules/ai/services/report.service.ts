@@ -79,6 +79,7 @@ export class ReportService {
                 normalized_text: fullText || '',
                 legal_analysis: '',
                 simplified_explanation: '',
+                confidence_score: 0,
                 category_detected: area,
                 citizen_id: userId,
                 caseId: caseId,
