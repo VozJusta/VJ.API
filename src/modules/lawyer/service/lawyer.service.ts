@@ -28,7 +28,7 @@ export class LawyerService {
     });
 
     if (citizen) {
-      throw new UnauthorizedException('Usuário cadastrado como cidadão');
+      throw new UnauthorizedException('Usuário já cadastrado');
     }
 
     const existingLawyer = await this.prisma.lawyer.findFirst({
@@ -46,7 +46,7 @@ export class LawyerService {
     });
 
     if (existingLawyer) {
-      throw new ConflictException('Advogado já cadastrado');
+      throw new ConflictException('Usuário já cadastrado');
     }
 
     const hashedPassword = await this.hashingService.hash(body.password);

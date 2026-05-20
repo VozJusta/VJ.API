@@ -52,7 +52,7 @@ export class CitizenService {
     });
 
     if (existingCitizen) {
-      throw new ConflictException('Cidadão já cadastrado');
+      throw new ConflictException('Usuário já cadastrado');
     }
 
     const cpfValid = await this.validateCPF.validate(body.cpf);
