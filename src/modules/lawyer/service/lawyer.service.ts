@@ -20,11 +20,17 @@ export class LawyerService {
     private readonly validateOab: OabNumberValidationService,
     private readonly hashingService: HashingServiceProtocol,
     private readonly validateCPF: CpfNumberValidation,
-  ) {}
+  ) { }
 
   async create(body: CreateLawyerDTO) {
     const citizen = await this.prisma.citizen.findFirst({
-      where: { email: body.email },
+      where: {
+        OR: [
+          { cpf: body.cpf },
+          { phone: body.phone },
+          { email: body.email },
+        ]
+      },
     });
 
     if (citizen) {
