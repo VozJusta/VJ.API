@@ -81,8 +81,8 @@ model Subscription {
   current_period_start   DateTime           @default(now())
   current_period_end     DateTime
   planId                 String
-  citizen                Citizen?           @relation(fields: [citizen_id], references: [id])
-  lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id])
+  citizen                Citizen?           @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer                 Lawyer?            @relation(fields: [lawyer_id], references: [id], onDelete: Cascade)
   plan                   Plan               @relation(fields: [planId], references: [id])
 }
 
@@ -100,9 +100,9 @@ model Report {
   caseId                 String
   ai_versions            AiResponse[]
   ragContexts            RagContext[]
-  case                   Case           @relation(fields: [caseId], references: [id])
-  citizen                Citizen        @relation(fields: [citizen_id], references: [id])
-  lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id])
+  case                   Case           @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  citizen                Citizen        @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer                 Lawyer?        @relation(fields: [lawyer_id], references: [id], onDelete: SetNull)
   simulations            Simulation[]
 }
 
@@ -114,8 +114,8 @@ model Case {
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
   title         String
-  citizen       Citizen        @relation(fields: [citizen_id], references: [id])
-  lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id])
+  citizen       Citizen        @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer        Lawyer?        @relation(fields: [lawyer_id], references: [id], onDelete: SetNull)
   caseRequests  CaseRequest[]
   conversations Conversation[]
   reports       Report[]
@@ -129,9 +129,9 @@ model CaseRequest {
   status     Status   @default(Pending)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  case       Case     @relation(fields: [case_id], references: [id])
-  citizen    Citizen  @relation(fields: [citizen_id], references: [id])
-  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id])
+  case       Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+  citizen    Citizen  @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer     Lawyer   @relation(fields: [lawyer_id], references: [id], onDelete: Cascade)
 
   @@unique([case_id, lawyer_id])
 }
@@ -141,7 +141,7 @@ model Conversation {
   case_id    String
   is_closed  Boolean   @default(false)
   created_at DateTime  @default(now())
-  case       Case      @relation(fields: [case_id], references: [id])
+  case       Case      @relation(fields: [case_id], references: [id], onDelete: Cascade)
   messages   Message[]
 }
 
@@ -151,7 +151,7 @@ model Message {
   role            MessageRole
   content         String
   created_at      DateTime     @default(now())
-  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
 }
 
 model AiResponse {
@@ -164,7 +164,7 @@ model AiResponse {
   tokens_used Int?
   latency_ms  Int?
   created_at  DateTime @default(now())
-  report      Report   @relation(fields: [report_id], references: [id])
+  report      Report   @relation(fields: [report_id], references: [id], onDelete: Cascade)
 }
 
 model RagContext {
@@ -174,7 +174,7 @@ model RagContext {
   content    String
   score      Float
   created_at DateTime @default(now())
-  report     Report   @relation(fields: [report_id], references: [id])
+  report     Report   @relation(fields: [report_id], references: [id], onDelete: Cascade)
 }
 
 model ValidationCode {
@@ -188,8 +188,8 @@ model ValidationCode {
   code       String
   lawyer_id  String?
   citizen_id String?
-  citizen    Citizen? @relation(fields: [citizen_id], references: [id])
-  lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id])
+  citizen    Citizen? @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer     Lawyer?  @relation(fields: [lawyer_id], references: [id], onDelete: Cascade)
 }
 
 model Simulation {
@@ -203,7 +203,7 @@ model Simulation {
   ended_at          DateTime?
   started_at        DateTime          @default(now())
   status            SimStatus?        @default(Waiting)
-  citizen           Citizen           @relation(fields: [citizen_id], references: [id])
+  citizen           Citizen           @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
   report            Report?           @relation(fields: [report_id], references: [id])
   simulation_report SimulationReport?
   turns             SimulationTurn[]
@@ -216,7 +216,8 @@ model SimulationTurn {
   content       String
   audio_url     String?
   created_at    DateTime   @default(now())
-  simulation    Simulation @relation(fields: [simulation_id], references: [id])
+  deliveredAt DateTime? @map("delivered_at")
+  simulation    Simulation @relation(fields: [simulation_id], references: [id], onDelete: Cascade)
 }
 
 model SimulationReport {
@@ -231,8 +232,8 @@ model SimulationReport {
   strengths       String[]
   user_id         String
   weaknesses      String[]
-  simulation      Simulation  @relation(fields: [simulation_id], references: [id])
-  user            Citizen     @relation(fields: [user_id], references: [id])
+  simulation      Simulation  @relation(fields: [simulation_id], references: [id], onDelete: Cascade)
+  user            Citizen     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Evidence {
@@ -242,7 +243,7 @@ model Evidence {
   embedding   Json?
   public_id   String   @unique
   citizenId   String?
-  citizen     Citizen? @relation(fields: [citizenId], references: [id])
+  citizen     Citizen? @relation(fields: [citizenId], references: [id], onDelete: SetNull)
 }
 
 model Notification {
@@ -256,8 +257,8 @@ model Notification {
   lawyer_id  String?
   created_at DateTime         @default(now())
   read_at    DateTime?
-  citizen    Citizen?         @relation(fields: [citizen_id], references: [id])
-  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id])
+  citizen    Citizen?         @relation(fields: [citizen_id], references: [id], onDelete: Cascade)
+  lawyer     Lawyer?          @relation(fields: [lawyer_id], references: [id], onDelete: Cascade)
 
   @@index([citizen_id, created_at])
   @@index([lawyer_id, created_at])
