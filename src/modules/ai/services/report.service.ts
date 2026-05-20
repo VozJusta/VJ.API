@@ -120,6 +120,7 @@ export class ReportService {
                 legal_analysis: response.output.legal_analysis,
                 simplified_explanation: response.output.simplified_explanation,
                 category_detected: parseSpecialization(response.output.area),
+                confidence_score: response.output.confidence,
             }
         });
 
