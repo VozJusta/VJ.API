@@ -20,15 +20,21 @@ export class LawyerService {
     private readonly validateOab: OabNumberValidationService,
     private readonly hashingService: HashingServiceProtocol,
     private readonly validateCPF: CpfNumberValidation,
-  ) {}
+  ) { }
 
   async create(body: CreateLawyerDTO) {
     const citizen = await this.prisma.citizen.findFirst({
-      where: { email: body.email },
+      where: {
+        OR: [
+          { cpf: body.cpf },
+          { phone: body.phone },
+          { email: body.email },
+        ]
+      },
     });
 
     if (citizen) {
-      throw new UnauthorizedException('Usuário cadastrado como cidadão');
+      throw new UnauthorizedException('Usuário já cadastrado');
     }
 
     const existingLawyer = await this.prisma.lawyer.findFirst({
@@ -46,7 +52,7 @@ export class LawyerService {
     });
 
     if (existingLawyer) {
-      throw new ConflictException('Advogado já cadastrado');
+      throw new ConflictException('Usuário já cadastrado');
     }
 
     const hashedPassword = await this.hashingService.hash(body.password);

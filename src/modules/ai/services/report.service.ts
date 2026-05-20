@@ -79,6 +79,7 @@ export class ReportService {
                 normalized_text: fullText || '',
                 legal_analysis: '',
                 simplified_explanation: '',
+                confidence_score: 0,
                 category_detected: area,
                 citizen_id: userId,
                 caseId: caseId,
@@ -107,7 +108,7 @@ export class ReportService {
         await this.prisma.aiResponse.create({
             data: {
                 report_id: report.id,
-                model: 'llama-3.1-8b-instant',
+                model: 'llama-3.3-70b-versatile',
                 provider: 'groq',
                 prompt: response.prompt,
                 response: JSON.stringify(response.output)
@@ -120,6 +121,7 @@ export class ReportService {
                 legal_analysis: response.output.legal_analysis,
                 simplified_explanation: response.output.simplified_explanation,
                 category_detected: parseSpecialization(response.output.area),
+                confidence_score: response.output.confidence,
             }
         });
 

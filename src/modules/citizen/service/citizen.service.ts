@@ -18,15 +18,21 @@ export class CitizenService {
     private readonly hashingService: HashingServiceProtocol,
     private readonly validateCPF: CpfNumberValidation,
     private readonly validateCnpj: CnpjNumberValidation,
-  ) {}
+  ) { }
 
   async create(body: CreateCitizenDTO) {
     const lawyer = await this.prisma.lawyer.findFirst({
-      where: { email: body.email },
+      where: {
+        OR: [
+          { cpf: body.cpf },
+          { phone: body.phone },
+          { email: body.email },
+        ]
+      },
     });
 
     if (lawyer) {
-      throw new UnauthorizedException('Usuário cadastrado como advogado');
+      throw new UnauthorizedException('Usuário já cadastrado');
     }
 
     const existingCitizen = await this.prisma.citizen.findFirst({
@@ -46,7 +52,7 @@ export class CitizenService {
     });
 
     if (existingCitizen) {
-      throw new ConflictException('Cidadão já cadastrado');
+      throw new ConflictException('Usuário já cadastrado');
     }
 
     const cpfValid = await this.validateCPF.validate(body.cpf);
@@ -116,12 +122,12 @@ export class CitizenService {
       sessionId: newUser.session_id,
       subscription: newUser.subscription
         ? {
-            plan: {
-              type: newUser.subscription.plan?.type,
-              billing_type: newUser.subscription.plan?.billing_type,
-              name: newUser.subscription.plan?.name,
-            },
-          }
+          plan: {
+            type: newUser.subscription.plan?.type,
+            billing_type: newUser.subscription.plan?.billing_type,
+            name: newUser.subscription.plan?.name,
+          },
+        }
         : null,
     };
   }

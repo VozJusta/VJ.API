@@ -95,7 +95,7 @@ export class LlmService {
         "legal_analysis": "Texto longo...",
         "simplified_explanation": "Texto...",
         "next_steps": ["Passo 1", "Passo 2"],
-        "confidence": "entre 1 e 100"
+        "confidence": 85
         }
         `;
 
@@ -108,6 +108,7 @@ export class LlmService {
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
                     ],
+                    max_tokens: 900,
                 },
                 {
                     headers: {
@@ -156,6 +157,7 @@ export class LlmService {
                         { role: 'user', content: prompt },
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' }
                     ],
+                    max_tokens: 120,
                 },
                 {
                     headers: {
@@ -260,6 +262,7 @@ export class LlmService {
                         { role: 'system', content: 'Você responde apenas JSON válido. Nunca escreva texto fora do JSON.' },
                     ],
                     temperature: 0.3,
+                    max_tokens: 400
                 },
                 {
                     headers: {
@@ -290,23 +293,32 @@ export class LlmService {
 
 
     private extractJson(text: string): LlmOutput {
-        try {
-            return JSON.parse(text);
-        } catch {
-            const cleaned = text
-                .replace(/```json|```/g, '')
-                .replace(/\*\*/g, '')
-                .trim();
+    try {
+        const parsed = JSON.parse(text);
+        return {
+            ...parsed,
+            confidence: typeof parsed.confidence === 'string'
+                ? parseFloat(parsed.confidence)
+                : parsed.confidence,
+        };
+    } catch {
+        const cleaned = text
+            .replace(/```json|```/g, '')
+            .replace(/\*\*/g, '')
+            .trim();
 
-            const match = cleaned.match(/\{[\s\S]*\}/);
+        const match = cleaned.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('JSON não encontrado');
 
-            if (!match) {
-                throw new Error('JSON não encontrado');
-            }
-
-            return JSON.parse(match[0]);
-        }
+        const parsed = JSON.parse(match[0]);
+        return {
+            ...parsed,
+            confidence: typeof parsed.confidence === 'string'
+                ? parseFloat(parsed.confidence)
+                : parsed.confidence,
+        };
     }
+}
 
     private extractChatDecision(text: string): ChatDecision {
         try {

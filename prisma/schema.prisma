@@ -228,6 +228,7 @@ model SimulationReport {
   metrics_json    Json?
   personality     Personality
   score           Int?
+  delivered_at DateTime?
   simulation_id   String      @unique
   strengths       String[]
   user_id         String
