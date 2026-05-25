@@ -17,14 +17,7 @@ import { AuthSessionService } from '@modules/auth/service/authSession.service';
 const DURATION_MS = 4 * 60 * 1000;
 const WARNING_MS = 2 * 60 * 1000;
 
-const allowedOrigins = [
-	'http://localhost:3000',
-  'http://localhost:3001',
-	'https://vozjusta.com.br',
-	'http://localhost:5678',
-];
-
-@WebSocketGateway({ namespace: '/simulation', cors: { origin: allowedOrigins } })
+@WebSocketGateway({ namespace: '/simulation', cors: { origin: '*' } })
 export class SimulationGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
