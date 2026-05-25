@@ -216,7 +216,7 @@ model SimulationTurn {
   content       String
   audio_url     String?
   created_at    DateTime   @default(now())
-  deliveredAt DateTime? @map("delivered_at")
+  deliveredAt   DateTime?  @map("delivered_at")
   simulation    Simulation @relation(fields: [simulation_id], references: [id], onDelete: Cascade)
 }
 
@@ -228,7 +228,7 @@ model SimulationReport {
   metrics_json    Json?
   personality     Personality
   score           Int?
-  delivered_at DateTime?
+  delivered_at    DateTime?
   simulation_id   String      @unique
   strengths       String[]
   user_id         String
