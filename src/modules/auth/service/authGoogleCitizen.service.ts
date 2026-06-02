@@ -73,9 +73,8 @@ export class AuthenticateGoogleCitizenService {
     }
 
     return {
-      type: 'json',
-      token,
-      data: {
+      type: 'redirect',
+      url: this.buildWebRedirect(token, {
         validated: true,
         sub: citizen.id,
         role: 'Citizen',
@@ -84,7 +83,7 @@ export class AuthenticateGoogleCitizenService {
         loggedWithGoogle: true,
         registerCompleted: !isNew,
         sessionId,
-      },
+      }),
     };
   }
 
@@ -95,5 +94,10 @@ export class AuthenticateGoogleCitizenService {
     });
 
     return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
+  }
+
+  private buildWebRedirect(token: string, data: Record<string, unknown>): string {
+    const encoded = Buffer.from(JSON.stringify({ ...data, securityToken: token })).toString('base64');
+    return `${process.env.FRONTEND_URL}/auth/callback?authData=${encoded}`;
   }
 }
