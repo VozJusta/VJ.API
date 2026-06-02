@@ -64,9 +64,8 @@ export class AuthenticateGoogleLawyerService {
     }
 
     return {
-      type: 'json',
-      token,
-      data: {
+      type: 'redirect',
+      url: this.buildWebRedirect(token, {
         validated: true,
         sub: lawyer.id,
         role: 'Lawyer',
@@ -75,7 +74,7 @@ export class AuthenticateGoogleLawyerService {
         loggedWithGoogle: true,
         registerCompleted: !isNew,
         sessionId,
-      },
+      }),
     };
   }
 
@@ -86,5 +85,10 @@ export class AuthenticateGoogleLawyerService {
     });
 
     return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
+  }
+
+  private buildWebRedirect(token: string, data: Record<string, unknown>): string {
+    const encoded = Buffer.from(JSON.stringify({ ...data, securityToken: token })).toString('base64');
+    return `${process.env.FRONTEND_URL}/auth/callback?authData=${encoded}`;
   }
 }
