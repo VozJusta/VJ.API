@@ -2,5 +2,10 @@ allowBuilds:
   '@nestjs/core': true
   '@openrouter/sdk': true
   '@prisma/engines': true
+  '@scarf/scarf': true
+  es5-ext: true
+  msedge-tts: true
+  msgpackr-extract: true
   prisma: true
+  tesseract.js: true
   unrs-resolver: true
