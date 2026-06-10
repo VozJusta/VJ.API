@@ -110,8 +110,9 @@ export class GoogleController {
     const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
 
     let result: AuthResult;
+    
 
-    if (role === 'lawyer') {
+    if (role.toLocaleLowerCase() === 'lawyer') {
       result =
         await this.authenticateGoogleLawyerService.authenticateGoogleLawyer(
           req.user.email,
