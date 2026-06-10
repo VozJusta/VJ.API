@@ -32,9 +32,7 @@ import { CreateEvidenceService } from '../service/createEvidence.service';
   required: true,
 })
 export class CreateEvidenceController {
-  constructor(
-    private readonly createEvidenceService: CreateEvidenceService
-  ) { }
+  constructor(private readonly createEvidenceService: CreateEvidenceService) {}
   @Post('evidence')
   @UseGuards(AuthTokenGuardAccess)
   @UseInterceptors(FileInterceptor('file'))
@@ -66,6 +64,8 @@ export class CreateEvidenceController {
         id: 'cm123evidence',
         url: 'https://storage.exemplo.com/evidences/evidence_123.pdf',
         public_id: 'evidence_123',
+        ocr_content:
+          'A imagem parece ser um print screen de uma conversa no aplicativo de mensagens instantâneas WhatsApp...',
         citizen_id: 'cm123citizen',
         created_at: '2026-05-13T12:00:00.000Z',
       },
@@ -104,24 +104,27 @@ export class CreateEvidenceController {
       },
     },
   })
-  async createEvidence(@UploadedFile(
-    new ParseFilePipe({
-      validators: [
-        new MaxFileSizeValidator({
-          maxSize: 10 * 1024 * 1024,
-          message: 'O arquivo deve ter no máximo 10MB',
-        }),
-        new FileTypeValidator({
-          fileType: /(jpg|jpeg|png|pdf)$/,
-        }),
-      ],
-    }),
-  )
-  file: Express.Multer.File, @Req() req: RequestUser) {
+  async createEvidence(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 10 * 1024 * 1024,
+            message: 'O arquivo deve ter no máximo 10MB',
+          }),
+          new FileTypeValidator({
+            fileType: /(jpg|jpeg|png|pdf)$/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Req() req: RequestUser,
+  ) {
     return await this.createEvidenceService.createEvidence(
       file,
       req.user.sub,
       req.user.role,
-    )
+    );
   }
 }

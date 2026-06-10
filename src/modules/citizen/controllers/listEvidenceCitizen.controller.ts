@@ -36,6 +36,7 @@ export class ListEvidenceCitizenController {
                 {
                     id: 'cm123evidence',
                     url: 'https://storage.exemplo.com/evidences/evidence_123.pdf',
+                    ocr_content: 'Texto extraído do arquivo de evidência, se aplicável.',
                     public_id: 'evidence_123',
                     citizen_id: 'cm123citizen',
                     created_at: '2026-05-13T12:00:00.000Z',
