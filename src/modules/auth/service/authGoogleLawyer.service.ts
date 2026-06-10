@@ -13,7 +13,7 @@ export class AuthenticateGoogleLawyerService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async authenticateGoogleLawyer(
     email: string,
@@ -34,7 +34,22 @@ export class AuthenticateGoogleLawyerService {
 
       const sessionId = randomUUID();
       lawyer = await this.prisma.lawyer.create({
-        data: { email, full_name: name, session_id: sessionId },
+        data: {
+          email,
+          full_name: name,
+          session_id: sessionId,
+          subscription: {
+            create: {
+              plan: {
+                connect: { id: 'plan_adv_junior' },
+              },
+              subscription_status: 'active',
+              current_period_end: new Date(
+                new Date().setMonth(new Date().getMonth() + 1),
+              ),
+            },
+          },
+        },
       });
     }
 

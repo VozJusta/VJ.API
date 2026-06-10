@@ -13,7 +13,7 @@ export class AuthenticateGoogleCitizenService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async authenticateGoogleCitizen(
     email: string,
@@ -43,6 +43,18 @@ export class AuthenticateGoogleCitizenService {
           email: email,
           full_name: name,
           session_id: sessionId,
+          stripe_customer_id: null,
+          subscription: {
+            create: {
+              plan: {
+                connect: { id: 'plan_free' },
+              },
+              subscription_status: 'active',
+              current_period_end: new Date(
+                new Date().setMonth(new Date().getMonth() + 1),
+              ),
+            },
+          },
         },
       });
     }
