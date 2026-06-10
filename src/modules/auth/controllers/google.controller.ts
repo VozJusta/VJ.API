@@ -94,7 +94,8 @@ export class GoogleController {
     },
   })
   async googleUserCallback(@Req() req, @Res() res: Response) {
-  const [role, origin] = ((req.query.state as string) ?? 'citizen|web').split('|');
+const [role, origin] = ((req.user.state ?? req.query.state) as string ?? 'citizen|web').split('|');
+
   const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
 
   let result: AuthResult;
