@@ -100,6 +100,12 @@ export class GoogleController {
     ).split('|');
     console.log('role resolvido:', role);
     console.log('origin resolvido:', origin);
+    console.log('role value:', role);
+    console.log('role === lawyer:', role === 'lawyer');
+    console.log(
+      'role charCode:',
+      [...role].map((c) => c.charCodeAt(0)),
+    );
 
     const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
 
