@@ -109,7 +109,7 @@ export class PdfService {
 function ensureSpace(doc: PDFKit.PDFDocument, neededH: number, y: number, H: number, footerH: number, L: number, CW: number): number {
   if (y + neededH > H - footerH - 20) {
     doc.addPage();
-    return 30; 
+    return 30;
   }
   return y;
 }
@@ -130,12 +130,12 @@ function section(
   y += 10;
 
   doc.fontSize(10).font("Helvetica");
-  const lineH = doc.currentLineHeight(true) + 3; 
+  const lineH = doc.currentLineHeight(true) + 3;
   const lines = splitIntoLines(doc, content, CW - 24);
   let i = 0;
 
   while (i < lines.length) {
-    const spaceForContent = available - y - 20; 
+    const spaceForContent = available - y - 20;
     const linesFit = Math.max(1, Math.floor(spaceForContent / lineH));
     const chunk = lines.slice(i, i + linesFit).join("\n");
     const chunkH = doc.heightOfString(chunk, { width: CW - 24, lineGap: 3 }) + 20;
@@ -190,11 +190,24 @@ function nextSteps(
   y += 10;
 
   steps.forEach((step, i) => {
+    const number = `${i + 1}`;
+    const numberWidth = doc.widthOfString(number);
+    const numberHeight = doc.currentLineHeight();
+
     const rh = doc.heightOfString(step, { width: CW - 50 }) + 16;
     y = ensureSpace(doc, rh + 6, y, H, footerH, L, CW);
     doc.circle(L + 12, y + rh / 2, 11).fill(C.primary);
-    doc.fillColor(C.white).fontSize(9).font("Helvetica-Bold")
-      .text(`${i + 1}`, L + 7, y + rh / 2 - 6, { width: 12, align: "center" });
+    doc.fillColor(C.white)
+      .fontSize(9)
+      .font("Helvetica-Bold")
+      .text(
+        number,
+        L + 12 - numberWidth / 2,
+        y + rh / 2 - numberHeight / 2,
+        {
+          lineBreak: false,
+        }
+      );
     doc.fillColor(C.text).fontSize(10).font("Helvetica")
       .text(step, L + 32, y + 8, { width: CW - 40, lineGap: 3 });
     y += rh + 6;
