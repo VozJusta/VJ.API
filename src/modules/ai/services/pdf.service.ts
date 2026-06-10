@@ -5,7 +5,7 @@ import { PrismaService } from "@m/prisma/service/prisma.service";
 import * as path from "path";
 import * as fs from "fs";
 
-const LOGO_PATH = path.join(process.cwd(), "src", "modules", "ai", "services", "images", "logo-name.png");
+const LOGO_PATH = path.join(process.cwd(), "src", "modules", "commom", "images", "logo-name.png");
 
 const C = {
   primary: "#1A3557",
