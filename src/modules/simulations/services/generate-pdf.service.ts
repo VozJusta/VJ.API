@@ -56,7 +56,6 @@ export class GeneratePdfService {
     const L  = 50;
     const CW = W - L * 2;
  
-    // ── Cabeçalho ──────────────────────────────────────────────────
     doc.rect(0, 0, W, 110).fill(C.primary);
     doc.rect(0, 0, W, 5).fill(C.accent);
  
@@ -71,7 +70,6 @@ export class GeneratePdfService {
     doc.fillColor(C.accent).fontSize(10).font("Helvetica")
       .text(`Emitido em: ${data.created_at.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}`, tx, 58, { width: tw });
  
-    // ── Seções ─────────────────────────────────────────────────────
     let y = 130;
  
     y = secao(doc, "Participante",          data.participant,                           y, L, CW, H);
@@ -95,7 +93,6 @@ export class GeneratePdfService {
       y = secao(doc, "Métricas",            textoMetricas,                              y, L, CW, H);
     }
  
-    // ── Rodapé em todas as páginas ─────────────────────────────────
     const totalPaginas = doc.bufferedPageRange().count;
     for (let i = 0; i < totalPaginas; i++) {
       doc.switchToPage(i);
@@ -109,7 +106,6 @@ export class GeneratePdfService {
   }
 }
  
-// ── Helpers ────────────────────────────────────────────────────────────────
  
 function garantirEspaco(doc: PDFKit.PDFDocument, alturaMinima: number, y: number, H: number): number {
   if (y + alturaMinima > H - FOOTER_H - 20) {
