@@ -8,12 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthenticateGoogleCitizenService } from '@m/auth/service/authGoogleCitizen.service';
 import { AuthenticateGoogleLawyerService } from '@m/auth/service/authGoogleLawyer.service';
-import {
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from '@m/auth/guard/googleAuth.guard';
 import { SecurityTokenInterceptor } from '@m/auth/interceptors/security-token.interceptor';
 import { Response } from 'express';
@@ -33,7 +28,8 @@ export class GoogleController {
   @ApiQuery({
     name: 'state',
     required: true,
-    description: 'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
+    description:
+      'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
     example: 'citizen|mobile',
   })
   @ApiResponse({
@@ -51,12 +47,14 @@ export class GoogleController {
   @ApiQuery({
     name: 'state',
     required: false,
-    description: 'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
+    description:
+      'Formato: "<role>|<origin>" — ex: "citizen|mobile" ou "lawyer|web"',
     example: 'citizen|mobile',
   })
   @ApiResponse({
     status: 302,
-    description: 'Mobile: redireciona para seuapp://auth?x-security-token=...&registerCompleted=...',
+    description:
+      'Mobile: redireciona para seuapp://auth?x-security-token=...&registerCompleted=...',
   })
   @ApiResponse({
     description: 'Web: retorno de sucesso da autenticação com o Google',
@@ -94,31 +92,47 @@ export class GoogleController {
     },
   })
   async googleUserCallback(@Req() req, @Res() res: Response) {
-  const [role, origin] = ((req.query.state as string) ?? 'citizen|web').split('|');
-  const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
-
-  let result: AuthResult;
-
-  if (role === 'lawyer') {
-    result = await this.authenticateGoogleLawyerService.authenticateGoogleLawyer(
-      req.user.email,
-      `${req.user.firstName} ${req.user.lastName}`,
-      typedOrigin,
+    console.log('req.query.state:', req.query.state);
+    console.log('req.user.state:', req.user?.state);
+    console.log('req.user:', JSON.stringify(req.user));
+    const [role, origin] = (
+      ((req.user.state ?? req.query.state) as string) ?? 'citizen|web'
+    ).split('|');
+    console.log('role resolvido:', role);
+    console.log('origin resolvido:', origin);
+    console.log('role value:', role);
+    console.log('role === lawyer:', role === 'lawyer');
+    console.log(
+      'role charCode:',
+      [...role].map((c) => c.charCodeAt(0)),
     );
-  } else {
-    result = await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
-      req.user.email,
-      `${req.user.firstName} ${req.user.lastName}`,
-      typedOrigin,
-    );
+
+    const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
+
+    let result: AuthResult;
+    
+
+    if (role.toLocaleLowerCase() === 'lawyer') {
+      result =
+        await this.authenticateGoogleLawyerService.authenticateGoogleLawyer(
+          req.user.email,
+          `${req.user.firstName} ${req.user.lastName}`,
+          typedOrigin,
+        );
+    } else {
+      result =
+        await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
+          req.user.email,
+          `${req.user.firstName} ${req.user.lastName}`,
+          typedOrigin,
+        );
+    }
+
+    if (result.type === 'redirect') {
+      return res.redirect(result.url);
+    }
+
+    res.setHeader('x-security-token', result.token);
+    return res.json(result.data);
   }
-
-  if (result.type === 'redirect') {
-    return res.redirect(result.url);
-  }
-
-  res.setHeader('x-security-token', result.token);
-  return res.json(result.data);
-}
-
 }
