@@ -13,7 +13,7 @@ export class AuthenticateGoogleCitizenService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async authenticateGoogleCitizen(
     email: string,
@@ -34,6 +34,12 @@ export class AuthenticateGoogleCitizenService {
       });
 
       if (lawyer) {
+        if (origin === 'mobile') {
+          return {
+            type: 'redirect',
+            url: this.buildDeepLinkError('account_conflict'),
+          };
+        }
         throw new ConflictException('Usuário já cadastrado');
       }
 
@@ -43,6 +49,18 @@ export class AuthenticateGoogleCitizenService {
           email: email,
           full_name: name,
           session_id: sessionId,
+          stripe_customer_id: null,
+          subscription: {
+            create: {
+              plan: {
+                connect: { id: 'plan_free' },
+              },
+              subscription_status: 'active',
+              current_period_end: new Date(
+                new Date().setMonth(new Date().getMonth() + 1),
+              ),
+            },
+          },
         },
       });
     }
@@ -99,5 +117,10 @@ export class AuthenticateGoogleCitizenService {
   private buildWebRedirect(token: string, data: Record<string, unknown>): string {
     const encoded = Buffer.from(JSON.stringify({ ...data, securityToken: token })).toString('base64');
     return `${process.env.FRONTEND_URL}/auth/callback?authData=${encoded}`;
+  }
+
+  private buildDeepLinkError(error: string): string {
+    const params = new URLSearchParams({ error });
+    return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
   }
 }
