@@ -245,10 +245,10 @@ export class LlmService {
         "strengths": ["<ponto forte>"],
         "weaknesses": ["<ponto a melhorar>"],
         "metrics": {
-            "clarity": <0 a 10>,
-            "argumentation": <0 a 10>,
-            "emotional_control": <0 a 10>,
-            "legal_knowledge": <0 a 10>
+            "clareza": <0 a 10>,
+            "argumentação": <0 a 10>,
+            "controle_emocional": <0 a 10>,
+            "conhecimento_jurídico": <0 a 10>
         }
         }`;
 
