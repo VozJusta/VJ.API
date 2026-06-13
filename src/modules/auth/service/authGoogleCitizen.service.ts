@@ -34,6 +34,12 @@ export class AuthenticateGoogleCitizenService {
       });
 
       if (lawyer) {
+        if (origin === 'mobile') {
+          return {
+            type: 'redirect',
+            url: this.buildDeepLinkError('account_conflict'),
+          };
+        }
         throw new ConflictException('Usuário já cadastrado');
       }
 
@@ -111,5 +117,10 @@ export class AuthenticateGoogleCitizenService {
   private buildWebRedirect(token: string, data: Record<string, unknown>): string {
     const encoded = Buffer.from(JSON.stringify({ ...data, securityToken: token })).toString('base64');
     return `${process.env.FRONTEND_URL}/auth/callback?authData=${encoded}`;
+  }
+
+  private buildDeepLinkError(error: string): string {
+    const params = new URLSearchParams({ error });
+    return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
   }
 }
