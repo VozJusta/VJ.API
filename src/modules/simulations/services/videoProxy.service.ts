@@ -4,7 +4,7 @@ import { Response } from 'express';
 @Injectable()
 export class VideoProxyService {
   constructor() {}
-  async videoProxy(url: string, res: Response) {
+  async videoProxy(url: string, sessionHash: string, res: Response) {
     if (!url) return res.status(400).json({ error: 'URL não fornecida' });
 
     const ALLOWED_HOST = 'ooliveiratg-gradio-lipsync-wav2lip.hf.space';
@@ -18,15 +18,16 @@ export class VideoProxyService {
         Referer: 'https://ooliveiratg-gradio-lipsync-wav2lip.hf.space',
         Origin: 'https://ooliveiratg-gradio-lipsync-wav2lip.hf.space',
         Accept: 'video/mp4,video/*,*/*',
+        Cookie: `session_hash=${sessionHash}`,
       },
     });
 
-if (!response.ok) {
-  console.log('HF retornou:', response.status, await response.text());
-  return res
-    .status(response.status)
-    .json({ error: 'Falha ao buscar vídeo' });
-}
+    if (!response.ok) {
+      console.log('HF retornou:', response.status, await response.text());
+      return res
+        .status(response.status)
+        .json({ error: 'Falha ao buscar vídeo' });
+    }
 
     res.setHeader('Content-Type', 'video/mp4');
     res.setHeader('Cache-Control', 'no-cache');

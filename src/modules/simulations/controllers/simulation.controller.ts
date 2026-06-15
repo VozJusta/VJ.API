@@ -130,11 +130,16 @@ export class SimulationController {
 
     res.end(audioBuffer);
   }
-  @Get('video-proxy')
+
   @ApiOperation({ summary: 'Proxy para download de vídeo do Hugging Face' })
   @ApiResponse({ status: 200, description: 'Vídeo MP4 retornado com sucesso' })
   @ApiResponse({ status: 400, description: 'URL não fornecida' })
-  async handle(@Query('url') url: string, @Res() res: Response) {
-    return await this.videoProxy.videoProxy(url, res);
+  @Get('video-proxy')
+  async handle(
+    @Query('url') url: string,
+    @Query('sessionHash') sessionHash: string,
+    @Res() res: Response,
+  ) {
+    return await this.videoProxy.videoProxy(url, sessionHash, res);
   }
 }
