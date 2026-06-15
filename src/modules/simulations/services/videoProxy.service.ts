@@ -21,11 +21,12 @@ export class VideoProxyService {
       },
     });
 
-    if (!response.ok) {
-      return res
-        .status(response.status)
-        .json({ error: 'Falha ao buscar vídeo' });
-    }
+if (!response.ok) {
+  console.log('HF retornou:', response.status, await response.text());
+  return res
+    .status(response.status)
+    .json({ error: 'Falha ao buscar vídeo' });
+}
 
     res.setHeader('Content-Type', 'video/mp4');
     res.setHeader('Cache-Control', 'no-cache');
