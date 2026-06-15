@@ -13,7 +13,7 @@ export class AuthenticateGoogleLawyerService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async authenticateGoogleLawyer(
     email: string,
@@ -29,12 +29,34 @@ export class AuthenticateGoogleLawyerService {
       });
 
       if (citizen) {
-        throw new ConflictException('Usuário já cadastrado');
+        if (origin === 'mobile') {
+          return {
+            type: 'redirect',
+            url: this.buildDeepLinkError('account_conflict'),
+          };
+        }
+        throw new ConflictException("Usuário já cadastrado");
       }
+
 
       const sessionId = randomUUID();
       lawyer = await this.prisma.lawyer.create({
-        data: { email, full_name: name, session_id: sessionId },
+        data: {
+          email,
+          full_name: name,
+          session_id: sessionId,
+          subscription: {
+            create: {
+              plan: {
+                connect: { id: 'plan_adv_junior' },
+              },
+              subscription_status: 'active',
+              current_period_end: new Date(
+                new Date().setMonth(new Date().getMonth() + 1),
+              ),
+            },
+          },
+        },
       });
     }
 
@@ -91,4 +113,10 @@ export class AuthenticateGoogleLawyerService {
     const encoded = Buffer.from(JSON.stringify({ ...data, securityToken: token })).toString('base64');
     return `${process.env.FRONTEND_URL}/auth/callback?authData=${encoded}`;
   }
+
+  private buildDeepLinkError(error: string): string {
+    const params = new URLSearchParams({ error });
+    return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
+  }
 }
+
