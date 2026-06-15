@@ -36,7 +36,6 @@ export class RagService implements OnModuleInit {
             });
         } catch (error) {
             console.log(error);
-
         }
     }
 

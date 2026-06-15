@@ -13,6 +13,7 @@ import { CreateSimulationService } from './services/create-simulation.service';
 import { SimulationController } from './controllers/simulation.controller';
 import { GeneratePdfController } from './controllers/generate-pdf.controller';
 import { CreateSimulationController } from './controllers/create-simulation.controller';
+import { VideoProxyService } from './services/videoProxy.service';
 
 @Global()
 @Module({
@@ -32,6 +33,7 @@ import { CreateSimulationController } from './controllers/create-simulation.cont
     GeneratePdfService,
     SimulationChatService,
     CreateSimulationService,
+    VideoProxyService,
   ],
   controllers: [
     SimulationController,

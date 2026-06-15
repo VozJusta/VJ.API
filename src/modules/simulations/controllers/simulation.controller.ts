@@ -5,6 +5,8 @@ import {
   Res,
   HttpCode,
   UseGuards,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -16,7 +18,7 @@ import {
   SynthesizeDto,
 } from '@m/simulations/dto/simulation.dto';
 import { SimulationService } from '@m/simulations/services/simulation.service';
-
+import { VideoProxyService } from '../services/videoProxy.service';
 
 @ApiTags('Simulation')
 @UseGuards(AuthTokenGuardAccess)
@@ -26,6 +28,7 @@ export class SimulationController {
     private readonly tts: TtsService,
     private readonly simulationService: SimulationService,
     private readonly simulationChat: SimulationChatService,
+    private readonly videoProxy: VideoProxyService,
   ) {}
 
   @Post('chat')
@@ -126,5 +129,12 @@ export class SimulationController {
     });
 
     res.end(audioBuffer);
+  }
+  @Get('video-proxy')
+  @ApiOperation({ summary: 'Proxy para download de vídeo do Hugging Face' })
+  @ApiResponse({ status: 200, description: 'Vídeo MP4 retornado com sucesso' })
+  @ApiResponse({ status: 400, description: 'URL não fornecida' })
+  async handle(@Query('url') url: string, @Res() res: Response) {
+    return await this.videoProxy.videoProxy(url, res);
   }
 }

@@ -92,20 +92,9 @@ export class GoogleController {
     },
   })
   async googleUserCallback(@Req() req, @Res() res: Response) {
-    console.log('req.query.state:', req.query.state);
-    console.log('req.user.state:', req.user?.state);
-    console.log('req.user:', JSON.stringify(req.user));
     const [role, origin] = (
       ((req.user.state ?? req.query.state) as string) ?? 'citizen|web'
     ).split('|');
-    console.log('role resolvido:', role);
-    console.log('origin resolvido:', origin);
-    console.log('role value:', role);
-    console.log('role === lawyer:', role === 'lawyer');
-    console.log(
-      'role charCode:',
-      [...role].map((c) => c.charCodeAt(0)),
-    );
 
     const typedOrigin = (origin ?? 'web') as 'web' | 'mobile';
 
@@ -121,7 +110,7 @@ export class GoogleController {
         );
     } else {
       result =
-        await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(
+        await this.authenticateGoogleCitizenService.authenticateGoogleCitizen(  
           req.user.email,
           `${req.user.firstName} ${req.user.lastName}`,
           typedOrigin,
