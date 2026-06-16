@@ -40,7 +40,11 @@ export class AuthenticateGoogleCitizenService {
             url: this.buildDeepLinkError('account_conflict'),
           };
         }
-        throw new ConflictException('Usuário já cadastrado');
+        return {
+          type: 'redirect',
+          url: this.buildWebRedirectError('account_conflict'),
+        };
+
       }
 
       const sessionId = randomUUID();
@@ -122,5 +126,9 @@ export class AuthenticateGoogleCitizenService {
   private buildDeepLinkError(error: string): string {
     const params = new URLSearchParams({ error });
     return `${process.env.DEEPLINK_URL}://auth?${params.toString()}`;
+  }
+
+  private buildWebRedirectError(error: string): string {
+    return `${process.env.FRONTEND_URL}/auth/callback?error=${error}`;
   }
 }
