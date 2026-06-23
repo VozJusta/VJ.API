@@ -12,12 +12,7 @@ export class EmbeddingsService {
                 'https://openrouter.ai/api/v1/embeddings',
                 {
                     model: 'nvidia/llama-nemotron-embed-vl-1b-v2:free',
-                    input: [
-                        {
-                            type: 'text', 
-                            text: text,
-                        }
-                    ],
+                    input: text,
 
                 },
                 {
