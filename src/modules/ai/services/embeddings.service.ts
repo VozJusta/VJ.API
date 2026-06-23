@@ -11,7 +11,7 @@ export class EmbeddingsService {
             this.httpService.post(
                 'https://openrouter.ai/api/v1/embeddings',
                 {
-                    model: 'nvidia/llama-nemotron-embed-vl-1b-v2:free',
+                    model: 'openai/text-embedding-3-small',
                     input: text,
 
                 },

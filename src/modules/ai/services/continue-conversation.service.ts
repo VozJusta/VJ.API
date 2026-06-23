@@ -65,5 +65,6 @@ export class ContinueConversationService {
             question: questionOrAck,
             finished: false,
         };
+
     }
 }
