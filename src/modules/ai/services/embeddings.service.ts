@@ -9,14 +9,14 @@ export class EmbeddingsService {
     async generate(text: string): Promise<number[]> {
         const response = await firstValueFrom(
             this.httpService.post(
-                'https://api.openai.com/v1/embeddings',
+                'https://openrouter.ai/api/v1/embeddings',
                 {
-                    model: 'text-embedding-3-small',
+                    model: 'nvidia/llama-nemotron-embed-vl-1b-v2:free',
                     input: text,
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`
                     }
                 }
             )
